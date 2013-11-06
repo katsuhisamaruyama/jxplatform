@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Jtool
+Bundle-Name: jxplatform
 Bundle-SymbolicName: org.jtool.eclipse;singleton:=true
 Bundle-Version: 1.1
 Bundle-Activator: org.jtool.eclipse.Activator
@@ -39,6 +39,4 @@ Export-Package: org.jtool.eclipse;uses:="org.eclipse.ui.plugin,org.osgi.framewor
    org.jtool.eclipse.model.graph,
    org.jtool.eclipse.model.cfg",
  org.jtool.eclipse.model.pdg.internal
-Bundle-Vendor: FSE
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7,
- JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
