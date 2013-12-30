@@ -42,11 +42,6 @@ public class JavaModelVisitor extends ASTVisitor {
     protected JavaFile jfile;
     
     /**
-     * A collection of classes in a file.
-     */
-    private List<JavaClass> jclasses = new ArrayList<JavaClass>();
-    
-    /**
      * A stack which stores a Java classes.
      */
     private Stack<JavaClass> classStack = new Stack<JavaClass>();
@@ -81,11 +76,14 @@ public class JavaModelVisitor extends ASTVisitor {
     }
     
     /**
-     * Obtains Java classes containing their information for parsing. 
-     * @return a collection of information on the parsed Java classes
+     * Closes this visitor.
      */
-    public List<JavaClass> getJavaClasses() {
-        return jclasses;
+    public void close() {
+        classStack.clear();
+        classStack = null;
+        
+        jfile = null;
+        packageNode = null;
     }
     
     /**
@@ -138,8 +136,6 @@ public class JavaModelVisitor extends ASTVisitor {
         JavaClass jclass = JavaClass.create(node, jpackage);
         jclass.setJavaFile(jfile);
         
-        jclasses.add(jclass);
-        
         if (!classStack.empty()) {
             JavaClass jc = classStack.peek();
             jc.addJavaInnerClass(jclass);
@@ -167,8 +163,6 @@ public class JavaModelVisitor extends ASTVisitor {
         
         JavaClass jclass = JavaClass.create(node, jpackage);
         jclass.setJavaFile(jfile);
-        
-        jclasses.add(jclass);
         
         if (!classStack.empty()) {
             JavaClass jc = classStack.peek();

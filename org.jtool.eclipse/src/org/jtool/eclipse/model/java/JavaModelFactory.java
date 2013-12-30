@@ -170,6 +170,7 @@ public class JavaModelFactory {
         if (cu != null) {
             JavaModelVisitor visitor = new JavaModelVisitor(icu, jproject);
             cu.accept(visitor);
+            visitor.close();
         }
     }
     
@@ -211,6 +212,7 @@ public class JavaModelFactory {
         if (cu != null) {
             JavaModelVisitor visitor = new JavaModelVisitor(path, jproject);
             cu.accept(visitor);
+            visitor.close();
         }
     }
     
