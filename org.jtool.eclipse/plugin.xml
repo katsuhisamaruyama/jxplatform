@@ -11,7 +11,7 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+            locationURI="popup:org.eclipse.ui.popup.any">
          <separator
                name="org.jtool.eclipse.separator"
                visible="true">
@@ -23,9 +23,9 @@
             <visibleWhen
                   checkEnabled="false">
                <with
-                     variable="selection">
+                     variable="activeMenuSelection">
                   <iterate
-                        operator="or">
+                        ifEmpty="false">
                      <adapt
                            type="org.eclipse.core.resources.IProject">
                      </adapt>

@@ -29,7 +29,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
