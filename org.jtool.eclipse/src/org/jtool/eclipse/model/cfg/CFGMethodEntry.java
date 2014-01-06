@@ -155,7 +155,7 @@ public class CFGMethodEntry extends CFGEntry {
      * @param pos the ordinal number of the formal-out node to be retrieved
      * @return the found formal-out node, <code>null</code> if no parameter was found
      */
-    public CFGParameter getFormalOut(int pos) {
+    public CFGParameter getActualOut(int pos) {
         return formalOuts.get(pos);
     }
     

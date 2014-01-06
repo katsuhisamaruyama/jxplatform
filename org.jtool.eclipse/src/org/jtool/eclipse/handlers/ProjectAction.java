@@ -5,8 +5,8 @@
 package org.jtool.eclipse.handlers;
 
 import org.jtool.eclipse.model.java.JavaModelFactory;
-import org.jtool.eclipse.model.cfg.CFGFactory;
-import org.jtool.eclipse.model.pdg.PDGFactory;
+import org.jtool.eclipse.model.cfg.internal.CFGFactory;
+import org.jtool.eclipse.model.pdg.internal.PDGFactory;
 import org.jtool.eclipse.io.FileWriter;
 import org.jtool.eclipse.io.JFile;
 import org.jtool.eclipse.model.java.JavaClass;
@@ -29,7 +29,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -73,11 +72,11 @@ public class ProjectAction extends AbstractHandler {
             IJavaProject project = null;
             Object elem = structured.getFirstElement();
             if (elem instanceof IJavaProject) {
-                project = (IJavaProject)elem;
+            	project = (IJavaProject)elem;
             } else if (elem instanceof IProject) {
-                project = (IJavaProject)JavaCore.create((IProject)elem);
+            	project = (IJavaProject)JavaCore.create((IProject)elem);
             }
-            
+            	
             if (project != null) {
                 factory = new JavaModelFactory(project);
                 JavaProject jproject = factory.create();

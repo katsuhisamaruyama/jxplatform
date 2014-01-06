@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
  */
 public class ControlFlow extends GraphEdge {
     
-    static Logger logger = Logger.getLogger(ControlFlow.class.getName());
+    protected static Logger logger = Logger.getLogger(ControlFlow.class.getName());
     
     /**
      * A CFG node that carries a loop-back edge if it exists.

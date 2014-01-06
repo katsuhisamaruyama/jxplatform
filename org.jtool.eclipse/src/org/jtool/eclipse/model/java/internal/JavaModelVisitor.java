@@ -21,8 +21,11 @@ import org.jtool.eclipse.model.java.JavaFile;
 import org.jtool.eclipse.model.java.JavaMethod;
 import org.jtool.eclipse.model.java.JavaPackage;
 import org.jtool.eclipse.model.java.JavaProject;
+
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Stack;
+
 import org.apache.log4j.Logger;
 
 /**

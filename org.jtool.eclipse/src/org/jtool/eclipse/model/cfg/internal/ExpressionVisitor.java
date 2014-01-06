@@ -6,7 +6,6 @@ package org.jtool.eclipse.model.cfg.internal;
 
 import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.cfg.CFGEntry;
-import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.cfg.CFGFieldEntry;
 import org.jtool.eclipse.model.cfg.CFGMethodEntry;
 import org.jtool.eclipse.model.cfg.CFGMethodInvocation;
@@ -56,11 +55,9 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Stack;
-
 import org.apache.log4j.Logger;
 
 /**

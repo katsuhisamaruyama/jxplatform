@@ -4,6 +4,7 @@
 
 package org.jtool.eclipse.model.cfg;
 
+import org.jtool.eclipse.model.cfg.internal.CFGFactory;
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaMethod;
 import org.jtool.eclipse.model.java.JavaMethodInvocation;
@@ -62,7 +63,8 @@ public class CFGMethodInvocation extends CFGStatement {
      * @return the name of the called method
      */
     public String getName() {
-        return getJavaMethodInvocation().getName();
+        JavaMethodInvocation jmc = (JavaMethodInvocation)getJavaElement();
+        return jmc.getName();
     }
     
     /**
@@ -70,7 +72,8 @@ public class CFGMethodInvocation extends CFGStatement {
      * @return the return type of the called method
      */
     public String getType() {
-        return getJavaMethodInvocation().getType();
+        JavaMethodInvocation jmc = (JavaMethodInvocation)getJavaElement();
+        return jmc.getType();
     }
     
     /**

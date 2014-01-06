@@ -2,19 +2,16 @@
  *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
  */
 
-package org.jtool.eclipse.model.cfg;
+package org.jtool.eclipse.model.cfg.internal;
 
-import org.jtool.eclipse.model.cfg.internal.CFGFieldFactory;
-import org.jtool.eclipse.model.cfg.internal.CFGMethodFactory;
+import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.graph.GraphNodeIdFactory;
 import org.jtool.eclipse.model.graph.GraphEdgeIdFactory;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaField;
 import org.jtool.eclipse.model.java.JavaMethod;
-
 import java.util.Set;
 import java.util.HashSet;
-
 import org.apache.log4j.Logger;
 
 /**

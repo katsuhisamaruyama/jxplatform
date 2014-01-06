@@ -4,8 +4,6 @@
 
 package org.jtool.eclipse.model.cfg;
 
-import java.util.List;
-
 import org.jtool.eclipse.model.cfg.internal.CFGDefUseNode;
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaExpression;
@@ -65,74 +63,6 @@ public class CFGStatement extends CFGDefUseNode {
      */
     public JavaStatement getJavaStatement() {
         return (JavaStatement)getJavaElement();
-    }
-    
-    /**
-     * Returns the defined variables of this node.
-     * @return the list of the defined variables
-     */
-    public List<JavaVariableAccess> getDefVariables() {
-        return super.getDefVariables();
-    }
-    
-    /**
-     * Returns the used variables of this node.
-     * @return the list of the used variables
-     */
-    public List<JavaVariableAccess> getUseVariables() {
-        return super.getUseVariables();
-    }
-    
-    /**
-     * Tests if the defined variables contains a variable
-     * @param jv the variable to be checked
-     * @return <code>true</code> if the variable is contained, otherwise <code>false</code>
-     */
-    public boolean defineVariable(JavaVariableAccess jv) {
-        return super.defineVariable(jv);
-    }
-    
-    /**
-     * Tests if the used variables contains a given variable
-     * @param jv the variable to be checked
-     * @return <code>true</code> if the variable is contained, otherwise <code>false</code>
-     */
-    public boolean useVariable(JavaVariableAccess jv) {
-        return super.useVariable(jv);
-    }
-    
-    /**
-     * Tests if the defined variables contains any variable
-     * @return <code>true</code> if the list of the defined variables is not empty, otherwise <code>false</code>
-     */
-    public boolean hasDefVariable() {
-        return super.hasDefVariable();
-    }
-    
-    /**
-     * Tests if the used variables contains any variable
-     * @return <code>true</code> if the list of the used variables is not empty, otherwise <code>false</code>
-     */
-    public boolean hasUseVariable() {
-        return super.hasUseVariable();
-    }
-    
-    /**
-     * Returns the defined variable with a given name.
-     * @param name the name of the variable to be retrieved
-     * @return The found variable, or <code>null</code> if none
-     */
-    public JavaVariableAccess getDefVariable(String name) {
-        return super.getDefVariable(name);
-    }
-    
-    /**
-     * Returns the used variable with a given name.
-     * @param name the name of a variable to be retrieved
-     * @return the found variable, or <code>null</code> if none
-     */
-    public JavaVariableAccess getUseVariable(String name) {
-        return super.getUseVariable(name);
     }
     
     /**

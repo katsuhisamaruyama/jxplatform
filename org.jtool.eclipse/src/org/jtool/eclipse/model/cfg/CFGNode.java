@@ -4,6 +4,7 @@
 
 package org.jtool.eclipse.model.cfg;
 
+import org.jtool.eclipse.model.cfg.internal.BasicBlock;
 import org.jtool.eclipse.model.graph.GraphElementSet;
 import org.jtool.eclipse.model.graph.GraphEdge;
 import org.jtool.eclipse.model.graph.GraphNode;

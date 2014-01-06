@@ -7,6 +7,7 @@ package org.jtool.eclipse.model.pdg;
 import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.cfg.CFGEntry;
 import org.jtool.eclipse.model.graph.Graph;
+import org.jtool.eclipse.model.pdg.internal.PDGFactory;
 import org.apache.log4j.Logger;
 
 /**
