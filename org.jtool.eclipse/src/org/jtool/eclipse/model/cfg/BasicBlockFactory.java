@@ -2,11 +2,8 @@
  *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
  */
 
-package org.jtool.eclipse.model.cfg.internal;
+package org.jtool.eclipse.model.cfg;
 
-import org.jtool.eclipse.model.cfg.CFG;
-import org.jtool.eclipse.model.cfg.CFGNode;
-import org.jtool.eclipse.model.cfg.ControlFlow;
 
 /**
  * Calculates and stores basic blocks of a CFG.

@@ -2,9 +2,8 @@
  *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
  */
 
-package org.jtool.eclipse.model.cfg.internal;
+package org.jtool.eclipse.model.cfg;
 
-import org.jtool.eclipse.model.cfg.CFGNode;
 import org.jtool.eclipse.model.graph.GraphElementSet;
 import org.apache.log4j.Logger;
 
