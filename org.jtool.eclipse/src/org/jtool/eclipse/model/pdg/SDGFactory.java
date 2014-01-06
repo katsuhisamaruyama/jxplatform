@@ -2,7 +2,7 @@
  *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
  */
 
-package org.jtool.eclipse.model.pdg.internal;
+package org.jtool.eclipse.model.pdg;
 
 import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.cfg.CFGMethodEntry;
@@ -11,10 +11,6 @@ import org.jtool.eclipse.model.cfg.CFGNode;
 import org.jtool.eclipse.model.cfg.CFGParameter;
 import org.jtool.eclipse.model.graph.GraphElementSet;
 import org.jtool.eclipse.model.graph.GraphNodeSort;
-import org.jtool.eclipse.model.pdg.PDG;
-import org.jtool.eclipse.model.pdg.PDGNode;
-import org.jtool.eclipse.model.pdg.ParameterEdge;
-import org.jtool.eclipse.model.pdg.SDG;
 
 import java.util.List;
 import java.util.ArrayList;

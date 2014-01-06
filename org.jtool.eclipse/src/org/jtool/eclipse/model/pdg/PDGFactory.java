@@ -2,7 +2,7 @@
  *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
  */
 
-package org.jtool.eclipse.model.pdg.internal;
+package org.jtool.eclipse.model.pdg;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,19 +10,15 @@ import java.util.Set;
 import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.cfg.CFGClassEntry;
 import org.jtool.eclipse.model.cfg.CFGEntry;
+import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.cfg.CFGNode;
 import org.jtool.eclipse.model.cfg.CFGStatement;
-import org.jtool.eclipse.model.cfg.internal.CFGFactory;
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaField;
 import org.jtool.eclipse.model.java.JavaMethod;
-import org.jtool.eclipse.model.pdg.ClDG;
-import org.jtool.eclipse.model.pdg.PDG;
-import org.jtool.eclipse.model.pdg.PDGClassEntry;
-import org.jtool.eclipse.model.pdg.PDGEntry;
-import org.jtool.eclipse.model.pdg.PDGNode;
-import org.jtool.eclipse.model.pdg.PDGStatement;
+import org.jtool.eclipse.model.pdg.internal.CDFactory;
+import org.jtool.eclipse.model.pdg.internal.DDFactory;
 import org.apache.log4j.Logger;
 
 /**
