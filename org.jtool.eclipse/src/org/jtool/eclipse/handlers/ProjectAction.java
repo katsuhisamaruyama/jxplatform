@@ -8,7 +8,7 @@ import org.jtool.eclipse.model.java.JavaModelFactory;
 import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.pdg.PDGFactory;
 import org.jtool.eclipse.io.FileWriter;
-import org.jtool.eclipse.io.JFile;
+import org.jtool.eclipse.io.JtoolFile;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaProject;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -153,7 +153,7 @@ public class ProjectAction extends AbstractHandler {
         try { 
             String text = jc.toString();
             
-            JFile savefile = new JFile(filename);
+            JtoolFile savefile = new JtoolFile(filename);
             savefile.makeDir();
             FileWriter.write(savefile, text);
             
