@@ -16,10 +16,12 @@ public enum GraphEdgeSort {
     methodCall,                      // Flow representing the call to a method
     parameterFlow,                   // Flow representing the relationship between a class/method and its parameter
     
+    controlDependence,               // Control dependence in general
     trueControlDependence,           // Control dependence with respect to a true-branch flow
     falseControlDependence,          // Control dependence with respect to a false-branch flow
     fallControlDependence,           // Control dependence with respect to a fall-through flow
     
+    dataDependence,                  // Data dependence in dgeneral
     loopIndependentDefUseDependence, // Data dependence with respect to a loop-independent variable
     loopCarriedDefUseDependence,     // Data dependence with respect to a loop-carried variable
     defOrderDependence,              // Data dependence based on the order of definitions of variables
