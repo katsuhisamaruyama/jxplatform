@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.io;
@@ -10,14 +10,14 @@ import java.io.File;
  * An object that represents a file or directory.
  * @author Katsuhisa Maruyama
  */
-public class JFile extends File {
+public class JtoolFile extends File {
     private static final long serialVersionUID = -2380955639766453711L;
     
     /**
      * Creates a file or directory denoted by a given path name.
      * @param name the path name of a file or directory
      */
-    public JFile(String name) {
+    public JtoolFile(String name) {
         super(name);
     }
     
@@ -28,7 +28,7 @@ public class JFile extends File {
         int sep = getPath().lastIndexOf(File.separator);
         if (sep != -1) {
             String dirname = getPath().substring(0, sep);
-            JFile file = new JFile(dirname);
+            JtoolFile file = new JtoolFile(dirname);
             file.mkdirs();
         }
     }
@@ -41,7 +41,7 @@ public class JFile extends File {
         if (isDirectory()) {
             String[] names = list();
             for (int i = 0; i < names.length; i++) {
-                JFile file = new JFile(getPath() + File.separator + names[i]);
+                JtoolFile file = new JtoolFile(getPath() + File.separator + names[i]);
                 file.delete();
             }
         }
