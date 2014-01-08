@@ -76,7 +76,6 @@ public class JavaVariableAccess extends JavaExpression {
         isField = binding.isField();
         isEnumConstant = binding.isEnumConstant();
         
-        
         if (isField || isEnumConstant) {
             ITypeBinding tbinding = binding.getDeclaringClass();
             if (tbinding != null) {
