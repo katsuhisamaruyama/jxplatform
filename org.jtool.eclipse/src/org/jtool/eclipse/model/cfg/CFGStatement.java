@@ -13,7 +13,7 @@ import org.jtool.eclipse.model.java.JavaStatement;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
 
 /**
- * An expression node of a CFG.
+ * A statement node of a CFG.
  * @author Katsuhisa Maruyama
  */
 public class CFGStatement extends CFGDefUseNode {

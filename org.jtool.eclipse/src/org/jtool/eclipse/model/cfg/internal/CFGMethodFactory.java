@@ -169,7 +169,7 @@ public class CFGMethodFactory {
             
             JavaVariableAccess jvin = new JavaSpecialVariable("$" + jm.getName(), jm.getType(), jm);
             foutNode.addUseVariable(jvin);
-        
+            
             return foutNode;
         }
         

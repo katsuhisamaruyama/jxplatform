@@ -9,7 +9,7 @@ import org.jtool.eclipse.model.cfg.CFGEntry;
 import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.cfg.CFGFieldEntry;
 import org.jtool.eclipse.model.cfg.CFGMethodEntry;
-import org.jtool.eclipse.model.cfg.CFGMethodInvocation;
+import org.jtool.eclipse.model.cfg.CFGMethodCall;
 import org.jtool.eclipse.model.cfg.CFGNode;
 import org.jtool.eclipse.model.cfg.CFGParameter;
 import org.jtool.eclipse.model.cfg.CFGStatement;
@@ -514,7 +514,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         JavaExpression jexpr = new JavaExpression(node);
         JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, jexpr.getDeclaringJavaMethod(node));
-        CFGMethodInvocation invNode = new CFGMethodInvocation(jinv, GraphNodeSort.methodCall);
+        CFGMethodCall invNode = new CFGMethodCall(jinv, GraphNodeSort.methodCall);
         
         boolean createActual = (jinv.getJavaMethod() != null && inAssignment && createActualNodes);
         
@@ -558,7 +558,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         JavaExpression jexpr = new JavaExpression(node);
         JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, jexpr.getDeclaringJavaMethod(node));
-        CFGMethodInvocation invNode = new CFGMethodInvocation(jinv, GraphNodeSort.methodCall);
+        CFGMethodCall invNode = new CFGMethodCall(jinv, GraphNodeSort.methodCall);
         
         boolean createActual = (jinv.getJavaMethod() != null && inAssignment && createActualNodes);
         
@@ -595,7 +595,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         JavaExpression jexpr = new JavaExpression(node);
         JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, jexpr.getDeclaringJavaMethod(node));
-        CFGMethodInvocation invNode = new CFGMethodInvocation(jinv, GraphNodeSort.constructorCall);
+        CFGMethodCall invNode = new CFGMethodCall(jinv, GraphNodeSort.constructorCall);
         
         mergeActualIn(invNode, node.arguments());
         
@@ -621,7 +621,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         JavaExpression jexpr = new JavaExpression(node);
         JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, jexpr.getDeclaringJavaMethod(node));
-        CFGMethodInvocation invNode = new CFGMethodInvocation(jinv, GraphNodeSort.constructorCall);
+        CFGMethodCall invNode = new CFGMethodCall(jinv, GraphNodeSort.constructorCall);
         
         mergeActualIn(invNode, node.arguments());
         
@@ -647,7 +647,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         JavaExpression jexpr = new JavaExpression(node);
         JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, jexpr.getDeclaringJavaMethod(node));
-        CFGMethodInvocation invNode = new CFGMethodInvocation(jinv, GraphNodeSort.instanceCreation);
+        CFGMethodCall invNode = new CFGMethodCall(jinv, GraphNodeSort.instanceCreation);
         
         boolean createActual = (jinv.getJavaMethod() != null && inAssignment && createActualNodes);
         
@@ -683,7 +683,7 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param invNode the CFG node for the method invocation 
      * @param arguments the arguments of the method invocation
      */
-    private void createArguments(JavaMethodInvocation jinv, CFGMethodInvocation invNode, List<Expression> arguments) {
+    private void createArguments(JavaMethodInvocation jinv, CFGMethodCall invNode, List<Expression> arguments) {
         int ordinal = 0;
         for (Expression argument : arguments) {
             createActualIn(jinv, invNode, argument, ordinal);
@@ -698,7 +698,7 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param argument the argument in the calling method
      * @param ordinal the ordinal number indicating where a specified parameter is located in a parameter list containing it
      */
-    private void createActualIn(JavaMethodInvocation jinv, CFGMethodInvocation invNode, Expression argument, int ordinal) {
+    private void createActualIn(JavaMethodInvocation jinv, CFGMethodCall invNode, Expression argument, int ordinal) {
         JavaExpression jarg = new JavaExpression(argument);
         CFGParameter ainNode = new CFGParameter(jarg, GraphNodeSort.actualIn, ordinal);
         ainNode.setBelongNode(invNode);
@@ -728,7 +728,7 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param jinv the calling method
      * @param invNode the CFG node for the method call
      */
-    private void createActualOut(JavaExpression jexpr, JavaMethodInvocation jinv, CFGMethodInvocation invNode) {
+    private void createActualOut(JavaExpression jexpr, JavaMethodInvocation jinv, CFGMethodCall invNode) {
         CFGParameter aoutNode = new CFGParameter(jexpr, GraphNodeSort.actualOut, 0); 
         aoutNode.setBelongNode(invNode);
         invNode.addActualOut(aoutNode);
@@ -754,7 +754,7 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param invNode the CFG node for the method invocation 
      * @param arguments the arguments of the method invocation
      */
-    private void mergeActualIn(CFGMethodInvocation invNode, List<Expression> arguments) {
+    private void mergeActualIn(CFGMethodCall invNode, List<Expression> arguments) {
         for (Expression argument : arguments) {
             analysingDefinedVariables.push(false);
             argument.accept(this);
@@ -772,7 +772,7 @@ public class ExpressionVisitor extends ASTVisitor {
      * Merges information on an actual-out parameter into the method invocation node.
      * @param invNode the CFG node for the method invocation 
      */
-    private void mergeActualOut(CFGMethodInvocation invNode) {
+    private void mergeActualOut(CFGMethodCall invNode) {
         CFGEntry entry = cfg.getStartNode();
         if (entry.isMethodEntry()) {
             CFGMethodEntry mentry = (CFGMethodEntry)entry;

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.cfg;
@@ -16,27 +16,27 @@ import java.util.List;
  * A node that represents a method call node within CFGs.
  * @author Katsuhisa Maruyama
  */
-public class CFGMethodInvocation extends CFGStatement {
+public class CFGMethodCall extends CFGStatement {
     
     /**
-     * The collection of actual-in node <code>CFGParameter</code> of this method.
+     * The collection of actual-in nodes of this method call.
      */
     private List<CFGParameter> actualIns = new ArrayList<CFGParameter>();
     
     /**
-     * The collection of actual-out node <code>CFGParameter</code> of this method.
+     * The collection of actual-out nodes of this method call.
      */
     private List<CFGParameter> actualOuts = new ArrayList<CFGParameter>();
     
     /**
-     * The primary variable for this method call
+     * The primary variable for this method call.
      */
     private JavaVariableAccess primary = null;
     
     /**
      * Creates a new, empty object.
      */
-    protected CFGMethodInvocation() {
+    protected CFGMethodCall() {
         super();
     }
     
@@ -44,7 +44,7 @@ public class CFGMethodInvocation extends CFGStatement {
      * Creates a new node when the corresponding Java element does not exist.
      * @param sort the sort of this node
      */
-    protected CFGMethodInvocation(GraphNodeSort sort) {
+    protected CFGMethodCall(GraphNodeSort sort) {
         super(sort);
     }
     
@@ -53,7 +53,7 @@ public class CFGMethodInvocation extends CFGStatement {
      * @param jmc the Java statement for the method call
      * @param sort the sort of this node
      */
-    public CFGMethodInvocation(JavaMethodInvocation jelem, GraphNodeSort sort) {
+    public CFGMethodCall(JavaMethodInvocation jelem, GraphNodeSort sort) {
         super(jelem, sort);
     }
     
@@ -240,8 +240,8 @@ public class CFGMethodInvocation extends CFGStatement {
      * Creates a clone of this node.
      * @return the clone of this node
      */
-    public CFGMethodInvocation clone() {
-        CFGMethodInvocation cloneNode = new CFGMethodInvocation(getJavaMethodInvocation(), getSort());
+    public CFGMethodCall clone() {
+        CFGMethodCall cloneNode = new CFGMethodCall(getJavaMethodInvocation(), getSort());
         clone(cloneNode);
         return cloneNode;
     }
@@ -250,7 +250,7 @@ public class CFGMethodInvocation extends CFGStatement {
      * Copies all the attributes of this node into a given clone.
      * @param cloneNode the clone of this node
      */
-    protected void clone(CFGMethodInvocation cloneNode) {
+    protected void clone(CFGMethodCall cloneNode) {
         super.clone(cloneNode);
         cloneNode.setActualIns(getActualIns());
         cloneNode.setActualOuts(getActualOuts());

@@ -555,7 +555,7 @@ public class CFGNode extends GraphNode {
      */
     public boolean isNormalStatement() {
         return this instanceof CFGStatement ||
-               this instanceof CFGMethodInvocation;
+               this instanceof CFGMethodCall;
     }
     
     /**
@@ -564,7 +564,7 @@ public class CFGNode extends GraphNode {
      */
     public boolean isStatement() {
         return this instanceof CFGStatement ||
-               this instanceof CFGMethodInvocation ||
+               this instanceof CFGMethodCall ||
                this instanceof CFGParameter;
     }
     

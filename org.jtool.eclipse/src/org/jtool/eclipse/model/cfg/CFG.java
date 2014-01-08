@@ -8,11 +8,9 @@ import org.jtool.eclipse.model.graph.Graph;
 import org.jtool.eclipse.model.graph.GraphElementSet;
 import org.jtool.eclipse.model.java.JavaField;
 import org.jtool.eclipse.model.java.JavaMethod;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 
 /**

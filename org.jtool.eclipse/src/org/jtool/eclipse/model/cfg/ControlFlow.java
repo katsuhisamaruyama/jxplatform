@@ -170,7 +170,7 @@ public class ControlFlow extends GraphEdge {
     
     /**
      * Copies all the attributes of this edge into a given clone.
-     * @param cloneNode the clone of this edge
+     * @param cloneEdge the clone of this edge
      */
     protected void clone(ControlFlow cloneEdge) {
         super.clone(cloneEdge);

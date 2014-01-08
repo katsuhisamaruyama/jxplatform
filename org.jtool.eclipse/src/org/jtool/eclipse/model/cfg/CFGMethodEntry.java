@@ -16,12 +16,12 @@ import java.util.List;
 public class CFGMethodEntry extends CFGEntry {
     
      /**
-     * The collection of formal-in node <code>CFGParameter</code> of this method.
+     * The collection of formal-in nodes of this method.
      */
     private List<CFGParameter> formalIns = new ArrayList<CFGParameter>();
     
     /**
-     * The collection of formal-out node <code>CFGParameter</code> of this method.
+     * The collection of formal-out nodes of this method.
      */
     private List<CFGParameter> formalOuts = new ArrayList<CFGParameter>();
     
