@@ -18,6 +18,11 @@ import java.util.HashSet;
 public class JavaProject {
     
     /**
+     * The cache for all objects of classes.
+     */
+    protected static HashMap<String, JavaProject> cache = new HashMap<String, JavaProject>();
+    
+    /**
      * The collection of all files.
      */
     private Map<String, JavaFile> files = new HashMap<String, JavaFile>();
@@ -87,9 +92,49 @@ public class JavaProject {
      */
     private static JavaProject create(IJavaProject project, String name, String dir) {
         if (dir != null) {
-            return new JavaProject(project, name, dir);
+            JavaProject jproj = cache.get(name);
+            if (jproj != null) {
+                return jproj;
+            }
+            
+            jproj = new JavaProject(project, name, dir);
+            cache.put(name, jproj);
+            return jproj;
         }
         return null;
+    }
+    
+    /**
+     * Obtains an object that will store information about a project with a given name.
+     * @param name the name of the project to be retrieved
+     * @return the found object
+     */
+    public static JavaProject getJavaProject(String name) {
+        return cache.get(name);
+    }
+    
+    /**
+     * Removes a file with a given name and its related files.
+     * @param pathname the name of the file to be removed
+     */
+    public void removeJavaFile(String pathname) {
+        for (JavaFile jf : getJavaFiles()) {
+            if (pathname.compareTo(jf.getPath()) == 0) {
+                JavaClass.removeClassesRelatedTo(jf);
+            }
+        }
+        cleanJavaProjects();
+    }
+    
+    /**
+     * Cleans empty projects.
+     */
+    private void cleanJavaProjects() {
+        for (JavaProject jproj : cache.values()) {
+            if (jproj.getJavaFiles().size() == 0) {
+                cache.remove(jproj.getName());
+            }
+        }
     }
     
     /**
@@ -156,6 +201,14 @@ public class JavaProject {
     }
     
     /**
+     * Removes a file in this project.
+     * @param jf the file to be removed
+     */
+    public void remove(JavaFile jf) {
+        files.remove(jf.getPath());
+    }
+    
+    /**
      * Adds a package contained in this project.
      * @param jpackage the package to be added
      */
@@ -205,7 +258,7 @@ public class JavaProject {
     
     /**
      * Tests if a given package equals to this.
-     * @param jp the Java package
+     * @param jproj the Java project
      * @return <code>true</code> if the given package equals to this, otherwise <code>false</code>
      */
     public boolean equals(JavaProject jproj) {

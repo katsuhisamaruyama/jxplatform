@@ -47,6 +47,11 @@
             name="Project Action">
       </command>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="org.jtool.eclipse.Activator"></startup>
+   </extension>
     <!--
     <extension
          point="org.eclipse.ui.popupMenus">

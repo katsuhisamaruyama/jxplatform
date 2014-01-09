@@ -39,22 +39,21 @@ public class JavaModelFactory {
     /**
      * A project in the workspace.
      */
-    private IJavaProject project;
+    private static IJavaProject project;
     
     /**
      * An object that stores information on project, which provides access all the information resulting from the analysis.
      */
-    private JavaProject jproject;
+    private static JavaProject jproject;
     
     /**
      * Creates a factory object that creates models of Java programs.
-     * @param project the project in the workspace
+     * @param proj the project in the workspace
      */
-    public JavaModelFactory(IJavaProject project) {
+    public JavaModelFactory(IJavaProject proj) {
         super();
         
-        JavaClass.clearAll();
-        this.project = project;
+        project = proj;
         jproject = JavaProject.create(project);
     }
     
@@ -100,7 +99,7 @@ public class JavaModelFactory {
                     if (res.getType() == IResource.FILE) {
                         
                         String pathname = units[j].getPath().toString();
-                        if (pathname.endsWith(".java")) { 
+                        if (pathname.endsWith(".java") && jproject.getJavaFile(pathname) == null) { 
                             files.add(units[j]);
                         }
                     }

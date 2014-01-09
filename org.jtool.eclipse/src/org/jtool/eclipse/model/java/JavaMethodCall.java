@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
  * An object representing a method invocation.
  * @author Katsuhisa Maruyama
  */
-public class JavaMethodInvocation extends JavaExpression {
+public class JavaMethodCall extends JavaExpression {
     
-    static Logger logger = Logger.getLogger(JavaMethodInvocation.class.getName());
+    static Logger logger = Logger.getLogger(JavaMethodCall.class.getName());
     
     /**
      * The binding information about this method invocation.
@@ -68,7 +68,7 @@ public class JavaMethodInvocation extends JavaExpression {
     /**
      * Creates a new, empty object.
      */
-    protected JavaMethodInvocation() {
+    protected JavaMethodCall() {
         super();
     }
     
@@ -79,7 +79,7 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param jm the method containing this invocation
      */
     @SuppressWarnings("unchecked")
-    public JavaMethodInvocation(MethodInvocation node, IMethodBinding binding, JavaMethod jm) {
+    public JavaMethodCall(MethodInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
         this.binding = binding;
         
@@ -102,7 +102,7 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param jm the method containing this invocation
      */
     @SuppressWarnings("unchecked")
-    public JavaMethodInvocation(SuperMethodInvocation node, IMethodBinding binding, JavaMethod jm) {
+    public JavaMethodCall(SuperMethodInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
         this.binding = binding;
         
@@ -124,7 +124,7 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param jm the method containing this invocation
      */
     @SuppressWarnings("unchecked")
-    public JavaMethodInvocation(ConstructorInvocation node, IMethodBinding binding, JavaMethod jm) {
+    public JavaMethodCall(ConstructorInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
         this.binding = binding;
         
@@ -146,7 +146,7 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param jm the method containing this invocation
      */
     @SuppressWarnings("unchecked")
-    public JavaMethodInvocation(SuperConstructorInvocation node, IMethodBinding binding, JavaMethod jm) {
+    public JavaMethodCall(SuperConstructorInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
         this.binding = binding;
         
@@ -168,7 +168,7 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param jm the method containing this invocation
      */
     @SuppressWarnings("unchecked")
-    public JavaMethodInvocation(ClassInstanceCreation node, IMethodBinding binding, JavaMethod jm) {
+    public JavaMethodCall(ClassInstanceCreation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
         this.binding = binding;
         
@@ -314,7 +314,7 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param ji the method invocation
      * @return <code>true</code> if the given method invocation equals to this one, otherwise <code>false</code>
      */
-    public boolean equals(JavaMethodInvocation ji) {
+    public boolean equals(JavaMethodCall ji) {
         if (ji == null) {
             return false;
         }
@@ -424,7 +424,7 @@ public class JavaMethodInvocation extends JavaExpression {
             return false;
         }
         HashSet<JavaMethod> methods = new HashSet<JavaMethod>();
-        collectCalledMethods(getJavaMethod(), methods);
+        collectCalledMethodsInProject(getJavaMethod(), methods);
         return methods.contains(declaringMethod);
     }
     
@@ -433,11 +433,11 @@ public class JavaMethodInvocation extends JavaExpression {
      * @param jm the called method to be checked and collected
      * @param methods the collection of the invoked methods
      */
-    private void collectCalledMethods(JavaMethod jm, HashSet<JavaMethod> methods) {
+    private void collectCalledMethodsInProject(JavaMethod jm, HashSet<JavaMethod> methods) {
         methods.add(jm);
         for (JavaMethod cm : jm.getCalledJavaMethods()) {
-            if (!methods.contains(cm)) {
-                collectCalledMethods(cm, methods);
+            if (!methods.contains(cm) && cm.isInProject()) {
+                collectCalledMethodsInProject(cm, methods);
             }
         }
     }

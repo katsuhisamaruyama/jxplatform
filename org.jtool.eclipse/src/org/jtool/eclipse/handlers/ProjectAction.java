@@ -94,6 +94,8 @@ public class ProjectAction extends AbstractHandler {
      * @param the project
      */
     protected void createCFGs(JavaProject jproject) {
+        CFGFactory.initialize();
+        
         for (JavaClass jc : jproject.getJavaClasses()) {
             CFGFactory.create(jc);
         }

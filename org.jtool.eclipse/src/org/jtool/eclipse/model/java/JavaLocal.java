@@ -32,6 +32,11 @@ public class JavaLocal extends JavaExpression {
     protected String type;
     
     /**
+     * A flag indicating if the type of this variable is primitive.
+     */
+    protected boolean isPrimitive;
+    
+    /**
      * The modifiers of this local variable.
      */
     private int modifiers;
@@ -60,6 +65,7 @@ public class JavaLocal extends JavaExpression {
         name = binding.getName();
         id = binding.getVariableId();
         type = binding.getType().getQualifiedName();
+        isPrimitive = binding.getType().isPrimitive();
         modifiers = binding.getModifiers();
     }
     
@@ -76,6 +82,7 @@ public class JavaLocal extends JavaExpression {
         name = binding.getName();
         id = binding.getVariableId();
         type = binding.getType().getQualifiedName();
+        isPrimitive = binding.getType().isPrimitive();
         modifiers = binding.getModifiers();
     }
     
@@ -84,15 +91,17 @@ public class JavaLocal extends JavaExpression {
      * @param name The name of this local variable
      * @param id the integer number for specifying a local variable
      * @param type the type of this local variable
+     * @param isPrimitive a flag indicating if the type of this variable is primitive
      * @param modifiers the modifiers of this local variable.
      * @param jm the method declaring this local variable
      */
-    public JavaLocal(String name, int id, String type, int modifiers, JavaMethod jm) {
+    public JavaLocal(String name, int id, String type, boolean isPrimitive, int modifiers, JavaMethod jm) {
         super();
         
         this.name = name;
         this.id = id;
         this.type = type;
+        this.isPrimitive = isPrimitive;
         this.modifiers = modifiers;
         this.declaringMethod = jm;
     }
@@ -146,6 +155,13 @@ public class JavaLocal extends JavaExpression {
      */
     public String getType() {
         return type;
+    }
+    
+    /**
+     * Tests if the type of this variable is primitive.
+     */
+    public boolean isPrimitive() {
+        return isPrimitive;
     }
     
     /**

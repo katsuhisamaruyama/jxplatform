@@ -34,6 +34,11 @@ public class JavaVariableAccess extends JavaExpression {
     protected String type;
     
     /**
+     * A flag indicating if the type of this variable is primitive.
+     */
+    protected boolean isPrimitive;
+    
+    /**
      * A flag indicating if this object represents a field.
      */
     private boolean isField = false;
@@ -73,6 +78,7 @@ public class JavaVariableAccess extends JavaExpression {
         
         name = binding.getName();
         type = binding.getType().getQualifiedName();
+        isPrimitive = binding.getType().isPrimitive();
         isField = binding.isField();
         isEnumConstant = binding.isEnumConstant();
         
@@ -131,6 +137,13 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
+     * Tests if the type of this variable is primitive.
+     */
+    public boolean isPrimitive() {
+        return isPrimitive;
+    }
+    
+    /**
      * Tests if a given variable access equals to this.
      * @param jacc the variable access
      * @return <code>true</code> if the given variable access equals to this, otherwise <code>false</code>
@@ -139,11 +152,8 @@ public class JavaVariableAccess extends JavaExpression {
         if (jacc == null) {
             return false;
         }
-        if (this == jacc) {
-            return true;
-        }
         
-        return getQualifiedName().compareTo(jacc.getQualifiedName()) == 0;
+        return this == jacc || getQualifiedName().compareTo(jacc.getQualifiedName()) == 0;
     }
     
     /**

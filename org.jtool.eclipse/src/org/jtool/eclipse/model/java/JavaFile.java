@@ -6,6 +6,7 @@ package org.jtool.eclipse.model.java;
 
 import org.jtool.eclipse.io.FileReader;
 import org.eclipse.jdt.core.ICompilationUnit;
+
 import java.io.IOException;
 
 /**

@@ -5,7 +5,7 @@
 package org.jtool.eclipse.model.java.internal;
 
 import org.jtool.eclipse.model.java.JavaMethod;
-import org.jtool.eclipse.model.java.JavaMethodInvocation;
+import org.jtool.eclipse.model.java.JavaMethodCall;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -78,7 +78,7 @@ public class MethodInvocationCollector extends ASTVisitor {
     public boolean visit(MethodInvocation node) {
         IMethodBinding binding = node.resolveMethodBinding();
         if (binding != null) {
-            JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, declaringMethod);
+            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
             addJavaMethodInvocation(jinv, node.resolveMethodBinding());
         }
         return false;
@@ -92,7 +92,7 @@ public class MethodInvocationCollector extends ASTVisitor {
     public boolean visit(SuperMethodInvocation node) {
         IMethodBinding binding = node.resolveMethodBinding();
         if (binding != null) {
-            JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, declaringMethod);
+            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
             addJavaMethodInvocation(jinv, node.resolveMethodBinding());
         }
         return false;
@@ -106,7 +106,7 @@ public class MethodInvocationCollector extends ASTVisitor {
     public boolean visit(ConstructorInvocation node) {
         IMethodBinding binding = node.resolveConstructorBinding();
         if (binding != null) {
-            JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, declaringMethod);
+            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
             addJavaMethodInvocation(jinv, node.resolveConstructorBinding());
         }
         return false;
@@ -120,7 +120,7 @@ public class MethodInvocationCollector extends ASTVisitor {
     public boolean visit(SuperConstructorInvocation node) {
         IMethodBinding binding = node.resolveConstructorBinding();
         if (binding != null) {
-            JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, declaringMethod);
+            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
             addJavaMethodInvocation(jinv, node.resolveConstructorBinding());
         }
         return false;
@@ -134,7 +134,7 @@ public class MethodInvocationCollector extends ASTVisitor {
     public boolean visit(ClassInstanceCreation node) {
         IMethodBinding binding = node.resolveConstructorBinding();
         if (binding != null) {
-            JavaMethodInvocation jinv = new JavaMethodInvocation(node, binding, declaringMethod);
+            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
             addJavaMethodInvocation(jinv, node.resolveConstructorBinding());
         }
         return false;
@@ -145,7 +145,7 @@ public class MethodInvocationCollector extends ASTVisitor {
      * @param jinv the method invocation
      * @param the method binding for this method invocation
      */
-    private void addJavaMethodInvocation(JavaMethodInvocation jinv, IMethodBinding binding) {
+    private void addJavaMethodInvocation(JavaMethodCall jinv, IMethodBinding binding) {
         JavaMethod jm = jinv.getJavaMethod();
         if (jm != null && !methodInvocations.contains(jm)) {
             methodInvocations.add(jm);

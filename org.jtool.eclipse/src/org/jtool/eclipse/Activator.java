@@ -1,19 +1,24 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse;
 
+import org.jtool.eclipse.model.java.JavaClass;
+import org.jtool.eclipse.model.java.internal.ResourceChangeListener;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.IStartup;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controlling the plug-in life cycle.
  * @author Katsuhisa Maruyama
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends AbstractUIPlugin implements IStartup {
     
     /**
      * The plug-in identification.
@@ -33,6 +38,11 @@ public class Activator extends AbstractUIPlugin {
     }
     
     /**
+     * A resource change listener that will be notified of changes to resources in the workspace.
+     */
+    private IResourceChangeListener listener;
+    
+    /**
      * Refreshes this plug-in's actions when the plug-in is activated.
      * @param context the bundle context for this plug-in
      * @throws Exception if this plug-in did not start up properly
@@ -44,6 +54,16 @@ public class Activator extends AbstractUIPlugin {
     }
     
     /**
+     * Will be called in a separate thread after the workbench initializes.
+     */
+    public void earlyStartup() {
+        JavaClass.removeAllClassesInCache();
+        
+        listener = new ResourceChangeListener();
+        ResourcesPlugin.getWorkspace().addResourceChangeListener(listener);
+    }
+    
+    /**
      * Saves this plug-in's preference when the plug-in is stopped.
      * @param context the bundle context for this plug-in
      * @throws Exception if this method fails to shutdown this plug-in
@@ -51,6 +71,8 @@ public class Activator extends AbstractUIPlugin {
      */
     public void stop(BundleContext context) throws Exception {
         plugin = null;
+        ResourcesPlugin.getWorkspace().removeResourceChangeListener(listener);
+        
         super.stop(context);
     }
      

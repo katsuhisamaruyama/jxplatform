@@ -35,6 +35,11 @@ public class JavaField extends JavaExpression {
     protected String type;
     
     /**
+     * A flag indicating if the type of this variable is primitive.
+     */
+    protected boolean isPrimitive;
+    
+    /**
      * The modifiers of this field.
      */
     private int modifiers;
@@ -70,11 +75,13 @@ public class JavaField extends JavaExpression {
         if (binding != null) {
             name = binding.getName();
             type = binding.getType().getQualifiedName();
+            isPrimitive = binding.getType().isPrimitive();
             modifiers = binding.getModifiers();
             isEnumConstant = false;
         } else {
             name = ".UNKNOWN";
             type = ".UNKNOWN";
+            isPrimitive = false;
             modifiers = 0;
             isEnumConstant = false;
         }
@@ -112,15 +119,17 @@ public class JavaField extends JavaExpression {
      * Creates a new object representing a field.
      * @param name the name of this field
      * @param type the type of this field
+     * @param isPrimitive a flag indicating if the type of this variable is primitive
      * @param modifiers the modifiers of this field
      * @param isEnumConstant <code>true> if this field is an enum constant, otherwise <code>false</code>
      * @param jc the class declaring this field
      */
-    public JavaField(String name, String type, int modifiers, boolean isEnumConstant, JavaClass jc) {
+    public JavaField(String name, String type, boolean isPrimitive, int modifiers, boolean isEnumConstant, JavaClass jc) {
         super();
         
         this.name = name;
         this.type = type;
+        this.isPrimitive = isPrimitive;
         this.modifiers = modifiers;
         this.isEnumConstant = isEnumConstant;
         declaringClass = jc;
@@ -205,6 +214,13 @@ public class JavaField extends JavaExpression {
      */
     public String getType() {
         return type;
+    }
+    
+    /**
+     * Tests if the type of this variable is primitive.
+     */
+    public boolean isPrimitive() {
+        return isPrimitive;
     }
     
     /**

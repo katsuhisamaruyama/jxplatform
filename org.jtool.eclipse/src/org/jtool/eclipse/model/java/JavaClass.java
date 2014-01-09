@@ -28,11 +28,6 @@ public class JavaClass extends JavaElement {
     static Logger logger = Logger.getLogger(JavaClass.class.getName());
     
     /**
-     * A flag that indicates if this class requires reconstruction.
-     */
-    protected boolean isDirty;
-    
-    /**
      * The cache for all objects of classes.
      */
     protected static HashMap<String, JavaClass> cache = new HashMap<String, JavaClass>();
@@ -251,14 +246,6 @@ public class JavaClass extends JavaElement {
     }
     
     /**
-     * Tests if this class should be reconstructed.
-     * @param bool <code>true</code> if this class should be reconstructed
-     */
-    public boolean isDirty() {
-        return isDirty;
-    }
-    
-    /**
      * Sets the name of super class of this class.
      * @param name the name of the super class
      */
@@ -323,10 +310,46 @@ public class JavaClass extends JavaElement {
     }
     
     /**
-     * Clears information about all classes stored in the cache. 
+     * Removes information about all classes stored in the cache.
      */
-    public static void clearAll() {
+    public static void removeAllClassesInCache() {
         cache.clear();
+    }
+    
+    /**
+     * Removes information about classes related to a given file.
+     * @param jf the file to be removed
+     */
+    public static void removeClassesRelatedTo(JavaFile jf) {
+        for (JavaClass c : getAllClassesInCache()) {
+            if (jf.equals(c.getJavaFile())) {
+                removeClassesRelatedTo(c);
+            }
+        }
+    }
+    
+    /**
+     * Removes information about classes related to a given class.
+     * @param jc the class to be removed
+     */
+    public static void removeClassesRelatedTo(JavaClass jc) {
+        if (jc != null) {
+            JavaClass ret = cache.remove(jc.getQualifiedName());
+            
+            if (ret != null) {
+                JavaFile jf = jc.getJavaFile();
+                JavaProject jproj = jf.getJavaProject();
+                jproj.remove(jf);
+                
+                for (JavaClass c : jc.getDescendants()) {
+                    removeClassesRelatedTo(c);
+                }
+                
+                for (JavaClass c: jc.getAfferentJavaClassesInProject()) {
+                    removeClassesRelatedTo(c);
+                }
+            }
+        }
     }
     
     /**
@@ -876,7 +899,7 @@ public class JavaClass extends JavaElement {
     }
     
     /**
-     * Returns all the classes that his class depends on.
+     * Returns all the classes that this class depends on.
      * @return the collection of the efferent classes in the project
      */
     public Set<JavaClass> getEfferentJavaClassesInProject() {
