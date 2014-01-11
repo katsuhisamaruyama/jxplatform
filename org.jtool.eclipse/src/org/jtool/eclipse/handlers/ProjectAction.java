@@ -1,16 +1,13 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
  
 package org.jtool.eclipse.handlers;
 
 import org.jtool.eclipse.model.java.JavaModelFactory;
-import org.jtool.eclipse.model.cfg.CFGFactory;
-import org.jtool.eclipse.model.pdg.PDGFactory;
 import org.jtool.eclipse.io.FileWriter;
 import org.jtool.eclipse.io.JtoolFile;
 import org.jtool.eclipse.model.java.JavaClass;
-import org.jtool.eclipse.model.java.JavaProject;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -28,11 +25,10 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.apache.log4j.Logger;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import org.apache.log4j.Logger;
 
 /**
  * Performs an action for a project.
@@ -48,67 +44,40 @@ public class ProjectAction extends AbstractHandler {
     protected IWorkbenchPart part;
     
     /**
-     * An active menu selection.
-     */
-    protected ISelection selection;
-    
-    /**
-     * The a factory object that creates models of Java programs.
-     */
-    private JavaModelFactory factory;
-    
-    /**
      * Executes a command with information obtained from the application context.
      * @param event an event containing all the information about the current state of the application
      * @return the result of the execution.
      * @throws ExecutionException if an exception occurred during execution
      */
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        selection = HandlerUtil.getActiveMenuSelection(event);
-        part = HandlerUtil.getActivePart(event);
-        
-        if (selection instanceof IStructuredSelection) {
-            IStructuredSelection structured = (IStructuredSelection)selection;
-            
-            IJavaProject project = null;
-            Object elem = structured.getFirstElement();
-            if (elem instanceof IJavaProject) {
-                project = (IJavaProject)elem;
-            } else if (elem instanceof IProject) {
-                project = (IJavaProject)JavaCore.create((IProject)elem);
-            }
-            
-            if (project != null) {
-                factory = new JavaModelFactory(project);
-                JavaProject jproject = factory.create();
-                
-                createCFGs(jproject);
-                createPDGs(jproject);
-            }
+        IJavaProject project = getJavaProject(event);
+        if (project != null) {
+            JavaModelFactory factory = new JavaModelFactory(project);
+            factory.create();
         }
         return null;
     }
     
     /**
-     * Creates all CFGs for methods and fields with in the project.
-     * @param the project
+     * Obtains information about the selected project.
+     * @param event an event containing all the information about the current state of the application
+     * @return project information if a project was selected, otherwise <code>null</code>
      */
-    protected void createCFGs(JavaProject jproject) {
-        CFGFactory.initialize();
+    protected IJavaProject getJavaProject(ExecutionEvent event) {
+        part = HandlerUtil.getActivePart(event);
+        ISelection selection = HandlerUtil.getActiveMenuSelection(event);
         
-        for (JavaClass jc : jproject.getJavaClasses()) {
-            CFGFactory.create(jc);
+        if (selection instanceof IStructuredSelection) {
+            IStructuredSelection structured = (IStructuredSelection)selection;
+            
+            Object elem = structured.getFirstElement();
+            if (elem instanceof IJavaProject) {
+                return (IJavaProject)elem;
+            } else if (elem instanceof IProject) {
+                return (IJavaProject)JavaCore.create((IProject)elem);
+            }
         }
-    }
-    
-    /**
-     * Creates all PDGs for methods and fields with in the project.
-     * @param the project
-     */
-    protected void createPDGs(JavaProject jproject) {
-        for (JavaClass jc : jproject.getJavaClasses()) {
-            PDGFactory.create(jc);
-        }
+        return null;
     }
     
     /**

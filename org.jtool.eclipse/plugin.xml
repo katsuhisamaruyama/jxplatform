@@ -2,10 +2,19 @@
 <?eclipse version="4.0"?>
 <plugin>
    <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="org.jtool.eclipse.Activator"></startup>
+   </extension>
+   <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="org.jtool.eclipse.handlers.ProjectAction"
             commandId="org.jtool.eclipse.commands.ProjectAction">
+      </handler>
+      <handler
+            class="org.jtool.eclipse.handlers.ProjectAction2"
+            commandId="org.jtool.eclipse.commands.ProjectAction2">
       </handler>
    </extension>
    <extension
@@ -33,6 +42,23 @@
                </with>
             </visibleWhen>
          </command>
+         <command
+               commandId="org.jtool.eclipse.commands.ProjectAction2"
+               label="Analyze Code with Jtool with CFG/PDG"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <iterate
+                        ifEmpty="false">
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -46,11 +72,11 @@
             id="org.jtool.eclipse.commands.ProjectAction"
             name="Project Action">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.startup">
-      <startup
-            class="org.jtool.eclipse.Activator"></startup>
+      <command
+            categoryId="org.jtool.eclipse.commands.category"
+            id="org.jtool.eclipse.commands.ProjectAction2"
+            name="Project Action2">
+      </command>
    </extension>
     <!--
     <extension
