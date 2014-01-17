@@ -70,7 +70,7 @@ public class CFGMethodEntry extends CFGEntry {
      * @return the fully-qualified name string
      */
     public String getType() {
-        return getJavaMethod().getType();
+        return getJavaMethod().getReturnType();
     }
     
     /**

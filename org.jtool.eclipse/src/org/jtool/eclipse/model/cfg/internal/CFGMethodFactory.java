@@ -163,11 +163,11 @@ public class CFGMethodFactory {
             
             cfg.add(foutNode);
             
-            JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(ExpressionVisitor.paramNumber), jm.getType(), jm);
+            JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(ExpressionVisitor.paramNumber), jm.getReturnType(), jm);
             foutNode.addDefVariable(jvout); 
             ExpressionVisitor.paramNumber++;
             
-            JavaVariableAccess jvin = new JavaSpecialVariable("$" + jm.getName(), jm.getType(), jm);
+            JavaVariableAccess jvin = new JavaSpecialVariable("$" + jm.getName(), jm.getReturnType(), jm);
             foutNode.addUseVariable(jvin);
             
             return foutNode;

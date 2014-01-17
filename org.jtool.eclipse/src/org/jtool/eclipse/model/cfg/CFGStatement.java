@@ -168,7 +168,7 @@ public class CFGStatement extends CFGDefUseNode {
             case localDeclaration: buf.append("local declaration"); break;
             
             case assertSt: buf.append("assert"); break;
-            case breakSt: buf.append("break"); break;    
+            case breakSt: buf.append("break"); break;
             case constructorCall: buf.append("constructor call"); break;
             case continueSt: buf.append("continue"); break;
             case doSt: buf.append("do"); break;

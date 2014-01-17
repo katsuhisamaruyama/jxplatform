@@ -84,7 +84,7 @@ public class CFGSwitch extends CFGStatement {
             ControlFlow flow = (ControlFlow)edge;
             
             if (flow.isFalse()) {
-                return (CFGNode)flow.getSrcNode();        
+                return (CFGNode)flow.getSrcNode();
             }
         }
         return null;

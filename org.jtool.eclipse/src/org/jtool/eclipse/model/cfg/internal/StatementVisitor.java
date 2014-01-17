@@ -246,7 +246,7 @@ public class StatementVisitor extends ASTVisitor {
             frag.accept(visitor);
             
             CFGNode curNode = visitor.getExitNode();
-                    
+            
             ControlFlow edge = createFlow(curNode, nextNode);
             edge.setTrue();
         }
@@ -411,7 +411,7 @@ public class StatementVisitor extends ASTVisitor {
             }
             
             for (GraphEdge edge : outgoingEdges) {
-                ControlFlow flow = (ControlFlow)edge;    
+                ControlFlow flow = (ControlFlow)edge;
                 if (flow.isFalse()) {
                     cfg.remove(flow);
                 } else {
@@ -611,11 +611,11 @@ public class StatementVisitor extends ASTVisitor {
         if (condition != null) {
             ExpressionVisitor condVisitor = new ExpressionVisitor(cfg, forNode);
             condition.accept(condVisitor);
-        
+            
             CFGNode curNode = condVisitor.getExitNode();
-        
+            
             reconnect(forNode);
-        
+            
             ControlFlow edge = createFlow(curNode, nextNode);
             edge.setTrue();
             
@@ -799,7 +799,7 @@ public class StatementVisitor extends ASTVisitor {
             
             CFGMethodEntry methodNode = (CFGMethodEntry)cfg.getStartNode();
             JavaMethod jm = methodNode.getJavaMethod();
-            JavaVariableAccess jv = new JavaSpecialVariable("$" + jm.getName(), jm.getType(), jm);
+            JavaVariableAccess jv = new JavaSpecialVariable("$" + jm.getName(), jm.getReturnType(), jm);
             returnNode.addDefVariable(jv);
             
             curNode = exprVisitor.getExitNode();
@@ -886,7 +886,7 @@ public class StatementVisitor extends ASTVisitor {
         CFGNode curNode = exprVisitor.getExitNode();
         
         ControlFlow trueEdge = createFlow(curNode, cfg.getEndNode());
-        trueEdge.setTrue();    
+        trueEdge.setTrue();
         
         ControlFlow fallEdge = createFlow(curNode, nextNode);
         fallEdge.setFalse();

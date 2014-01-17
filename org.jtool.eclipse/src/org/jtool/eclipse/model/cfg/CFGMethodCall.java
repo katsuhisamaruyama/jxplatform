@@ -6,7 +6,7 @@ package org.jtool.eclipse.model.cfg;
 
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaMethod;
-import org.jtool.eclipse.model.java.JavaMethodInvocation;
+import org.jtool.eclipse.model.java.JavaMethodCall;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class CFGMethodCall extends CFGStatement {
      * @param jmc the Java statement for the method call
      * @param sort the sort of this node
      */
-    public CFGMethodCall(JavaMethodInvocation jelem, GraphNodeSort sort) {
+    public CFGMethodCall(JavaMethodCall jelem, GraphNodeSort sort) {
         super(jelem, sort);
     }
     
@@ -62,7 +62,7 @@ public class CFGMethodCall extends CFGStatement {
      * @return the name of the called method
      */
     public String getName() {
-        return getJavaMethodInvocation().getName();
+        return getJavaMethodCall().getName();
     }
     
     /**
@@ -70,7 +70,7 @@ public class CFGMethodCall extends CFGStatement {
      * @return the return type of the called method
      */
     public String getType() {
-        return getJavaMethodInvocation().getType();
+        return getJavaMethodCall().getType();
     }
     
     /**
@@ -171,7 +171,7 @@ public class CFGMethodCall extends CFGStatement {
      * Sets the primary variable for this method call.
      * @param name the Java variable
      */
-    public void setPrimarye(JavaVariableAccess jv) {
+    public void setPrimary(JavaVariableAccess jv) {
         primary = jv;
     }
     
@@ -206,8 +206,8 @@ public class CFGMethodCall extends CFGStatement {
      * Returns the information of this method call.
      * @return the information of this method call
      */
-    public JavaMethodInvocation getJavaMethodInvocation() {
-        return (JavaMethodInvocation)getJavaElement();
+    public JavaMethodCall getJavaMethodCall() {
+        return (JavaMethodCall)getJavaElement();
     }
     
     /**
@@ -215,7 +215,7 @@ public class CFGMethodCall extends CFGStatement {
      * @return the entry node for the called method
      */
     public CFGMethodEntry getCalledMethodEntry() {
-        JavaMethod jm = getJavaMethodInvocation().getJavaMethod();
+        JavaMethod jm = getJavaMethodCall().getJavaMethod();
         CFG cfg = CFGFactory.create(jm);
         return (CFGMethodEntry)cfg.getStartNode();
     }
@@ -225,7 +225,7 @@ public class CFGMethodCall extends CFGStatement {
      * @return <code>true</code> if this method call directly invokes the method itself, otherwise <code>false</code>
      */
     public boolean callSelfDirectly() {
-        return getJavaMethodInvocation().callSelfDirectly();
+        return getJavaMethodCall().callSelfDirectly();
     }
     
     /**
@@ -233,15 +233,50 @@ public class CFGMethodCall extends CFGStatement {
      * @return <code>true</code> if this method call recursively invokes the method itself, otherwise <code>false</code>
      */
     public boolean callSelfRecursively() {
-        return getJavaMethodInvocation().callSelfRecursively();
+        return getJavaMethodCall().callSelfRecursively();
     }
+    
+    /**
+     * Tests if this method call directly or recursively invokes the method itself.
+     * @return <code>true</code> if this method call directly or recursively invokes the method itself, otherwise <code>false</code>
+     */
+    public boolean callSelf() {
+        return callSelfDirectly() || callSelfRecursively();
+    }
+    
+    /**
+     * Tests if the called method exists in the project.
+     * @return <code>true</code> if the called method exists in the project, otherwise <code>false</code>
+     */
+    public boolean callMethodInProject() {
+        JavaMethod jm = getJavaMethodCall().getJavaMethod();
+        return jm != null && jm.isInProject();
+    }
+    
+    /*
+    public void makeConservativeDefUseChains() {
+        CFGMethodCall
+        JavaStatement jst = (JavaStatement)callNode.getJavaComponent();
+        jst.addDefVariable(callNode.getPrimary());
+        jst.addUseVariable(callNode.getPrimary());
+        
+        HashMap<Integer, CFGParameterNode> actualIns = callNode.getActualIns();
+        for (Iterator<Integer> it = actualIns.keySet().iterator(); it.hasNext(); ) {
+            Integer number = it.next();
+            JavaVariable jv = actualIns.get(number).getUseVariable();
+            if (!jv.isPrimitive()) {
+                jst.addDefVariable(jv);
+            }
+        }
+    }
+    */
     
     /**
      * Creates a clone of this node.
      * @return the clone of this node
      */
     public CFGMethodCall clone() {
-        CFGMethodCall cloneNode = new CFGMethodCall(getJavaMethodInvocation(), getSort());
+        CFGMethodCall cloneNode = new CFGMethodCall(getJavaMethodCall(), getSort());
         clone(cloneNode);
         return cloneNode;
     }
@@ -254,6 +289,24 @@ public class CFGMethodCall extends CFGStatement {
         super.clone(cloneNode);
         cloneNode.setActualIns(getActualIns());
         cloneNode.setActualOuts(getActualOuts());
-        cloneNode.setPrimarye(getPrimary());
+        cloneNode.setPrimary(getPrimary());
+    }
+    
+    /**
+     * Collects information about this statement.
+     * @return the string for printing
+     */
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        
+        buf.append("[" + getId() + "] ");
+        buf.append("method call ");
+        buf.append(": ");
+        buf.append(getName());
+        buf.append(" { " + toStringDefVariables() + " }");
+        buf.append(" = ");
+        buf.append("{ " + toStringUseVariables() + " }");
+        
+        return buf.toString();
     }
 }
