@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.graph;
@@ -8,7 +8,7 @@ package org.jtool.eclipse.model.graph;
  * Generates and manages the identification numbers for graph elements.
  * @author Katsuhisa Maruyama
  */
-public class GraphNodeIdFactory {
+public class GraphNodeIdPublisher {
     
     /**
      * The identification number.

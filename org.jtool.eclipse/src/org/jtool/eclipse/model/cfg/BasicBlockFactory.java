@@ -1,9 +1,8 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.cfg;
-
 
 /**
  * Calculates and stores basic blocks of a CFG.

@@ -1,16 +1,15 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.cfg;
-
-import java.util.List;
 
 import org.jtool.eclipse.model.cfg.internal.CFGDefUseNode;
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaExpression;
 import org.jtool.eclipse.model.java.JavaStatement;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
+import java.util.List;
 
 /**
  * A statement node of a CFG.

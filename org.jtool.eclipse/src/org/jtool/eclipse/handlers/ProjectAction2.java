@@ -33,7 +33,7 @@ public class ProjectAction2 extends ProjectAction {
             factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
             JavaProject jproject = factory.create();
             
-            createCFGs(jproject);
+            // createCFGs(jproject);
             createPDGs(jproject);
         }
         return null;

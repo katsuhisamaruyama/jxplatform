@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.graph;
@@ -44,7 +44,7 @@ public class GraphNode extends GraphElement {
      * Creates a new, empty node.
      */
     protected GraphNode() {
-        super(GraphNodeIdFactory.getId());
+        super(GraphNodeIdPublisher.getId());
     }
     
     /**
@@ -56,7 +56,7 @@ public class GraphNode extends GraphElement {
         super();
         sort = s;
         if (s != GraphNodeSort.dummy) {
-            super.setId(GraphNodeIdFactory.getId());
+            super.setId(GraphNodeIdPublisher.getId());
         } else {
             super.setId(0);
         }
@@ -80,7 +80,7 @@ public class GraphNode extends GraphElement {
     protected GraphNode(boolean bool) {
         super();
         if (bool) {
-            super.setId(GraphNodeIdFactory.getId());
+            super.setId(GraphNodeIdPublisher.getId());
         } else {
             super.setId(-1);
         }

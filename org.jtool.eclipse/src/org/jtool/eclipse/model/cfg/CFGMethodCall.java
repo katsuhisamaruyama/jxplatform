@@ -8,7 +8,6 @@ import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaMethod;
 import org.jtool.eclipse.model.java.JavaMethodCall;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
-
 import java.util.ArrayList;
 import java.util.List;
 
