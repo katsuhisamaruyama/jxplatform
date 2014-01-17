@@ -11,12 +11,11 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.compiler.IProblem;
-import java.util.List;
-import java.util.ArrayList;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -63,16 +62,13 @@ public class JavaParser {
      */
     public CompilationUnit parse(ICompilationUnit icu) {
         parser.setResolveBindings(true);
-        // parser.setStatementsRecovery(true);
+        parser.setStatementsRecovery(true);
         parser.setBindingsRecovery(true);
         parser.setSource(icu);
         
         CompilationUnit cu = (CompilationUnit)parser.createAST(null);
         // cu.recordModifications();
         
-        if (parseErrorOccurred(cu, icu.getPath().toString())) {
-            return null;
-        }
         return cu;
     }
     
@@ -112,7 +108,7 @@ public class JavaParser {
      */
     private CompilationUnit parse(String contents, String encoding, String[] classpaths, String[] sourcepaths, String name) {
         parser.setResolveBindings(true);
-        // parser.setStatementsRecovery(true);
+        parser.setStatementsRecovery(true);
         parser.setBindingsRecovery(true);
         
         String[] encodings;
@@ -129,42 +125,6 @@ public class JavaParser {
         CompilationUnit cu = (CompilationUnit)parser.createAST(null);
         // cu.recordModifications();
         
-        if (parseErrorOccurred(cu, name)) {
-            return null;
-        }
         return cu;
-    }
-    
-    /**
-     * Checks if any parse error occurred for a given compilation unit.
-     * @param cu the compilation unit to be checked
-     * @param name the name of the compilation unit
-     * @return <code>true</code> if any problem occurred during parsing, otherwise <code>false</code> 
-     */
-    protected boolean parseErrorOccurred(CompilationUnit cu, String name) {
-        List<IProblem> errors = new ArrayList<IProblem>();
-        
-        IProblem[] problems = cu.getProblems();
-        if (problems.length != 0) {
-            for (IProblem problem : problems) {
-                if (problem.isError()) {
-                    errors.add(problem);
-                }
-            }
-        }
-        
-        if (errors.size() == 0) {
-            logger.debug("complete parse: " + name);
-            return false;
-            
-        } else {
-            logger.debug("incomplete parse: " + name);
-            /*
-            for (IProblem problem : errors) {
-                logger.debug("problem: " + problem.getMessage() + problem.getSourceStart());
-            }
-            */
-            return true;
-        }
     }
 }

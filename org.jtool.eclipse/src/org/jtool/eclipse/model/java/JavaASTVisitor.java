@@ -34,10 +34,8 @@ public class JavaASTVisitor extends ASTVisitor {
     /**
      * Creates a new object for visiting a Java program. 
      * @param jfile the file corresponding to the compilation unit to be visited
-     * @param jproject the project containing the file
      */
-    public void setJavaFile(JavaFile jfile, JavaProject jproject) {
+    public void setJavaFile(JavaFile jfile) {
         this.jfile = jfile;
-        jproject.addJavaFile(jfile);
     }
 }

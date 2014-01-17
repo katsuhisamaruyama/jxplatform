@@ -4,17 +4,21 @@
 
 package org.jtool.eclipse.model.java;
 
+
 import org.eclipse.jdt.core.IJavaProject;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import org.apache.log4j.Logger;
 
 /**
  * An object representing a project.
  * @author Katsuhisa Maruyama
  */
 public class JavaProject {
+    
+    static Logger logger = Logger.getLogger(JavaFile.class.getName());
     
     /**
      * The cache for all objects of classes.

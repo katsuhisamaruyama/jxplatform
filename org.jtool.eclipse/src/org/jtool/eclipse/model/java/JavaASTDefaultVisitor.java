@@ -70,6 +70,7 @@ public class JavaASTDefaultVisitor extends JavaASTVisitor {
     public boolean visit(TypeDeclaration node) {
         JavaPackage jpackage = JavaPackage.create(packageNode, jfile.getJavaProject());
         
+        // May receive an object of <code>NullPointerException</code> during this method call.
         JavaClass jclass = JavaClass.create(node, jpackage);
         jclass.setJavaFile(jfile);
         
@@ -81,8 +82,6 @@ public class JavaASTDefaultVisitor extends JavaASTVisitor {
         
         return true;
     }
-    
-    
     
     /**
      * Finishes the visit for a type declaration node.
@@ -166,12 +165,6 @@ public class JavaASTDefaultVisitor extends JavaASTVisitor {
     }
     
     /**
-     * Finishes the visit for a method declaration node.
-     */
-    public void endVisit(MethodDeclaration node) {
-    }
-    
-    /**
      * Visits an initializer node and stores its information.
      * @param node the initializer node
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
@@ -185,12 +178,6 @@ public class JavaASTDefaultVisitor extends JavaASTVisitor {
         new JavaMethod(node, jclass);
         
         return true;
-    }
-    
-    /**
-     * Finishes the visit for an initializer node.
-     */
-    public void endVisit(Initializer node) {
     }
     
     /**

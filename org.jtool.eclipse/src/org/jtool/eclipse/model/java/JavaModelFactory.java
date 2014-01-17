@@ -12,15 +12,16 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.IWorkbenchWindow;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -70,6 +71,11 @@ public class JavaModelFactory {
      * @return the created project information
      */
     public JavaProject create() {
+        if (visitor == null) {
+            System.err.println("* No visitor was given. Please set a visitor object");
+            return null;
+        }
+        
         long start = System.currentTimeMillis();
         
         Set<ICompilationUnit> cunits = collectAllCompilationUnits();
@@ -118,7 +124,7 @@ public class JavaModelFactory {
                 }
             }
         } catch (JavaModelException e) {
-            logger.info("JavaModelException: " + e.getMessage());
+            logger.error("JavaModelException occurred: " + e.getMessage());
         }
         
         return newUnits;
@@ -138,7 +144,7 @@ public class JavaModelFactory {
                     }
                 }
             } catch (JavaModelException e) {
-                logger.info("JavaModelException: " + e.getMessage());
+                logger.error("JavaModelException occurred: " + e.getMessage());
             }
         }
     }
@@ -152,7 +158,7 @@ public class JavaModelFactory {
         Set<ICompilationUnit> newUnits = new HashSet<ICompilationUnit>();
         for (ICompilationUnit icu : cunits) {
             String pathname = icu.getPath().toString();
-            if (jproject.getJavaFile(pathname) == null) { 
+            if (jproject.getJavaFile(pathname) == null) {
                 newUnits.add(icu);
             }
         }
@@ -182,7 +188,16 @@ public class JavaModelFactory {
                     for (ICompilationUnit icu : cunits) {
                         monitor.subTask(idx + "/" + cunits.size() + " - " + icu.getPath().toString());
                         
-                        createJavaModel(icu);
+                        try {
+                            createJavaModel(icu);
+                        } catch (NullPointerException e) {
+                            System.err.println("* Fatal error occurred. Skip the paser of " + icu.getPath().toString());
+                            /*
+                            for (StackTraceElement elem : e.getStackTrace()) {
+                                System.out.println(elem.toString());
+                            }
+                            */
+                        }
                         
                         if (monitor.isCanceled()) {
                             monitor.done();
@@ -198,10 +213,7 @@ public class JavaModelFactory {
             
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
-            System.out.println("# InvocationTargetException because " + cause);
-            for (StackTraceElement elem : e.getStackTrace()) {
-                System.err.println(elem.toString());
-            }
+            System.err.println("* InvocationTargetException occurred because " + cause);
         } catch (InterruptedException e) {
             return;
         }
@@ -215,11 +227,22 @@ public class JavaModelFactory {
         JavaParser parser = JavaParser.create();
         CompilationUnit cu = (CompilationUnit)parser.parse(icu);
         
-        if (cu != null && visitor != null) {
+        if (cu != null) {
+            List<IProblem> errors = getParseErrors(cu);
+            if (errors.size() == 0) {
+                logger.debug("complete parse: " + icu.getPath().toString());
+            } else {
+                logger.debug("incomplete parse: " + icu.getPath().toString());
+            }
+            
             JavaFile jfile = new JavaFile(icu, jproject);
-            visitor.setJavaFile(jfile, jproject);
+            jfile.setParseErrors(errors);
+            
+            visitor.setJavaFile(jfile);
             cu.accept(visitor);
             visitor.close();
+            
+            jproject.addJavaFile(jfile);
         }
     }
     
@@ -232,12 +255,40 @@ public class JavaModelFactory {
         JavaParser parser = JavaParser.create();
         CompilationUnit cu = parser.parse(file, jproject);
         
-        if (cu != null && visitor != null) {
+        if (cu != null) {
+            List<IProblem> errors = getParseErrors(cu);
+            if (errors.size() == 0) {
+                logger.debug("complete parse: " + file.getAbsoluteFile().getName());
+            } else {
+                logger.debug("incomplete parse: " + file.getAbsoluteFile().getName());
+            }
+            
             JavaFile jfile = new JavaFile(file.getAbsoluteFile().getName(), jproject);
-            visitor.setJavaFile(jfile, jproject);
+            jfile.setParseErrors(errors);
+            jproject.addJavaFile(jfile);
+            
             cu.accept(visitor);
             visitor.close();
         }
+    }
+    
+    /**
+     * Obtains the collection of parse errors for a compilation unit.
+     * @param cu the parsed compilation unit
+     * @return the collection of parse errors
+     */
+    private List<IProblem> getParseErrors(CompilationUnit cu) {
+        List<IProblem> errors = new ArrayList<IProblem>();
+        
+        IProblem[] problems = cu.getProblems();
+        if (problems.length != 0) {
+            for (IProblem problem : problems) {
+                if (problem.isError()) {
+                    errors.add(problem);
+                }
+            }
+        }
+        return errors;
     }
     
     /**

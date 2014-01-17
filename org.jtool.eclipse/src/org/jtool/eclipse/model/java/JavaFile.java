@@ -7,13 +7,18 @@ package org.jtool.eclipse.model.java;
 import org.jtool.eclipse.io.FileReader;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import java.io.IOException;
+import java.util.List;
+import org.apache.log4j.Logger;
 
 /**
  * Stores information of a Java source file.
  * @author Katsuhisa Maruyama
  */
 public class JavaFile {
+    
+    static Logger logger = Logger.getLogger(JavaFile.class.getName());
     
     /**
      * A compilation unit corresponding to this file.
@@ -29,6 +34,11 @@ public class JavaFile {
      * A project containing this file.
      */
     protected JavaProject jproject;
+    
+    /**
+     * The collection of errors during the generation of this file.
+     */
+    protected List<IProblem> errors;
     
     /**
      * Creates a new, empty object.
@@ -118,6 +128,33 @@ public class JavaFile {
         String progDir = projName.substring(0, lindex);
         
         return progDir + path;
+    }
+    
+    /**
+     * Sets the collection of errors during the generation of this file.
+     * @param errors the parse errors
+     */
+    public void setParseErrors(List<IProblem> errors) {
+        this.errors = errors;
+    }
+    
+    /**
+     * Returns the collection of errors during the generation of this file.
+     * @return the parse errors
+     */
+    public List<IProblem> getParseErrors() {
+        return errors;
+    }
+    
+    /**
+     * Displays the parse errors.
+     */
+    public void printParseErrors() {
+        if (errors != null && errors.size() > 0) {
+            for (IProblem problem : errors) {
+                logger.debug("problem: " + problem.getMessage() + problem.getSourceStart());
+            }
+        }
     }
     
     /**

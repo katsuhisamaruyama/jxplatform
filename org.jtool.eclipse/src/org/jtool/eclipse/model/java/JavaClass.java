@@ -11,11 +11,13 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -231,18 +233,26 @@ public class JavaClass extends JavaElement {
     /**
      * Creates a new object representing a class.
      * @param node an AST node for this class
-     * @param bind the type binding for this class
+     * @param binding the type binding for this class
      * @param jp the package containing this class
      * @return the created object, or <code>null</code> if the creation fails
      */
-    private static JavaClass create(ASTNode node, ITypeBinding bind, JavaPackage jp) {
-        String fqn = bind.getQualifiedName();
+    private static JavaClass create(ASTNode node, ITypeBinding binding, JavaPackage jp) {
+        /*
+         * Eclipse mistakes the binding for a class whose code contains invalid characters in its comments.
+         * Throws an object of <code>NullPointerException</code> if the binding is <code>null</code>.
+         */
+        if (binding == null) {
+            throw new NullPointerException();
+        }
+        
+        String fqn = binding.getQualifiedName();
         JavaClass jclass = cache.get(fqn);
         if (jclass != null) {
             return jclass;
         }
         
-        jclass = new JavaClass(node, bind, jp);
+        jclass = new JavaClass(node, binding, jp);
         jp.addJavaClass(jclass);
         cache.put(fqn, jclass);
         
