@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg.internal;
@@ -10,13 +10,13 @@ import org.jtool.eclipse.model.graph.GraphElementSet;
 import java.util.Iterator;
 
 /**
- * Calculates post dominators on a CFG.
+ * Calculates post dominator nodes on a CFG.
  * @author Katsuhisa Maruyama
  */
 public class PostDominator implements Iterable<CFGNode> {
     
     /**
-     * The colelction of post-dominators on a CFG. 
+     * The collection of post-dominator nodes on a CFG. 
      */
     private GraphElementSet<CFGNode> postDominator = new GraphElementSet<CFGNode>();
     
@@ -50,27 +50,27 @@ public class PostDominator implements Iterable<CFGNode> {
     }
     
     /**
-     * Adds a CFG node to the post-dominators.
+     * Adds a CFG node to the post-dominator nodes.
      * @param node the CFG node to be added
-     * @return <code>true</code> if the post-dominators changed, otherwise <code>false</code>
+     * @return <code>true</code> if the post-dominator nodes changed, otherwise <code>false</code>
      */
     public boolean add(CFGNode node) {
         return postDominator.add(node);
     }
     
     /**
-     * Removes a CFG node from the post-dominators.
+     * Removes a CFG node from the post-dominator nodes.
      * @param node the CFG node to be removed
-     * @return <code>true</code> if the post-dominators changed, otherwise <code>false</code>
+     * @return <code>true</code> if the post-dominator nodes changed, otherwise <code>false</code>
      */
     public boolean remove(CFGNode node) {
         return postDominator.remove(node);
     }
     
     /**
-     * Tests if the collection of the post-dominators contains a given node.
+     * Tests if the collection of the post-dominator nodes contains a given node.
      * @param node the CFG node to be checked
-     * @return <code>true</code> if the post-dominators contains the node, otherwise <code>false</code>
+     * @return <code>true</code> if the post-dominator nodes contains the node, otherwise <code>false</code>
      */
     public boolean contains(CFGNode node) {
         return postDominator.contains(node);
@@ -78,15 +78,15 @@ public class PostDominator implements Iterable<CFGNode> {
     
     /**
      * Tests if there is no post-dominator node.
-     * @return <code>true</code> if no post-dominator nodewas found, otherwise <code>false</code>
+     * @return <code>true</code> if no post-dominator node was found, otherwise <code>false</code>
      */
     public boolean isEmpty() {
         return postDominator.isEmpty();
     }
     
     /**
-     * Returns an iterator of the collection of the post-dominators in proper sequence.
-     * @return The iterator of the collection of the post-dominators
+     * Returns an iterator of the collection of the post-dominator nodes in proper sequence.
+     * @return The iterator of the collection of the post-dominator nodes
      */
     public Iterator<CFGNode> iterator() {
         return postDominator.iterator();

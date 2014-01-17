@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
@@ -90,7 +90,7 @@ public class PDGNode extends GraphNode {
             if (dependence.isCD()) {
                 edges.add((CD)dependence);
             }
-        }                
+        }
         return edges;
     }
     
@@ -105,7 +105,7 @@ public class PDGNode extends GraphNode {
             if (dependence.isCD()) {
                 edges.add((CD)dependence);
             }
-        }                
+        }
         return edges;
     }
     
@@ -120,7 +120,7 @@ public class PDGNode extends GraphNode {
             if (dependence.isDD()) {
                 edges.add((DD)dependence);
             }
-        }                
+        }
         return edges;
     }
     
@@ -135,7 +135,7 @@ public class PDGNode extends GraphNode {
             if (dependence.isDD()) {
                 edges.add((DD)dependence);
             }
-        }                
+        }
         return edges;
     }
     
