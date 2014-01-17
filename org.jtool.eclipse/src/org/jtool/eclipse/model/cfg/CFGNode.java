@@ -471,7 +471,7 @@ public class CFGNode extends GraphNode {
      * @see org.jtool.eclipse.model.graph.GraphNodeSort
      */
     public boolean isCatch() {
-        return sort == GraphNodeSort.catchSt;       
+        return sort == GraphNodeSort.catchSt;
     }
     
     /**
@@ -480,7 +480,7 @@ public class CFGNode extends GraphNode {
      * @see org.jtool.eclipse.model.graph.GraphNodeSort
      */
     public boolean isFinally() {
-        return sort == GraphNodeSort.finallySt;       
+        return sort == GraphNodeSort.finallySt;
     }
     
     /**
@@ -550,12 +550,11 @@ public class CFGNode extends GraphNode {
     }
     
     /**
-     * Tests if this node belongs to the group of normal statements.
-     * @return <code>true</code> if this node represents a normal statement, otherwise <code>false</code>
+     * Tests if this node belongs to the group of normal statements except for parameters.
+     * @return <code>true</code> if this node represents a normal statement except for a parameter, otherwise <code>false</code>
      */
-    public boolean isNormalStatement() {
-        return this instanceof CFGStatement ||
-               this instanceof CFGMethodCall;
+    public boolean isStatementNotParameter() {
+        return (this instanceof CFGStatement) && !(this instanceof CFGParameter);
     }
     
     /**
@@ -563,9 +562,7 @@ public class CFGNode extends GraphNode {
      * @return <code>true</code> if this node represents a normal statement, otherwise <code>false</code>
      */
     public boolean isStatement() {
-        return this instanceof CFGStatement ||
-               this instanceof CFGMethodCall ||
-               this instanceof CFGParameter;
+        return (this instanceof CFGStatement);
     }
     
     /**

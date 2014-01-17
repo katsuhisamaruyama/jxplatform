@@ -1,11 +1,11 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg.internal;
 
 import org.jtool.eclipse.model.cfg.CFG;
-import org.jtool.eclipse.model.cfg.CFGMethodInvocation;
+import org.jtool.eclipse.model.cfg.CFGMethodCall;
 import org.jtool.eclipse.model.cfg.CFGNode;
 import org.jtool.eclipse.model.cfg.CFGParameter;
 import org.jtool.eclipse.model.cfg.ControlFlow;
@@ -45,11 +45,11 @@ public class CDFactory {
                 findCDs(pdg, cfg, cfgnode);
                 
             } else if (cfgnode.isMethodCall()) {
-                findParameterCDs(pdg, (CFGMethodInvocation)cfgnode);
+                findParameterCDs(pdg, (CFGMethodCall)cfgnode);
             }
         }
     }
-        
+    
     /**
      * Finds control dependences for a given branch node.
      * @param pdg the PDG that stores the extracted information
@@ -58,13 +58,13 @@ public class CDFactory {
      */
     private static void findCDs(PDG pdg, CFG cfg, CFGNode branchNode) {
         PostDominator postDominator = new PostDominator(cfg, branchNode);
-        for (ControlFlow branch : branchNode.getOutgoingFlows()) {            
+        for (ControlFlow branch : branchNode.getOutgoingFlows()) {
             CFGNode branchDstNode = branch.getDstNode();
             PostDominator postDominatorLocal = new PostDominator(cfg, branchDstNode);
             postDominatorLocal.add(branchDstNode);
             
-            for (CFGNode cfgnode : cfg.getNodes()) {               
-                if (cfgnode.isNormalStatement() && !branchNode.equals(cfgnode) &&
+            for (CFGNode cfgnode : cfg.getNodes()) {
+                if (cfgnode.isStatementNotParameter() && !branchNode.equals(cfgnode) &&
                     !postDominator.contains(cfgnode) && postDominatorLocal.contains(cfgnode)) {
                     
                     CD edge = new CD(branchNode.getPDGNode(), cfgnode.getPDGNode());
@@ -88,14 +88,14 @@ public class CDFactory {
      * @param pdg the PDG which stores the extracted information
      * @param callNode the method call node that might have actual arguments
      */
-    private static void findParameterCDs(PDG pdg, CFGMethodInvocation callNode) {
+    private static void findParameterCDs(PDG pdg, CFGMethodCall callNode) {
         for (CFGParameter cfgnode : callNode.getActualIns()) {
             CD edge = new CD(callNode.getPDGNode(), cfgnode.getPDGNode());
             edge.setTrue();
             pdg.add(edge);
         }
         
-        for (CFGParameter cfgnode : callNode.getActualOuts()) {          
+        for (CFGParameter cfgnode : callNode.getActualOuts()) {
             CD edge = new CD(callNode.getPDGNode(), cfgnode.getPDGNode());
             edge.setTrue();
             pdg.add(edge);
@@ -111,8 +111,8 @@ public class CDFactory {
         CFGNode startNode = cfg.getStartNode();
         PostDominator postDominator = new PostDominator(cfg, startNode);
         
-        for (CFGNode cfgnode : postDominator) {         
-            if (cfgnode.isNormalStatement() || cfgnode.isFormal()) {
+        for (CFGNode cfgnode : postDominator) {
+            if (cfgnode.isStatementNotParameter() || cfgnode.isFormal()) {
                 
                 CD edge = new CD(startNode.getPDGNode(), cfgnode.getPDGNode());
                 edge.setTrue();

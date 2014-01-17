@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg.internal;
@@ -16,9 +16,7 @@ import org.jtool.eclipse.model.pdg.CD;
 import org.jtool.eclipse.model.pdg.Dependence;
 import org.jtool.eclipse.model.pdg.PDG;
 import org.jtool.eclipse.model.pdg.PDGNode;
-
 import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -101,10 +99,10 @@ public class DDFactory {
                 DD edge;
                 if (anchor.isFormalIn()) {
                     edge = new DD(anchor.getPDGNode(), candidate.getPDGNode(), jv);
-                    edge.setLIDD(); // edge.setParameterIn();
+                    edge.setLIDD();
                 } else if (candidate.isFormalOut()) {
                     edge = new DD(anchor.getPDGNode(), candidate.getPDGNode(), jv);
-                    edge.setLIDD(); // edge.setParameterOut();
+                    edge.setLIDD();
                 } else {
                     PDGNode lc = getLoopCarried(pdg, cfg, anchor, candidate);
                     edge = new DD(anchor.getPDGNode(), candidate.getPDGNode(), jv);

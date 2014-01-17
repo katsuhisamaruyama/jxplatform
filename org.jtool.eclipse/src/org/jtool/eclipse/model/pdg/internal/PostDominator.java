@@ -10,7 +10,7 @@ import org.jtool.eclipse.model.graph.GraphElementSet;
 import java.util.Iterator;
 
 /**
- * Calculates post dominator nodes on a CFG.
+ * Calculates post-dominator nodes on a CFG.
  * @author Katsuhisa Maruyama
  */
 public class PostDominator implements Iterable<CFGNode> {
@@ -41,7 +41,7 @@ public class PostDominator implements Iterable<CFGNode> {
         for (CFGNode node : cfg.getNodes()) {
             if (!anchor.equals(node)) {
                 track.clear();
-                track = cfg.getForwardReachableNodes(anchor, node);             
+                track = cfg.getForwardReachableNodes(anchor, node);
                 if (track.contains(node) && !track.contains(cfg.getEndNode())) {
                     add(node);
                 }
