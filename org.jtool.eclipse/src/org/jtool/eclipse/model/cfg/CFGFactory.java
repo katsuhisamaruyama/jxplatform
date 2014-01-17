@@ -76,9 +76,6 @@ public class CFGFactory {
      */
     public static CFG create(JavaMethod jm) {
         CFG cfg = CFGMethodFactory.getCFG(jm);
-        
-        logger.debug("\n" + cfg.toString());
-        
         return cfg;
     }
     
@@ -89,9 +86,16 @@ public class CFGFactory {
      */
     public static CFG create(JavaField jf) {
         CFG cfg = CFGFieldFactory.getCFG(jf);
-        
-        logger.debug("\n" + cfg.toString());
-        
         return cfg;
+    }
+    
+    /**
+     * Displays information about a given CFGs.
+     * @param cfgs the collection of CFGs
+     */
+    public static void print(Set<CFG> cfgs) {
+        for (CFG cfg : cfgs) {
+            logger.debug("\n" + cfg.toString());
+        }
     }
 }
