@@ -1,15 +1,14 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
 
+import org.jtool.eclipse.model.java.JavaClass;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.jtool.eclipse.model.java.JavaClass;
-
 import java.util.Set;
 import java.util.HashSet;
 
@@ -52,7 +51,7 @@ public class TypeCollector extends ASTVisitor {
     /**
      * The collection of classes that this class uses.
      */
-    private Set<JavaClass> typeUses = new HashSet<JavaClass>();
+    private Set<String> typeUses = new HashSet<String>();
     
     /**
      * A flag that indicates all bindings for types were found.
@@ -67,10 +66,17 @@ public class TypeCollector extends ASTVisitor {
     }
     
     /**
+     * Clears information about the collected types.
+     */
+    public void clear() {
+        typeUses.clear();
+    }
+    
+    /**
      * Returns all the classes that this class uses.
      * @return the collection of the classes 
      */
-    public Set<JavaClass> getTypeUses() {
+    public Set<String> getTypeUses() {
         return typeUses;
     }
     
@@ -97,17 +103,11 @@ public class TypeCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(SimpleType node) {
-        JavaClass jc = null;
-        ITypeBinding binding = node.resolveBinding();
-        if (binding != null) {
-            jc = JavaClass.getJavaClass(binding.getQualifiedName());
-        }
-        
-        if (jc != null && !typeUses.contains(jc)) {
-            typeUses.add(jc);
-        }
-        
-        if (binding == null) {
+        ITypeBinding tbinding = node.resolveBinding();
+        if (tbinding != null) {
+            String fqn = JavaClass.createClassName(tbinding);
+            typeUses.add(JavaClass.getString(fqn));
+        } else {
             bindingOk = false;
         }
         

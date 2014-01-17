@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
@@ -19,7 +19,7 @@ import java.util.HashSet;
 /**
  * Visits a Java program and stores information on local declarations appearing in a field.
  * 
- * SingleVariableDeclaration node
+ * SingleVariableDeclaration
  * VariableDeclarationFragment
  * 
  * @see org.eclipse.jdt.core.dom.Expression
@@ -49,6 +49,14 @@ public class LocalDeclarationCollector extends ASTVisitor {
     public LocalDeclarationCollector(JavaMethod jm) {
         super();
         declaringMethod = jm;
+    }
+    
+    /**
+     * Clears information about the collected local declarations.
+     */
+    public void clear() {
+        localDeclarations.clear();
+        declaringMethod = null;
     }
     
     /**

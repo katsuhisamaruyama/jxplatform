@@ -1,14 +1,15 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
-import org.apache.log4j.Logger;
+import org.jtool.eclipse.model.java.internal.ExternalJavaField;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Name;
-import org.jtool.eclipse.model.java.internal.ExternalJavaField;
+import org.apache.log4j.Logger;
 
 /**
  * An object representing an expression for a variable access.
@@ -19,14 +20,14 @@ public class JavaVariableAccess extends JavaExpression {
     static Logger logger = Logger.getLogger(JavaVariableAccess.class.getName());
     
     /**
-     * The binding information about this variable access.
-     */
-    private IVariableBinding binding;
-    
-    /**
      * The name of this variable.
      */
     protected String name;
+    
+    /**
+     * The identification number of this variable.
+     */
+    protected int variableId;
     
     /**
      * The type of this variable.
@@ -34,19 +35,14 @@ public class JavaVariableAccess extends JavaExpression {
     protected String type;
     
     /**
-     * A flag indicating if the type of this variable is primitive.
-     */
-    protected boolean isPrimitive;
-    
-    /**
      * A flag indicating if this object represents a field.
      */
-    private boolean isField = false;
+    protected boolean isField = false;
     
     /**
      * A flag indicating if this object represents an enum constant.
      */
-    private boolean isEnumConstant = false;
+    protected boolean isEnumConstant = false;
     
     /**
      * The method containing this variable access.
@@ -56,7 +52,12 @@ public class JavaVariableAccess extends JavaExpression {
     /**
      * The name of class declaring the accessed field.
      */
-    private String classNameOfAccessedField;
+    protected String classNameOfAccessedField;
+    
+    /**
+     * A flag that indicates all bindings for types, methods, and variables were found.
+     */
+    protected boolean bindingOk = true;
     
     /**
      * Creates a new, empty object.
@@ -68,29 +69,51 @@ public class JavaVariableAccess extends JavaExpression {
     /**
      * Creates a new object representing a variable.
      * @param node an AST node for this variable
+     */
+    protected JavaVariableAccess(ASTNode node) {
+        super(node);
+    }
+    
+    /**
+     * Creates a new object representing a variable.
+     * @param node an AST node for this variable
      * @param jm the method containing this invocation
      */
     public JavaVariableAccess(Name node, JavaMethod jm) {
         super(node);
         
         declaringMethod = jm;
-        binding = (IVariableBinding)node.resolveBinding();
+        IVariableBinding binding = (IVariableBinding)node.resolveBinding();
         
-        name = binding.getName();
-        type = binding.getType().getQualifiedName();
-        isPrimitive = binding.getType().isPrimitive();
-        isField = binding.isField();
-        isEnumConstant = binding.isEnumConstant();
-        
-        if (isField || isEnumConstant) {
-            ITypeBinding tbinding = binding.getDeclaringClass();
-            if (tbinding != null) {
-                classNameOfAccessedField = tbinding.getQualifiedName();
-            } else {
-                JavaField jf = ExternalJavaField.create(binding);
-                classNameOfAccessedField = jf.getDeclaringJavaClass().getQualifiedName();
+        if (binding != null) {
+            name = binding.getName();
+            variableId = binding.getVariableId();
+            type = binding.getType().getQualifiedName();
+            isField = binding.isField();
+            isEnumConstant = binding.isEnumConstant();
+            
+            if (isField || isEnumConstant) {
+                ITypeBinding tbinding = binding.getDeclaringClass();
+                if (tbinding != null) {
+                    classNameOfAccessedField = tbinding.getQualifiedName();
+                } else {
+                    JavaField jf = ExternalJavaField.create(binding);
+                    classNameOfAccessedField = jf.getDeclaringJavaClass().getQualifiedName();
+                }
+                
             }
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
         }
+    }
+    
+    /**
+     * Tests if the binding for this class was found.
+     * @return <code>true</code> if the binding was found
+     */
+    public boolean isBindingOk() {
+        return bindingOk;
     }
     
     /**
@@ -139,8 +162,8 @@ public class JavaVariableAccess extends JavaExpression {
     /**
      * Tests if the type of this variable is primitive.
      */
-    public boolean isPrimitive() {
-        return isPrimitive;
+    public boolean isPrimitiveType() {
+        return isPrimitiveType(type);
     }
     
     /**
@@ -184,46 +207,20 @@ public class JavaVariableAccess extends JavaExpression {
     /**
      * A field corresponding to this variable access, or <code>null</code> if this is not a field variable access.
      */
-    private JavaField jfield = null;
+    protected JavaField jfield = null;
     
     /**
      * A local variable corresponding to this variable access, or <code>null</code> if this is not a local variable access.
      */
-    private JavaLocal jlocal = null;
+    protected JavaLocal jlocal = null;
     
     /**
-     * Tests if the binding for this variable access was found.
-     * @return <code>true</code> if the binding was found
-     */
-    public boolean isBindingOk() {
-        return binding != null;
-    }
-    
-    /**
-     * Displays error log if the binding is not completed.
+     * Displays error log if the binding has not completed yet.
      */
     private void bindingCheck() {
-        if (bindingLevel < 1) {
+        if (getBindingLevel() < 1) {
             logger.info("This API can be invoked after the completion of whole analysis");
         }
-    }
-    
-    /**
-     * Returns a field variable corresponding to this variable access.
-     * @return the found field variable, or <code>null</code> if none
-     */
-    public JavaField getJavaField() {
-        bindingCheck();
-        
-        if (jfield != null) {
-            return jfield;
-        }
-        
-        if (binding != null) {
-            jfield = getDeclaringJavaField(binding.getVariableDeclaration());
-            return jfield;
-        }
-        return null;
     }
     
     /**
@@ -236,42 +233,7 @@ public class JavaVariableAccess extends JavaExpression {
         if (isField()) {
             JavaField jf = getJavaField();
             if (jf != null) {
-                return jfield.getDeclaringJavaClass();
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * Returns a local variable corresponding to this variable access.
-     * @return the found local variable, or <code>null</code> if none
-     */
-    public JavaLocal getJavaLocal() {
-        bindingCheck();
-        
-        if (jlocal != null) {
-            return jlocal;
-        }
-        
-        if (binding != null) {
-            jlocal = getDeclaringJavaLocal(binding.getVariableDeclaration());
-            return jlocal;
-        }
-        return null;
-    }
-    
-    /**
-     * Returns a local variable corresponding to a given AST node and its binding.
-     * @param bind the variable binding
-     * @return the found local variable, or <code>null</code> if none
-     */
-    private JavaLocal getDeclaringJavaLocal(IVariableBinding binding) {
-        bindingCheck();
-        
-        if (declaringMethod != null) {
-            JavaLocal jl = declaringMethod.getJavaLocal(binding.getName(), binding.getVariableId());
-            if (jl != null) {
-                return jl;
+                return jf.getDeclaringJavaClass();
             }
         }
         return null;
@@ -288,6 +250,60 @@ public class JavaVariableAccess extends JavaExpression {
             JavaLocal jl = getJavaLocal();
             if (jl != null) {
                 return jl.getDeclaringJavaMethod();
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Returns a field variable corresponding to this variable access.
+     * @return the found field variable, or <code>null</code> if none
+     */
+    public JavaField getJavaField() {
+        bindingCheck();
+        
+        if (isField()) {
+            if (jfield != null) {
+                return jfield;
+            }
+            
+            jfield = getDeclaringJavaField(classNameOfAccessedField, name);
+            return jfield;
+        }
+        return null;
+    }
+    
+    /**
+     * Returns a local variable corresponding to this variable access.
+     * @return the found local variable, or <code>null</code> if none
+     */
+    public JavaLocal getJavaLocal() {
+        bindingCheck();
+        
+        if (isLocal()) {
+            if (jlocal != null) {
+                return jlocal;
+            }
+            
+            jlocal = getDeclaringJavaLocal(name, variableId);
+            return jlocal;
+        }
+        return null;
+    }
+    
+    /**
+     * Returns a local variable corresponding to a given name and its identification number.
+     * @param vname the name of the variable
+     * @param vid the identification number of the variable
+     * @return the found local variable, or <code>null</code> if none
+     */
+    private JavaLocal getDeclaringJavaLocal(String vname, int vid) {
+        bindingCheck();
+        
+        if (declaringMethod != null) {
+            JavaLocal jl = declaringMethod.getJavaLocal(vname, vid);
+            if (jl != null) {
+                return jl;
             }
         }
         return null;

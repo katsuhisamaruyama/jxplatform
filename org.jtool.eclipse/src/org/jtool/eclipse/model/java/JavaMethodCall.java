@@ -1,9 +1,10 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -26,14 +27,9 @@ public class JavaMethodCall extends JavaExpression {
     static Logger logger = Logger.getLogger(JavaMethodCall.class.getName());
     
     /**
-     * The binding information about this method invocation.
-     */
-    private IMethodBinding binding;
-    
-    /**
      * The name of the called method.
      */
-    private String name;
+    protected String name;
     
     /**
      * The signature of this method.
@@ -48,12 +44,12 @@ public class JavaMethodCall extends JavaExpression {
     /**
      * The collection of arguments for this method invocation.
      */
-    private List<JavaExpression> arguments = new ArrayList<JavaExpression>();
+    protected List<JavaExpression> arguments = new ArrayList<JavaExpression>();
     
     /**
      * The collection of argument types for this method invocation.
      */
-    private List<String> argumentTypes = new ArrayList<String>();
+    protected List<String> argumentTypes = new ArrayList<String>();
     
     /**
      * The method containing this method invocation.
@@ -63,7 +59,12 @@ public class JavaMethodCall extends JavaExpression {
     /**
      * The name of class declaring the invoked method.
      */
-    private String classNameOfInvokedMethod;
+    protected String classNameOfInvokedMethod;
+    
+    /**
+     * A flag that indicates all bindings for types, methods, and variables were found.
+     */
+    protected boolean bindingOk = true;
     
     /**
      * Creates a new, empty object.
@@ -75,24 +76,37 @@ public class JavaMethodCall extends JavaExpression {
     /**
      * Creates a new object representing a method invocation.
      * @param node an AST node for this invocation
+     */
+    protected JavaMethodCall(ASTNode node) {
+        super(node);
+    }
+    
+    /**
+     * Creates a new object representing a method invocation.
+     * @param node an AST node for this invocation
      * @param binding the method binding for this invocation
      * @param jm the method containing this invocation
      */
     @SuppressWarnings("unchecked")
     public JavaMethodCall(MethodInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
-        this.binding = binding;
         
         declaringMethod = jm;
         
-        name = binding.getName();
-        signature = getSignature(binding);
-        type = binding.getReturnType().getQualifiedName();
-        
-        setArguments(node.arguments());
-        setArgumentTypes(binding);
-        
-        classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getReturnType().getQualifiedName();
+            
+            setArguments(node.arguments());
+            setArgumentTypes(binding);
+            
+            classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+            
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
+        }
     }
     
     /**
@@ -104,17 +118,22 @@ public class JavaMethodCall extends JavaExpression {
     @SuppressWarnings("unchecked")
     public JavaMethodCall(SuperMethodInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
-        this.binding = binding;
         
-        name = binding.getName();
-        signature = getSignature(binding);
-        type = binding.getReturnType().getQualifiedName();
-        
-        setArguments(node.arguments());
-        setArgumentTypes(binding);
-        
-        declaringMethod = jm;
-        classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getReturnType().getQualifiedName();
+            
+            setArguments(node.arguments());
+            setArgumentTypes(binding);
+            
+            declaringMethod = jm;
+            classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+            
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
+        }
     }
     
     /**
@@ -126,17 +145,22 @@ public class JavaMethodCall extends JavaExpression {
     @SuppressWarnings("unchecked")
     public JavaMethodCall(ConstructorInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
-        this.binding = binding;
         
-        name = binding.getName();
-        signature = getSignature(binding);
-        type = binding.getName();;
-        
-        setArguments(node.arguments());
-        setArgumentTypes(binding);
-        
-        declaringMethod = jm;
-        classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getName();;
+            
+            setArguments(node.arguments());
+            setArgumentTypes(binding);
+            
+            declaringMethod = jm;
+            classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+            
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
+        }
     }
     
     /**
@@ -148,17 +172,22 @@ public class JavaMethodCall extends JavaExpression {
     @SuppressWarnings("unchecked")
     public JavaMethodCall(SuperConstructorInvocation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
-        this.binding = binding;
         
-        name = binding.getName();
-        signature = getSignature(binding);
-        type = binding.getName();;
-        
-        setArguments(node.arguments());
-        setArgumentTypes(binding);
-        
-        declaringMethod = jm;
-        classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getName();;
+            
+            setArguments(node.arguments());
+            setArgumentTypes(binding);
+            
+            declaringMethod = jm;
+            classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+            
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
+        }
     }
     
     /**
@@ -170,17 +199,22 @@ public class JavaMethodCall extends JavaExpression {
     @SuppressWarnings("unchecked")
     public JavaMethodCall(ClassInstanceCreation node, IMethodBinding binding, JavaMethod jm) {
         super(node);
-        this.binding = binding;
         
-        name = binding.getName();
-        signature = getSignature(binding);
-        type = binding.getName();
-        
-        setArguments(node.arguments());
-        setArgumentTypes(binding);
-        
-        declaringMethod = jm;
-        classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getName();
+            
+            setArguments(node.arguments());
+            setArgumentTypes(binding);
+            
+            declaringMethod = jm;
+            classNameOfInvokedMethod = binding.getDeclaringClass().getQualifiedName();
+            
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
+        }
     }
     
     /**
@@ -210,7 +244,7 @@ public class JavaMethodCall extends JavaExpression {
      * @param binding the binding for the method
      * @return the string including the fully qualified names of the argument types, or an empty string if there is no parameter
      */
-    private String getArgumentTypes(IMethodBinding binding) {
+    private static String getArgumentTypes(IMethodBinding binding) {
         StringBuffer buf = new StringBuffer();
         ITypeBinding[] types = binding.getParameterTypes();
         for (int i = 0; i < types.length; i++) {
@@ -224,8 +258,16 @@ public class JavaMethodCall extends JavaExpression {
      * Obtains the signature of this method or constructor call.
      * @return the string of the method signature.
      */
-    private String getSignature(IMethodBinding binding) {
-        return getName() + "(" + getArgumentTypes(binding) + " )";
+    private static String getSignature(IMethodBinding binding) {
+        return binding.getName() + "(" + getArgumentTypes(binding) + " )";
+    }
+    
+    /**
+     * Tests if the binding for this class was found.
+     * @return <code>true</code> if the binding was found
+     */
+    public boolean isBindingOk() {
+        return bindingOk;
     }
     
     /**
@@ -323,14 +365,6 @@ public class JavaMethodCall extends JavaExpression {
     }
     
     /**
-     * Returns a hash code value for this method invocation.
-     * @return the hash code value for the method invocation
-     */
-    public int hashCode() {
-        return getQualifiedName().hashCode();
-    }
-    
-    /**
      * Tests if this method invocation corresponds to a given method.
      * @param jm the method which is compared to
      * @return <code>true</code> if this invocation corresponds to the method, otherwise <code>false</code>
@@ -343,6 +377,14 @@ public class JavaMethodCall extends JavaExpression {
                getSignature().compareTo(jm.getSignature()) == 0;
     }
     
+    /**
+     * Returns a hash code value for this method invocation.
+     * @return the hash code value for the method invocation
+     */
+    public int hashCode() {
+        return getQualifiedName().hashCode();
+    }
+    
     /* ================================================================================
      * The following functionalities can be used after completion of whole analysis 
      * ================================================================================ */
@@ -350,21 +392,13 @@ public class JavaMethodCall extends JavaExpression {
     /**
      * The method corresponding to this method invocation.
      */
-    private JavaMethod jmethod;
+    protected JavaMethod jmethod;
     
     /**
-     * Tests if the binding for this method invocation was found.
-     * @return <code>true</code> if the binding was found
-     */
-    public boolean isBindingOk() {
-        return binding != null;
-    }
-    
-    /**
-     * Displays error log if the binding is not completed.
+     * Displays error log if the binding has not completed yet.
      */
     private void bindingCheck() {
-        if (bindingLevel < 1) {
+        if (getBindingLevel() < 1) {
             logger.info("This API can be invoked after the completion of whole analysis");
         }
     }
@@ -375,6 +409,7 @@ public class JavaMethodCall extends JavaExpression {
      */
     public JavaClass getJavaClassOf() {
         bindingCheck();
+        
         JavaMethod jm = getJavaMethod();
         if (jm != null) {
             return jm.getDeclaringJavaClass();
@@ -393,11 +428,8 @@ public class JavaMethodCall extends JavaExpression {
             return jmethod;
         }
         
-        if (binding != null) {
-            jmethod = getDeclaringJavaMethod(binding.getMethodDeclaration());
-            return jmethod;
-        }
-        return null;
+        jmethod = getDeclaringJavaMethod(classNameOfInvokedMethod, signature);
+        return jmethod;
     }
     
     /**

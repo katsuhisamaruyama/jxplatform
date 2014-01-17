@@ -7,6 +7,7 @@ package org.jtool.eclipse.handlers;
 import org.jtool.eclipse.model.java.JavaModelFactory;
 import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.pdg.PDGFactory;
+import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaProject;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -29,6 +30,7 @@ public class ProjectAction2 extends ProjectAction {
         IJavaProject project = getJavaProject(event);
         if (project != null) {
             JavaModelFactory factory = new JavaModelFactory(project);
+            factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
             JavaProject jproject = factory.create();
             
             createCFGs(jproject);

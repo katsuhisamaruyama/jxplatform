@@ -4,6 +4,7 @@
  
 package org.jtool.eclipse.handlers;
 
+import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaModelFactory;
 import org.jtool.eclipse.io.FileWriter;
 import org.jtool.eclipse.io.JtoolFile;
@@ -25,9 +26,11 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.handlers.HandlerUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -53,6 +56,7 @@ public class ProjectAction extends AbstractHandler {
         IJavaProject project = getJavaProject(event);
         if (project != null) {
             JavaModelFactory factory = new JavaModelFactory(project);
+            factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
             factory.create();
         }
         return null;

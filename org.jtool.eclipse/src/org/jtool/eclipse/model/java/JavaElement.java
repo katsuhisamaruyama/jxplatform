@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
@@ -41,6 +41,16 @@ public abstract class JavaElement {
     protected int codeLength;
     
     /**
+     * The character index into the original source code indicating where the code fragment for this element begins, including comments and whitespace.
+     */
+    protected int extendedStartPosition;
+    
+    /**
+     * The length in characters of the code fragment for this element, including comments and whitespace.
+     */
+    protected int extendedCodeLength;
+    
+    /**
      * The upper line number of code fragment for this element.
      */
     protected int upperLineNumber;
@@ -49,6 +59,16 @@ public abstract class JavaElement {
      * The bottom line number of code fragment for this element.
      */
     protected int bottomLineNumber;
+    
+    /**
+     * The upper line number of code fragment for this element, including comments and whitespace.
+     */
+    protected int extendedUpperLineNumber;
+    
+    /**
+     * The bottom line number of code fragment for this element, including comments and whitespace.
+     */
+    protected int extendedBottomLineNumber;
     
     /**
      * Creates a new, empty object.
@@ -62,10 +82,37 @@ public abstract class JavaElement {
      */
     protected JavaElement(ASTNode node) {
         astNode = node;
+        
         startPosition = getStartPosition(node);
+        extendedStartPosition = getExtendedStartPosition(node);
         codeLength = getCodeLength(node);
+        extendedCodeLength = getExtendedCodeLength(node);
         upperLineNumber = getUpperLineNumber(node);
+        extendedUpperLineNumber = getExtendedUpperLineNumber(node);
         bottomLineNumber = getBottomLineNumber(node);
+        extendedBottomLineNumber = getExtendedBottomLineNumber(node);
+    }
+    
+    /**
+     * Sets the code properties with respect to positions and line numbers of this element.
+     * @param start the character index indicating where the code fragment for this element begins
+     * @param exstart the character index indicating where the code fragment for this element begins, including comments and whitespace
+     * @param len the length in characters of the code fragment for this element
+     * @param exlen the length in characters of the code fragment for this element, including comments and whitespace
+     * @param upper the upper line number of code fragment for this element
+     * @param exupper the upper line number of code fragment for this element, including comments and whitespace
+     * @param bottom the bottom line number of code fragment for this element
+     * @param exbottom the bottom line number of code fragment for this element, including comments and whitespace
+     */
+    public void setCodeProperties(int start, int exstart, int len, int exlen, int upper, int exupper, int bottom, int exbottom) {
+        startPosition = start;
+        extendedStartPosition = exstart;
+        codeLength = len;
+        extendedCodeLength = exlen;
+        upperLineNumber = upper;
+        extendedUpperLineNumber = exupper;
+        bottomLineNumber = bottom;
+        extendedBottomLineNumber = exbottom;
     }
     
     /**
@@ -76,10 +123,7 @@ public abstract class JavaElement {
      * @param bottom the bottom line number of code fragment for this element
      */
     public void setCodeProperties(int start, int len, int upper, int bottom) {
-        startPosition = start;
-        codeLength = len;
-        upperLineNumber = upper;
-        bottomLineNumber = bottom;
+        setCodeProperties(start, start, len, len, upper, upper, bottom, bottom);
     }
     
     /**
@@ -91,11 +135,18 @@ public abstract class JavaElement {
     }
     
     /**
+     * Clears information about the AST node for this element.
+     */
+    public void clearASTNode() {
+        astNode = null;
+    }
+    
+    /**
      * Returns the start position of code fragment for this element.
      * @param node an AST node for this element
      * @return the index value, or <code>-1</code> if no source position information is recorded
      */
-    private int getStartPosition(ASTNode node) {
+    private static int getStartPosition(ASTNode node) {
         if (node != null) {
             return node.getStartPosition();
         }
@@ -115,7 +166,7 @@ public abstract class JavaElement {
      * @param node an AST node for this element
      * @return the length of the characters, or <code>0</code> if no source position information is recorded
      */
-    public int getCodeLength(ASTNode node) {
+    public static int getCodeLength(ASTNode node) {
         if (node != null) {
             return node.getLength();
         }
@@ -132,6 +183,15 @@ public abstract class JavaElement {
     
     /**
      * Returns the character index into the original source code indicating where the code fragment for this element ends.
+     * @param node an AST node for this element
+     * @return the index value, or <code>-1</code> if no source position information is recorded
+     */
+    private static int getEndPosition(ASTNode node) {
+        return getStartPosition(node) + getCodeLength(node) - 1;
+    }
+    
+    /**
+     * Returns the character index into the original source code indicating where the code fragment for this element ends.
      * @return the index value, or <code>-1</code> if no source position information is recorded
      */
     public int getEndPosition() {
@@ -143,7 +203,7 @@ public abstract class JavaElement {
      * @param node an AST node for this element
      * @return the compilation unit containing this element
      */
-    public CompilationUnit getCompilationUnit(ASTNode node) {
+    private static CompilationUnit getCompilationUnit(ASTNode node) {
         if (node != null) {
             return (CompilationUnit)node.getRoot();
         }
@@ -152,27 +212,54 @@ public abstract class JavaElement {
     
     /**
      * Returns the starting position of code fragment for this element, including comments and whitespace.
+     * @param node an AST node for this element
      * @return the index value, or <code>-1</code> if no source position information is recorded
      */
-    public int getExtendedStartPosition() {
-        CompilationUnit cu = getCompilationUnit(astNode);
+    private static int getExtendedStartPosition(ASTNode node) {
+        CompilationUnit cu = getCompilationUnit(node);
         if (cu != null) {
-            return cu.getExtendedStartPosition(astNode);
+            return cu.getExtendedStartPosition(node);
         }
         return -1;
     }
     
+    /**
+     * Returns the starting position of code fragment for this element, including comments and whitespace.
+     * @return the index value, or <code>-1</code> if no source position information is recorded
+     */
+    public int getExtendedStartPosition() {
+        return extendedStartPosition;
+    }
+    
+    /**
+     * Returns the length of code fragment for this element, including comments and whitespace.
+     * @param node an AST node for this element
+     * @return the length of the characters, or <code>0</code> if no source position information is recorded
+     */
+    private static int getExtendedCodeLength(ASTNode node) {
+        CompilationUnit cu = getCompilationUnit(node);
+        if (cu != null) {
+            return cu.getExtendedLength(node);
+        }
+        return -1;
+    }
     
     /**
      * Returns the length of code fragment for this element, including comments and whitespace.
      * @return the length of the characters, or <code>0</code> if no source position information is recorded
      */
     public int getExtendedCodeLength() {
-        CompilationUnit cu = getCompilationUnit(astNode);
-        if (cu != null) {
-            return cu.getExtendedLength(astNode);
-        }
-        return -1;
+        return extendedCodeLength;
+    }
+    
+    /**
+     * Returns the character index into the original source code indicating where the code fragment for this element ends.
+     * It may include comments and whitespace immediately before or after the normal source range for the element.
+     * @param node an AST node for this element
+     * @return the index value, or <code>-1</code> if no source position information is recorded
+     */
+    private static int getExtendedEndPosition(ASTNode node) {
+        return getExtendedStartPosition(node) + getExtendedCodeLength(node) - 1;
     }
     
     /**
@@ -181,7 +268,7 @@ public abstract class JavaElement {
      * @return the index value, or <code>-1</code> if no source position information is recorded
      */
     public int getExtendedEndPosition() {
-        return getExtendedStartPosition() + getExtendedCodeLength() - 1;
+        return extendedStartPosition + extendedCodeLength - 1;
     }
     
     /**
@@ -189,10 +276,10 @@ public abstract class JavaElement {
      * @param node an AST node for this element
      * @return the upper line number of code fragment
      */
-    public int getUpperLineNumber(ASTNode node) {
+    private static int getUpperLineNumber(ASTNode node) {
         CompilationUnit cu = getCompilationUnit(node);
         if (cu != null) {
-            return cu.getLineNumber(getStartPosition());
+            return cu.getLineNumber(getStartPosition(node));
         }
         return -1;
     }
@@ -206,24 +293,66 @@ public abstract class JavaElement {
     }
     
     /**
-     * Returns the bottom line number of code fragment for this element.
+     * Returns the upper line number of code fragment for this element, including comments and whitespace.
      * @param node an AST node for this element
-     * @return the bottom line number of code fragment
+     * @return the upper line number of code fragment
      */
-    public int getBottomLineNumber(ASTNode node) {
+    private static int getExtendedUpperLineNumber(ASTNode node) {
         CompilationUnit cu = getCompilationUnit(node);
         if (cu != null) {
-            return cu.getLineNumber(getEndPosition());
+            return cu.getLineNumber(getExtendedStartPosition(node));
         }
         return -1;
     }
     
     /**
-     * Obtains the lines of code fragment for this element.
+     * Returns the upper line number of code fragment for this element, including comments and whitespace.
+     * @return the upper line number of code fragment
+     */
+    public int getExtendedUpperLineNumber() {
+        return extendedUpperLineNumber;
+    }
+    
+    /**
+     * Returns the bottom line number of code fragment for this element.
+     * @param node an AST node for this element
+     * @return the bottom line number of code fragment
+     */
+    private static int getBottomLineNumber(ASTNode node) {
+        CompilationUnit cu = getCompilationUnit(node);
+        if (cu != null) {
+            return cu.getLineNumber(getEndPosition(node));
+        }
+        return -1;
+    }
+    
+    /**
+     * Returns the bottom line number of code fragment for this element
      * @return the number of lines of code fragment
      */
     public int getBottomLineNumber() {
         return bottomLineNumber;
+    }
+    
+    /**
+     * Returns the bottom line number of code fragment for this element, including comments and whitespace.
+     * @param node an AST node for this element
+     * @return the bottom line number of code fragment
+     */
+    private static int getExtendedBottomLineNumber(ASTNode node) {
+        CompilationUnit cu = getCompilationUnit(node);
+        if (cu != null) {
+            return cu.getLineNumber(getExtendedEndPosition(node));
+        }
+        return -1;
+    }
+    
+    /**
+     * Returns the bottom line number of code fragment for this element, including comments and whitespace.
+     * @return the number of lines of code fragment
+     */
+    public int getExtendedBottomLineNumber() {
+        return extendedBottomLineNumber;
     }
     
     /**
@@ -235,11 +364,19 @@ public abstract class JavaElement {
     }
     
     /**
+     * Obtains the lines of code fragment for this element, including comments and whitespace.
+     * @return the number of lines of code fragment
+     */
+    public int getExtendedLoc() {
+        return extendedBottomLineNumber - extendedUpperLineNumber + 1;
+    }
+    
+    /**
      * Returns a class corresponding to a given binding.
      * @param binding the type binding
      * @return the found class, or <code>null</code> if none
      */
-    public JavaClass getDeclaringJavaClass(ITypeBinding binding) {
+    public static JavaClass getDeclaringJavaClass(ITypeBinding binding) {
         if (binding != null) {
             JavaClass jc = JavaClass.getJavaClass(binding.getQualifiedName());
             if (jc != null) {
@@ -251,16 +388,32 @@ public abstract class JavaElement {
     }
     
     /**
+     * Returns a class corresponding to a given binding.
+     * @param binding the type binding
+     * @return the found class, or <code>null</code> if none
+     */
+    public static JavaClass getDeclaringJavaClass(String fqn) {
+        if (fqn != null) {
+            JavaClass jc = JavaClass.getJavaClass(fqn);
+            if (jc != null) {
+                return jc;
+            }
+            return ExternalJavaClass.create(fqn);
+        }
+        return null;
+    }
+    
+    /**
      * Returns a method corresponding to a given binding.
      * @param binding the method binding
      * @return the found method, or <code>null</code> if none
      */
-    public JavaMethod getDeclaringJavaMethod(IMethodBinding binding) {
+    public static JavaMethod getDeclaringJavaMethod(IMethodBinding binding) {
         if (binding != null) { 
             JavaClass jc = JavaClass.getJavaClass(binding.getDeclaringClass().getQualifiedName());
             
             if (jc != null) {
-                JavaMethod jm = jc.getJavaMethod(getSignature(binding));
+                JavaMethod jm = jc.getJavaMethod(getSignatureString(binding));
                 if (jm != null) {
                     return jm;
                 }
@@ -271,11 +424,32 @@ public abstract class JavaElement {
     }
     
     /**
+     * Returns a method corresponding to a given signature of a class with a given class.
+     * @param fqn the fully-qualified name of a class declaring the method
+     * @param sig the signature of the method
+     * @return the found method, or <code>null</code> if none
+     */
+    public static JavaMethod getDeclaringJavaMethod(String fqn, String sig) {
+        if (fqn != null) { 
+            JavaClass jc = JavaClass.getJavaClass(fqn);
+            
+            if (jc != null) {
+                JavaMethod jm = jc.getJavaMethod(sig);
+                if (jm != null) {
+                    return jm;
+                }
+            }
+            return ExternalJavaMethod.create(fqn, sig);
+        }
+        return null;
+    }
+    
+    /**
      * Obtains the signature of a given method.
      * @param bind the binding for the method
      * @return the string of the method signature
      */
-    private String getSignature(IMethodBinding binding) {
+    public static String getSignatureString(IMethodBinding binding) {
         return binding.getName() + "(" + getParameterTypes(binding) +" )";
     }
     
@@ -284,7 +458,7 @@ public abstract class JavaElement {
      * @param bind the binding for the method 
      * @return the string including the fully qualified names of the parameter types, or an empty string if there is no parameter
      */
-    private String getParameterTypes(IMethodBinding binding) {
+    private static String getParameterTypes(IMethodBinding binding) {
         StringBuffer buf = new StringBuffer();
         ITypeBinding[] types = binding.getParameterTypes();
         for (int i = 0; i < types.length; i++) {
@@ -299,7 +473,7 @@ public abstract class JavaElement {
      * @param bind the variable binding
      * @return the found field variable, or <code>null</code> if none
      */
-    public JavaField getDeclaringJavaField(IVariableBinding binding) {
+    public static JavaField getDeclaringJavaField(IVariableBinding binding) {
         if (binding != null) { 
             ITypeBinding tbinding = binding.getDeclaringClass();
             if (tbinding != null) {
@@ -317,11 +491,32 @@ public abstract class JavaElement {
     }
     
     /**
+     * Returns a field corresponding to a given name of a class with a given class.
+     * @param fqn the fully-qualified name of a class declaring the field
+     * @param name the name of the field
+     * @return the found field variable, or <code>null</code> if none
+     */
+    public static JavaField getDeclaringJavaField(String fqn, String name) {
+        if (fqn != null) { 
+            JavaClass jc = JavaClass.getJavaClass(fqn);
+            
+            if (jc != null) {
+                JavaField jf = jc.getJavaField(name);
+                if (jf != null) {
+                    return jf;
+                }
+            }
+            return ExternalJavaField.create(fqn, name);
+        }
+        return null;
+    }
+    
+    /**
      * Returns a class that encloses this element.
      * @param node the AST corresponding to this element
      * @return the class encloses this element, <code>null</code> if none
      */
-    public JavaClass getDeclaringJavaClass(ASTNode node) {
+    public static JavaClass getDeclaringJavaClass(ASTNode node) {
         TypeDeclaration tnode = (TypeDeclaration)getAncestor(node, ASTNode.TYPE_DECLARATION);
         if (tnode != null) {
             return getDeclaringJavaClass(tnode.resolveBinding());
@@ -340,7 +535,7 @@ public abstract class JavaElement {
      * @param node the AST corresponding to this element
      * @return the method that encloses this element, <code>null</code> if none
      */
-    public JavaMethod getDeclaringJavaMethod(ASTNode node) {
+    public static JavaMethod getDeclaringJavaMethod(ASTNode node) {
         MethodDeclaration mnode = (MethodDeclaration)getAncestor(node, ASTNode.METHOD_DECLARATION);
         if (mnode != null) {
             return getDeclaringJavaMethod(mnode.resolveBinding());
@@ -363,7 +558,7 @@ public abstract class JavaElement {
      * @param sort the node type (@see org.eclipse.jdt.core.dom.ASTNode)
      * @return the found AST node, or <code>null</code> if none
      */
-    public ASTNode getAncestor(ASTNode node, int sort) {
+    public static ASTNode getAncestor(ASTNode node, int sort) {
         if (node.getNodeType() == sort) {
             return node;
         }
@@ -375,7 +570,6 @@ public abstract class JavaElement {
         
         return null;
     }
-    
     
     /**
      * An integer number that indicates the binding level.
@@ -399,29 +593,24 @@ public abstract class JavaElement {
     }
     
     /**
-     * Finds an AST node corresponding to this Java element.
-     */
-    public void findASTNode() {
-        // TODO obtains ASTNode
-    }
-    
-    /**
      * Obtains source code corresponding to this Java element.
+     * @param node an AST node for this element
      * @return the contents of the source code
      */
-    public String getSource() {
-        StringBuffer buf = new StringBuffer(getCompilationUnitSource(astNode));
-        return buf.substring(getStartPosition(), getEndPosition() + 1);
+    public static String getSource(ASTNode node) {
+        StringBuffer buf = new StringBuffer(getCompilationUnitSource(node));
+        return buf.substring(getStartPosition(node), getEndPosition(node) + 1);
     }
     
     /**
      * Obtains source code corresponding to this Java element.
      * It may include comments and whitespace immediately before or after the normal source range for the element.
+     * @param node an AST node for this element
      * @return the contents of the source code
      */
-    public String getExtendedSource() {
-        StringBuffer buf = new StringBuffer(getCompilationUnitSource(astNode));
-        return buf.substring(getExtendedStartPosition(), getExtendedEndPosition() + 1);
+    public static String getExtendedSource(ASTNode node) {
+        StringBuffer buf = new StringBuffer(getCompilationUnitSource(node));
+        return buf.substring(getExtendedStartPosition(node), getExtendedEndPosition(node) + 1);
     }
     
     /**
@@ -429,7 +618,7 @@ public abstract class JavaElement {
      * @param node the AST corresponding to this element
      * @return the contents of the source code
      */
-    private String getCompilationUnitSource(ASTNode node) {
+    private static String getCompilationUnitSource(ASTNode node) {
         CompilationUnit cu = getCompilationUnit(node);
         if (cu != null) {
             ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
@@ -440,5 +629,21 @@ public abstract class JavaElement {
             }
         }
         return "";
+    }
+    
+    /**
+     * Tests if a given type is primitive.
+     * @param type the string of the type to be checked
+     * @return <code>true</code> if a given type is primitive, otherwise <code>false</code>
+     */
+    public static boolean isPrimitiveType(String type) {
+        return type.compareTo("byte") == 0 ||
+               type.compareTo("short") == 0 ||
+               type.compareTo("int") == 0 ||
+               type.compareTo("long") == 0 ||
+               type.compareTo("float") == 0 ||
+               type.compareTo("double") == 0 ||
+               type.compareTo("char") == 0 ||
+               type.compareTo("boolean") == 0;
     }
 }

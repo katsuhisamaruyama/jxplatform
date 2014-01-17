@@ -1,15 +1,16 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
 
+import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaMethod;
-import org.jtool.eclipse.model.java.JavaMethodCall;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -28,17 +29,12 @@ import java.util.HashSet;
  * @see org.eclipse.jdt.core.dom.Expression
  * @author Katsuhisa Maruyama
  */
-public class MethodInvocationCollector extends ASTVisitor {
+public class MethodCallCollector extends ASTVisitor {
     
     /**
      * The collection of method invocations.
      */
-    private Set<JavaMethod> methodInvocations = new HashSet<JavaMethod>();
-    
-    /**
-     * The method containing this method invocation.
-     */
-    protected JavaMethod declaringMethod;
+    private Set<String> methodCalls = new HashSet<String>();
     
     /**
      * A flag that indicates all bindings for methods were found.
@@ -49,17 +45,23 @@ public class MethodInvocationCollector extends ASTVisitor {
      * Creates a new object for collecting methods called by this method.
      * @param jm the method containing this invocation
      */
-    public MethodInvocationCollector(JavaMethod jm) {
+    public MethodCallCollector() {
         super();
-        declaringMethod = jm;
+    }
+    
+    /**
+     * Clears information about the collected methods.
+     */
+    public void clear() {
+        methodCalls.clear();
     }
     
     /**
      * Returns all the methods that this method calls.
      * @return the collection of the methods
      */
-    public Set<JavaMethod> getMethodInvocations() {
-        return methodInvocations;
+    public Set<String> getMethodCalls() {
+        return methodCalls;
     }
     
     /**
@@ -76,11 +78,7 @@ public class MethodInvocationCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(MethodInvocation node) {
-        IMethodBinding binding = node.resolveMethodBinding();
-        if (binding != null) {
-            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
-            addJavaMethodInvocation(jinv, node.resolveMethodBinding());
-        }
+        addJavaMethodCall(node.resolveMethodBinding());
         return false;
     }
     
@@ -90,11 +88,7 @@ public class MethodInvocationCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(SuperMethodInvocation node) {
-        IMethodBinding binding = node.resolveMethodBinding();
-        if (binding != null) {
-            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
-            addJavaMethodInvocation(jinv, node.resolveMethodBinding());
-        }
+        addJavaMethodCall(node.resolveMethodBinding());
         return false;
     }
     
@@ -104,11 +98,7 @@ public class MethodInvocationCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(ConstructorInvocation node) {
-        IMethodBinding binding = node.resolveConstructorBinding();
-        if (binding != null) {
-            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
-            addJavaMethodInvocation(jinv, node.resolveConstructorBinding());
-        }
+        addJavaMethodCall(node.resolveConstructorBinding());
         return false;
     }
     
@@ -118,11 +108,7 @@ public class MethodInvocationCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(SuperConstructorInvocation node) {
-        IMethodBinding binding = node.resolveConstructorBinding();
-        if (binding != null) {
-            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
-            addJavaMethodInvocation(jinv, node.resolveConstructorBinding());
-        }
+        addJavaMethodCall(node.resolveConstructorBinding());
         return false;
     }
     
@@ -132,26 +118,29 @@ public class MethodInvocationCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(ClassInstanceCreation node) {
-        IMethodBinding binding = node.resolveConstructorBinding();
-        if (binding != null) {
-            JavaMethodCall jinv = new JavaMethodCall(node, binding, declaringMethod);
-            addJavaMethodInvocation(jinv, node.resolveConstructorBinding());
-        }
+        addJavaMethodCall(node.resolveConstructorBinding());
         return false;
     }
     
     /**
      * Collects the method invocation information.
-     * @param jinv the method invocation
-     * @param the method binding for this method invocation
+     * @param mbinding the method binding for this method invocation
      */
-    private void addJavaMethodInvocation(JavaMethodCall jinv, IMethodBinding binding) {
-        JavaMethod jm = jinv.getJavaMethod();
-        if (jm != null && !methodInvocations.contains(jm)) {
-            methodInvocations.add(jm);
-        }
-        
-        if (binding == null) {
+    private void addJavaMethodCall(IMethodBinding mbinding) {
+        if (mbinding != null) {
+            ITypeBinding tbinding = mbinding.getDeclaringClass();
+            String fqn;
+            if (tbinding != null) {
+                fqn = JavaClass.createClassName(tbinding); 
+            } else {
+                JavaMethod jm = ExternalJavaMethod.create(mbinding);
+                fqn = jm.getDeclaringJavaClass().getQualifiedName();
+            }
+            
+            String str = JavaMethod.getString(fqn, JavaMethod.getSignature(mbinding));
+            methodCalls.add(str);
+            
+        } else {
             bindingOk = false;
         }
     }

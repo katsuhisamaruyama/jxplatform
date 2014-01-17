@@ -1,10 +1,9 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
-import org.jtool.eclipse.model.java.internal.ExternalJavaClass;
 import org.jtool.eclipse.model.java.internal.TypeCollector;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
@@ -33,11 +32,6 @@ public class JavaClass extends JavaElement {
     protected static HashMap<String, JavaClass> cache = new HashMap<String, JavaClass>();
     
     /**
-     * The type binding for this class.
-     */
-    private ITypeBinding binding;
-    
-    /**
      * The name of this class.
      */
     protected String name;
@@ -50,17 +44,27 @@ public class JavaClass extends JavaElement {
     /**
      * The modifiers of this class.
      */
-    private int modifiers;
+    protected int modifiers;
     
     /**
      * A flag indicating if this object represents an interface.
      */
-    private boolean isInterface;
+    protected boolean isInterface;
     
     /**
      * A flag indicating if this object represents an enum.
      */
-    private boolean isEnum;
+    protected boolean isEnum;
+    
+    /**
+     * A class declaring this class.
+     */
+    protected JavaClass declaringClass = null;
+    
+    /**
+     * A method declaring this class.
+     */
+    protected JavaMethod declaringMethod = null;
     
     /**
      * The name of super class for this class.
@@ -71,6 +75,11 @@ public class JavaClass extends JavaElement {
      * The names of super interfaces for this class.
      */
     protected Set<String> superInterfaceNames = new HashSet<String>();
+    
+    /**
+     * The names of efferent classes for this class.
+     */
+    protected Set<String> efferentClassNames = new HashSet<String>();
     
     /**
      * A file which this class is written in.
@@ -98,10 +107,23 @@ public class JavaClass extends JavaElement {
     protected Set<JavaClass> innerClasses = new HashSet<JavaClass>();
     
     /**
+     * A flag that indicates all bindings for types, methods, and variables were found.
+     */
+    protected boolean bindingOk = true;
+    
+    /**
      * Creates a new, empty object.
      */
     protected JavaClass() {
         super();
+    }
+    
+    /**
+     * Creates a new object representing a class.
+     * @param node the AST node for this class
+     */
+    protected JavaClass(ASTNode node) {
+        super(node);
     }
     
     /**
@@ -113,28 +135,42 @@ public class JavaClass extends JavaElement {
     private JavaClass(ASTNode node, ITypeBinding binding, JavaPackage jp) {
         super(node);
         
-        this.binding = binding;
         jpackage = jp;
         
         if (binding != null) {
             name = binding.getName();
-            fqn = binding.getQualifiedName();
+            fqn = JavaClass.createClassName(binding);
             modifiers = binding.getModifiers();
+            declaringClass = getDeclaringJavaClass(binding.getDeclaringClass());
+            declaringMethod = getDeclaringJavaMethod(binding.getDeclaringMethod());
             isInterface = binding.isInterface();
             isEnum = binding.isEnum();
             if (binding.getSuperclass() != null) {
-                superClassName = binding.getSuperclass().getQualifiedName();
+                superClassName = JavaClass.getString(binding.getSuperclass().getQualifiedName());
             }
             for (ITypeBinding type : binding.getInterfaces()) {
-                superInterfaceNames.add(type.getQualifiedName());
+                superInterfaceNames.add(JavaClass.getString(type.getQualifiedName()));
             }
+            collectEfferentClasses(node);
+            
         } else {
             name = ".UNKNOWN";
             fqn = ".UNKNOWN";
-            modifiers = 0;
-            isInterface = false;
-            isEnum = false;
+            bindingOk = false;
         }
+    }
+    
+    /**
+     * Creates a unique name of a class.
+     * @param binding the binding for the class
+     * @return the created class name
+     */
+    public static String createClassName(ITypeBinding binding) {
+        String name = binding.getQualifiedName();
+        if (name.length() != 0) {
+            return name;
+        }
+        return binding.getKey();
     }
     
     /**
@@ -209,6 +245,7 @@ public class JavaClass extends JavaElement {
         jclass = new JavaClass(node, bind, jp);
         jp.addJavaClass(jclass);
         cache.put(fqn, jclass);
+        
         return jclass;
     }
     
@@ -235,6 +272,32 @@ public class JavaClass extends JavaElement {
         jp.addJavaClass(jclass);
         cache.put(fqn, jclass);
         return jclass;
+    }
+    
+    /**
+     * Collects efferent classes for this class.
+     * @param node an AST node for this method
+     */
+    protected void collectEfferentClasses(ASTNode node) {
+        TypeCollector tvisitor = new TypeCollector();
+        node.accept(tvisitor);
+        
+        for (String str : tvisitor.getTypeUses()) {
+            efferentClassNames.add(str);
+        }
+        
+        if (!tvisitor.isBindingOk()) {
+            bindingOk = false;
+        }
+        tvisitor.clear();
+    }
+    
+    /**
+     * Tests if the binding for this class was found.
+     * @return <code>true</code> if the binding was found
+     */
+    public boolean isBindingOk() {
+        return bindingOk;
     }
     
     /**
@@ -278,14 +341,6 @@ public class JavaClass extends JavaElement {
     }
     
     /**
-     * Returns the type binding for this class or interface.
-     * @return the type binding
-     */
-    public ITypeBinding getBinding() {
-        return binding;
-    }
-    
-    /**
      * Returns an object corresponding to a specified class name.
      * @param fqn the fully qualified name of a class to be retrieved
      * @return the found object, or <code>null</code> if none
@@ -301,7 +356,7 @@ public class JavaClass extends JavaElement {
      * Returns all the classes stored in the cache.
      * @return the collection of the stored classes
      */
-    public static Set<JavaClass> getAllClassesInCache() {
+    public static Set<JavaClass> getAllJavaClassesInCache() {
         Set<JavaClass> jclasses = new HashSet<JavaClass>();
         for (JavaClass jc : cache.values()) {
             jclasses.add(jc);
@@ -321,7 +376,7 @@ public class JavaClass extends JavaElement {
      * @param jf the file to be removed
      */
     public static void removeClassesRelatedTo(JavaFile jf) {
-        for (JavaClass c : getAllClassesInCache()) {
+        for (JavaClass c : getAllJavaClassesInCache()) {
             if (jf.equals(c.getJavaFile())) {
                 removeClassesRelatedTo(c);
             }
@@ -422,6 +477,22 @@ public class JavaClass extends JavaElement {
      */
     public boolean isEnum() {
         return isEnum;
+    }
+    
+    /**
+     * Returns the Java class that declares this class.
+     * @return the class that declares this class, or <code>null</code> if none
+     */
+    public JavaClass getDeclaringJavaClass() {
+        return declaringClass;
+    }
+    
+    /**
+     * Returns the Java method that declares this class.
+     * @return the method that declares this class, or <code>null</code> if none
+     */
+    public JavaMethod getDeclaringJavaMethod() {
+        return declaringMethod;
     }
     
     /**
@@ -571,6 +642,31 @@ public class JavaClass extends JavaElement {
     }
     
     /**
+     * Obtains the source code of the file containing this class.
+     */
+    public String getSource() {
+        return jfile.getSource();
+    }
+    
+    /**
+     * Obtains a string representing a class.
+     * @param fqn the name of the class
+     * @return the string
+     */
+    public static String getString(String fqn) {
+        return fqn;
+    }
+    
+    /**
+     * Obtains the name of the class represented by a given string
+     * @param str string representing the class
+     * @return the class name
+     */
+    public static String getFqn(String str) {
+        return str;
+    }
+    
+    /**
      * Tests if a given class equals to this.
      * @param jc the class
      * @return <code>true</code> if the given class equals to this, otherwise <code>false</code>
@@ -591,29 +687,86 @@ public class JavaClass extends JavaElement {
         return getQualifiedName().hashCode();
     }
     
+    /**
+     * Collects information about this class or interface.
+     * @return the string for printing
+     */
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("CLASS: ");
+        buf.append(getName());
+        buf.append(" ");
+        buf.append(jpackage.getName());
+        buf.append("\n");
+        if (isClass()) {
+            buf.append(" EXTENDS: ");
+            buf.append(superClassName);
+            buf.append("\n");
+        }
+        buf.append(" IMPLEMENTS:");
+        for (String name :  superInterfaceNames) {
+            buf.append(" " + name);
+        }
+        buf.append("\n");
+        
+        buf.append(getFieldInfo());
+        buf.append(getMethodInfo());
+        
+        return buf.toString();
+    }
+    
+    /**
+     * Collects information about all fields defined within this class.
+     * @return the string for printing
+     */
+    public String getFieldInfo() {
+        StringBuffer buf = new StringBuffer();
+        for (JavaField jf : getJavaFields()) {
+            buf.append(jf.toString());
+        }
+        
+        return buf.toString();
+    }
+    
+    /**
+     * Collects information about all methods defined within this class.
+     * @return the string for printing
+     */
+    public String getMethodInfo() {
+        StringBuffer buf = new StringBuffer();
+        for (JavaMethod jm : getJavaMethods()) {
+            buf.append(jm.toString());
+        }
+        
+        return buf.toString();
+    }
+    
+    /**
+     * Collects information about all classes defined within this class.
+     * @return the string for printing
+     */
+    public String getClassInfo() {
+        StringBuffer buf = new StringBuffer();
+        for (JavaClass jc : getJavaInnerClasses()) {
+            buf.append(jc.toString());
+        }
+        
+        return buf.toString();
+    }
+    
     /* ================================================================================
      * The following functionalities can be used after completion of whole analysis 
      * ================================================================================ */
     
     /**
-     * A class declaring this class.
-     */
-    protected JavaClass declaringClass = null;
-    
-    /**
-     * A method declaring this class.
-     */
-    protected JavaMethod declaringMethod = null;
-    
-    /**
      * The super class of this class.
      */
-    private JavaClass superClass;
+    protected JavaClass superClass;
     
     /**
      * The list of super interfaces of this class.
      */
-    private Set<JavaClass> superInterfaces = new HashSet<JavaClass>();
+    protected Set<JavaClass> superInterfaces = new HashSet<JavaClass>();
     
     /**
      * The collection of all classes that depend on this class.
@@ -626,82 +779,71 @@ public class JavaClass extends JavaElement {
     protected Set<JavaClass> efferentClasses = new HashSet<JavaClass>();
     
     /**
-     * A flag that indicates all bindings for types, methods, and variables were found.
-     */
-    protected boolean bindingOk = true;
-    
-    /**
      * Collects additional information on this class.
      */
     public void collectLevel2Info() {
-        if (binding != null) {
-            declaringClass = getDeclaringJavaClass(binding.getDeclaringClass());
-            declaringMethod = getDeclaringJavaMethod(binding.getDeclaringMethod());
-            findSuperClass(binding);
-            findSuperInterfaces(binding);
-        }
-        
-        if (astNode != null) {
-            TypeCollector tvisitor = new TypeCollector();
-            astNode.accept(tvisitor);
-            efferentClasses = tvisitor.getTypeUses();
-            for (JavaClass jc : efferentClasses) {
-                jc.addAfferentClass(this);
-            }
-            
-            bindingOk = tvisitor.isBindingOk();
-        }
-    }
-    
-    /**
-     * Tests if the binding for this class was found.
-     * @return <code>true</code> if the binding was found
-     */
-    public boolean isBindingOk() {
-        return bindingOk;
-    }
-    
-    /**
-     * Displays error log if the binding is not completed.
-     */
-    private void bindingCheck() {
-        if (bindingLevel < 1) {
-            logger.info("This API can be invoked after the completion of whole analysis");
-        }
-    }
-    
-    /**
-     * Returns the Java class that declares this class.
-     * @return the class that declares this class, or <code>null</code> if none
-     */
-    public JavaClass getDeclaringJavaClass() {
-        bindingCheck();
-        return declaringClass;
-    }
-    
-    /**
-     * Returns the Java method that declares this class.
-     * @return the method that declares this class, or <code>null</code> if none
-     */
-    public JavaMethod getDeclaringJavaMethod() {
-        bindingCheck();
-        return declaringMethod;
+        findSuperClass();
+        findSuperInterfaces();
+        findEfferentClasses();
     }
     
     /**
      * Finds a super class this class directly extends.
-     * @param binding the type binding for this class
      */
-    private void findSuperClass(ITypeBinding binding) {
+    private void findSuperClass() {
         if (isClass()) {
-            String name = binding.getSuperclass().getQualifiedName();
-            JavaClass jc = cache.get(name);
+            String fqn = JavaClass.getFqn(superClassName);
+            JavaClass jc = getDeclaringJavaClass(fqn);
             if (jc != null) {
                 superClass = jc;
             }
         }
-        superClass = ExternalJavaClass.create(name);
-        
+    }
+    
+    /**
+     * Finds super interfaces that this class directly implements.
+     */
+    private void findSuperInterfaces() {
+        for (String str : superInterfaceNames) {
+            String fqn = JavaClass.getFqn(str);
+            JavaClass jc = getDeclaringJavaClass(fqn);
+            if (jc != null) {
+                superInterfaces.add(jc);
+            }
+        }
+    }
+    
+    /**
+     * Finds efferent classes that this class depends on.
+     */
+    private void findEfferentClasses() {
+        for (String str : efferentClassNames) {
+            String fqn = JavaClass.getFqn(str);
+            JavaClass jc = getDeclaringJavaClass(fqn);
+            if (jc != null) {
+                efferentClasses.add(jc);
+                jc.addAfferentClass(this);
+            }
+        }
+    }
+    
+    /**
+     * Adds a class that depends on this class.
+     * @param jc the afferent class
+     */
+    private void addAfferentClass(JavaClass jc) {
+        if (!afferentClasses.contains(jc)) {
+            afferentClasses.add(jc);
+        }
+    }
+    
+    /**
+     * Displays error log if the binding has not completed yet.
+     */
+    private void bindingCheck() {
+        if (getBindingLevel() < 1) {
+            logger.info("This API can be invoked after the completion of whole analysis");
+        }
     }
     
     /**
@@ -711,22 +853,6 @@ public class JavaClass extends JavaElement {
     public JavaClass getSuperClass() {
         bindingCheck();
         return superClass;
-    }
-    
-    /**
-     * Finds super interfaces that this class directly implements.
-     * @param binding the type binding for this class
-     */
-    private void findSuperInterfaces(ITypeBinding binding) {
-        for (ITypeBinding type : binding.getInterfaces()) {
-            String name = type.getQualifiedName();
-            JavaClass jc = cache.get(name);
-            if (jc != null) {
-                superInterfaces.add(jc);
-            } else {
-                superInterfaces.add(ExternalJavaClass.create(name));
-            }
-        }
     }
     
     /**
@@ -746,7 +872,7 @@ public class JavaClass extends JavaElement {
         bindingCheck();
         
         List<JavaClass> classes = new ArrayList<JavaClass>(); 
-        for (JavaClass jc : getAllClassesInCache()) {
+        for (JavaClass jc : getAllJavaClassesInCache()) {
             if (jc.isChildOf(this)) {
                 classes.add(jc);
             }
@@ -762,7 +888,7 @@ public class JavaClass extends JavaElement {
     public boolean isChildOf(JavaClass jc) {
         bindingCheck();
         
-        if (superClass.getQualifiedName().compareTo(jc.getQualifiedName()) == 0) {
+        if (superClass != null && superClass.getQualifiedName().compareTo(jc.getQualifiedName()) == 0) {
             return true;
         }
         for (JavaClass c : getSuperInterfaces()) {
@@ -807,8 +933,6 @@ public class JavaClass extends JavaElement {
      * @param classes the collection of the super interfaces
      */
     private void getAllSuperInterfaces(JavaClass jc, List<JavaClass> classes) {
-        bindingCheck();
-        
         for (JavaClass parent : jc.getSuperInterfaces()) {
             classes.add(parent);
             getAllSuperInterfaces(parent, classes);
@@ -821,8 +945,6 @@ public class JavaClass extends JavaElement {
      * @param classes the collection of the children
      */
     private void getAllChildren(JavaClass jc, List<JavaClass> classes) {
-        bindingCheck();
-        
         for (JavaClass child : jc.getChildren()) {
             classes.add(child);
             getAllChildren(child, classes);
@@ -880,16 +1002,6 @@ public class JavaClass extends JavaElement {
     }
     
     /**
-     * Adds a class that depends on this class.
-     * @param jc the afferent class
-     */
-    private void addAfferentClass(JavaClass jc) {
-        if (!afferentClasses.contains(jc)) {
-            afferentClasses.add(jc);
-        }
-    }
-    
-    /**
      * Returns all the classes that this class depends on.
      * @return the collection of the efferent classes 
      */
@@ -920,6 +1032,8 @@ public class JavaClass extends JavaElement {
      * @return the found method, or <code>null</code> if none
      */
     public Set<JavaMethod> getOverridingJavaMethod() {
+        bindingCheck();
+        
         Set<JavaMethod> oms = new HashSet<JavaMethod>();
         for (JavaMethod jm : methods) {
             if (jm.getOverriddenJavaMethods().size() != 0) {
@@ -927,77 +1041,5 @@ public class JavaClass extends JavaElement {
             }
         }
         return oms;
-    }
-    
-    /**
-     * Obtains the source code of the file containing this class.
-     */
-    public String getSource() {
-        return jfile.getCurrentCode();
-    }
-    
-    /**
-     * Collects information about this class or interface.
-     * @return the string for printing
-     */
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("CLASS: ");
-        buf.append(getName());
-        buf.append("\n");
-        if (isClass()) {
-            buf.append(" EXTENDS: ");
-            buf.append(superClassName);
-            buf.append("\n");
-        }
-        buf.append(" IMPLEMENTS:");
-        for (String name :  superInterfaceNames) {
-            buf.append(" " + name);
-        }
-        buf.append("\n");
-        
-        buf.append(getFieldInfo());
-        buf.append(getMethodInfo());
-        
-        return buf.toString();
-    }
-    
-    /**
-     * Collects information about all fields defined within this class.
-     * @return the string for printing
-     */
-    public String getFieldInfo() {
-        StringBuffer buf = new StringBuffer();
-        for (JavaField jf : getJavaFields()) {
-            buf.append(jf.toString());
-        }
-        
-        return buf.toString();
-    }
-    
-    /**
-     * Collects information about all methods defined within this class.
-     * @return the string for printing
-     */
-    public String getMethodInfo() {
-        StringBuffer buf = new StringBuffer();
-        for (JavaMethod jm : getJavaMethods()) {
-            buf.append(jm.toString());
-        }
-        
-        return buf.toString();
-    }
-    
-    /**
-     * Collects information about all classes defined within this class.
-     * @return the string for printing
-     */
-    public String getClassInfo() {
-        StringBuffer buf = new StringBuffer();
-        for (JavaClass jc : getJavaInnerClasses()) {
-            buf.append(jc.toString());
-        }
-        
-        return buf.toString();
     }
 }

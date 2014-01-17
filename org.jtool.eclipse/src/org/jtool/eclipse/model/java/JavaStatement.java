@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
@@ -48,7 +48,6 @@ public class JavaStatement extends JavaElement {
     public JavaStatement(ASTNode node) {
         super(node);
     }
-    
     
     /**
      * Tests if this object represents a statement.

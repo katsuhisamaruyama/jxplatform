@@ -1,14 +1,15 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
 
+import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaField;
-import org.jtool.eclipse.model.java.JavaVariableAccess;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -28,7 +29,7 @@ public class FieldInitializerCollector extends ASTVisitor {
     /**
      * The collection of fields accessed by this field.
      */
-    private Set<JavaField> accessedFields = new HashSet<JavaField>();
+    private Set<String> accessedFields = new HashSet<String>();
     
     /**
      * A flag that indicates all bindings for fields were found.
@@ -43,10 +44,17 @@ public class FieldInitializerCollector extends ASTVisitor {
     }
     
     /**
+     * Clears information about the collected fields.
+     */
+    public void clear() {
+        accessedFields.clear();
+    }
+    
+    /**
      * Returns all the fields accessed by this field.
      * @return the collection of the accessed fields
      */
-    public Set<JavaField> getAccessedFields() {
+    public Set<String> getAccessedFields() {
         return accessedFields;
     }
     
@@ -81,21 +89,35 @@ public class FieldInitializerCollector extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     public boolean visit(SimpleName node) {
-        IBinding binding = node.resolveBinding();
-        if (binding != null && binding.getKind() == IBinding.VARIABLE) {
-            JavaVariableAccess jacc = new JavaVariableAccess(node, null);
-            if (jacc.isField()) {
-                JavaField jf = jacc.getJavaField();
-                if (jf != null) {
-                    if (!accessedFields.contains(jf)) {
-                        accessedFields.add(jf);
+        addJavaFieldAccess(node.resolveBinding());
+        return false;
+    }
+    
+    /**
+     * Collects the field access information.
+     * @param binding the variable binding
+     */
+    private void addJavaFieldAccess(IBinding binding) {
+        if (binding != null) {
+            if (binding.getKind() == IBinding.VARIABLE) {
+                IVariableBinding vbinding = (IVariableBinding)binding;
+                
+                if (vbinding.isField() || vbinding.isEnumConstant()) {
+                    ITypeBinding tbinding = vbinding.getDeclaringClass();
+                    String fqn;
+                    if (tbinding != null) {
+                        fqn = JavaClass.createClassName(tbinding);
+                    } else {
+                        JavaField jf = ExternalJavaField.create(vbinding);
+                        fqn = jf.getDeclaringJavaClass().getQualifiedName();
                     }
-                } else {
-                    bindingOk = false;
+                    
+                    String str = JavaField.getString(fqn, vbinding.getName());
+                    accessedFields.add(str);
                 }
             }
+        } else {
+            bindingOk = false;
         }
-        
-        return false;
     }
 }

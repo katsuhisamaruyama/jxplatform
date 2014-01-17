@@ -1,27 +1,22 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
-import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import java.util.Set;
 import java.util.HashSet;
+import org.apache.log4j.Logger;
 
 /**
  * An object representing a package.
  * @author Katsuhisa Maruyama
  */
-public class JavaPackage extends JavaElement {
+public class JavaPackage {
     
     static Logger logger = Logger.getLogger(JavaPackage.class.getName());
-    
-    /**
-     * The type binding for this package.
-     */
-    protected IPackageBinding binding = null;
     
     /**
      * The name of this package.
@@ -41,24 +36,8 @@ public class JavaPackage extends JavaElement {
     /**
      * Creates a new, empty object.
      */
-    protected JavaPackage() {
+    JavaPackage() {
         super();
-    }
-    
-    /**
-     * Creates a new object representing a package.
-     * @param node the AST node for the package
-     * @param name the name of the package
-     * @param jp the project containing the package
-     */
-    private JavaPackage(PackageDeclaration node, String name, JavaProject jp) {
-        super(node);
-        
-        this.name = name;
-        if (node != null) {
-            this.binding = node.resolveBinding();
-        }
-        jproject = jp;
     }
     
     /**
@@ -67,10 +46,7 @@ public class JavaPackage extends JavaElement {
      * @param jp the project containing the package
      */
     private JavaPackage(String name, JavaProject jp) {
-        super();
-        
         this.name = name;
-        this.binding = null;
         jproject = jp;
     }
     
@@ -96,7 +72,7 @@ public class JavaPackage extends JavaElement {
             return jpackage;
         }
         
-        jpackage = new JavaPackage(node, name, jp);
+        jpackage = new JavaPackage(name, jp);
         jp.addJavaPackage(jpackage);
         return jpackage;
     }
@@ -140,14 +116,6 @@ public class JavaPackage extends JavaElement {
      */
     public String getName() {
         return name;
-    }
-    
-    /**
-     * Returns the package binding for this package.
-     * @return the package binding
-     */
-    public IPackageBinding getBinding() {
-        return binding;
     }
     
     /**
@@ -201,6 +169,19 @@ public class JavaPackage extends JavaElement {
         return getName().hashCode();
     }
     
+    /**
+     * Collects information about this package.
+     * @return the string for printing
+     */
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("PACKAGE: ");
+        buf.append(getName());
+        buf.append("\n");
+        
+        return buf.toString();
+    }
+    
     /* ================================================================================
      * The following functionalities can be used after completion of whole analysis 
      * ================================================================================ */
@@ -218,7 +199,7 @@ public class JavaPackage extends JavaElement {
     /**
      * A flag that indicates all bindings for package relationships were found.
      */
-    private boolean bindingOk = false;
+    protected boolean bindingOk = false;
     
     /**
      * Collects additional information on this package.
@@ -227,11 +208,9 @@ public class JavaPackage extends JavaElement {
         bindingOk = true;
         
         for (JavaClass jc : classes) {
-            for (JavaClass c : jc.getEfferentJavaClasses()) {
+            for (JavaClass c : jc.getEfferentJavaClassesInProject()) {
                 JavaPackage jp = c.getJavaPackage();
-                if (!efferentPackages.contains(jp)) {
-                    efferentPackages.add(jp);
-                }
+                efferentPackages.add(jp);
                 
                 if (!c.isBindingOk()) {
                     bindingOk = false;
@@ -241,6 +220,16 @@ public class JavaPackage extends JavaElement {
         
         for (JavaPackage jp : efferentPackages) {
             jp.addAfferentPackage(this);
+        }
+    }
+    
+    /**
+     * Adds a package that depends on classes within this package.
+     * @param jm the afferent package
+     */
+    private void addAfferentPackage(JavaPackage jp) {
+        if (!afferentPackages.contains(jp)) {
+            afferentPackages.add(jp);
         }
     }
     
@@ -256,7 +245,7 @@ public class JavaPackage extends JavaElement {
      * Displays error log if the binding is not completed.
      */
     private void bindingCheck() {
-        if (bindingLevel < 1) {
+        if (!bindingOk) {
             logger.info("This API can be invoked after the completion of whole analysis");
         }
     }
@@ -287,16 +276,6 @@ public class JavaPackage extends JavaElement {
     }
     
     /**
-     * Adds a package that depends on classes within this package.
-     * @param jm the afferent package
-     */
-    private void addAfferentPackage(JavaPackage jp) {
-        if (!afferentPackages.contains(jp)) {
-            afferentPackages.add(jp);
-        }
-    }
-    
-    /**
      * Returns all the packages that the classes within this package depend on.
      * @return the collection of the efferent packages 
      */
@@ -319,18 +298,5 @@ public class JavaPackage extends JavaElement {
             }
         }
         return packages;
-    }
-    
-    /**
-     * Collects information about this package.
-     * @return the string for printing
-     */
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("PACKAGE: ");
-        buf.append(getName());
-        buf.append("\n");
-        
-        return buf.toString();
     }
 }

@@ -1,12 +1,12 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
 import org.jtool.eclipse.io.FileReader;
 import org.eclipse.jdt.core.ICompilationUnit;
-
+import org.eclipse.jdt.core.JavaModelException;
 import java.io.IOException;
 
 /**
@@ -16,19 +16,26 @@ import java.io.IOException;
 public class JavaFile {
     
     /**
+     * A compilation unit corresponding to this file.
+     */
+    protected ICompilationUnit compilationUnit;
+    
+    /**
      * The path name of this file.
      */
-    private String path;
+    protected String path;
     
     /**
      * A project containing this file.
      */
-    private JavaProject jproject;
+    protected JavaProject jproject;
     
     /**
-     * The contents of this file.
+     * Creates a new, empty object.
      */
-    private String source;
+    JavaFile() {
+        super();
+    }
     
     /**
      * Creates an object that will store information about a given file.
@@ -36,6 +43,7 @@ public class JavaFile {
      * @param jproject the project containing this file
      */
     public JavaFile(ICompilationUnit icu, JavaProject jproject) {
+        this.compilationUnit = icu;
         this.path = icu.getPath().toString();
         this.jproject = jproject;
     }
@@ -60,19 +68,56 @@ public class JavaFile {
     }
     
     /**
-     * Returns the source code for this file.
-     * @return the source code
-     */
-    public String getSource() {
-        return source;
-    }
-    
-    /**
      * Returns the project containing this file.
      * @return the project
      */
     public JavaProject getJavaProject() {
         return jproject;
+    }
+    
+    /**
+     * Obtains the relative path name of a given file or directory to a base directory. 
+     * @param path the path name of the file or directory
+     * @param base the path name of the base directory
+     * @return the relative pathname, or <code>null</code> if the file or directory is not contained a base directory or its sub-directories
+     */
+    public static String getRelativePath(String path, String base) {
+        if (path.startsWith(base) && path.length() > base.length()) {
+            return path.substring(base.length() + 1);
+        }
+        return null;
+    }
+    
+    /**
+     * Obtains the contents of the current source code for this file.
+     * @return the contents of the source code
+     */
+    public String getSource() {
+        try {
+            if (compilationUnit != null) {
+                return compilationUnit.getSource();
+            }
+            String name = getFilePath(jproject.getTopDir());
+            return FileReader.read(name);
+            
+        } catch (IOException e) {
+        } catch (JavaModelException e) {
+        }
+        
+        return "";
+    }
+    
+    /**
+     * Obtains the path of the source code stored in this file.
+     * @param progName the project name
+     * @return the file name of the source code
+     */
+    private String getFilePath(String projName) {
+        projName = projName.substring(0, projName.length());
+        int lindex = projName.lastIndexOf('/');
+        String progDir = projName.substring(0, lindex);
+        
+        return progDir + path;
     }
     
     /**
@@ -97,46 +142,15 @@ public class JavaFile {
     }
     
     /**
-     * Obtains the relative path name of a given file or directory to a base directory. 
-     * @param path the path name of the file or directory
-     * @param base the path name of the base directory
-     * @return the relative pathname, or <code>null</code> if the file or directory is not contained a base directory or its sub-directories
+     * Collects information about this file.
+     * @return the string for printing
      */
-    public static String getRelativePath(String path, String base) {
-        if (path.startsWith(base) && path.length() > base.length()) {
-            return path.substring(base.length() + 1);
-        }
-        return null;
-    }
-    
-    /**
-     * Obtains the contents of the current source code for this file.
-     * @return the contents of the source code
-     */
-    public String getCurrentCode() {
-        if (source != null) {
-            return source;
-        }
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("FILE: ");
+        buf.append(getPath());
+        buf.append("\n");
         
-        String name = getFileName(jproject.getTopDir());
-        try {
-            source = FileReader.read(name);
-        } catch (IOException e) {
-            return "";
-        }
-        
-        return source;
-    }
-    
-    /**
-     * Obtains the path of the source code stored in this file.
-     * @param progName the project name
-     * @return the file name of the source code
-     */
-    private String getFileName(String projName) {
-        projName = projName.substring(0, projName.length());
-        int lindex = projName.lastIndexOf('/');
-        String progDir = projName.substring(0, lindex);
-        return progDir + path;
+        return buf.toString();
     }
 }

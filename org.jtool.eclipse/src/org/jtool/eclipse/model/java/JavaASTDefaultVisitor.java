@@ -1,11 +1,9 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
-package org.jtool.eclipse.model.java.internal;
+package org.jtool.eclipse.model.java;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
@@ -15,12 +13,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.jtool.eclipse.model.java.JavaClass;
-import org.jtool.eclipse.model.java.JavaField;
-import org.jtool.eclipse.model.java.JavaFile;
-import org.jtool.eclipse.model.java.JavaMethod;
-import org.jtool.eclipse.model.java.JavaPackage;
-import org.jtool.eclipse.model.java.JavaProject;
 import java.util.List;
 import java.util.Stack;
 import org.apache.log4j.Logger;
@@ -29,14 +21,9 @@ import org.apache.log4j.Logger;
  * Visits a Java program and stores its information.
  * @author Katsuhisa Maruyama
  */
-public class JavaModelVisitor extends ASTVisitor {
+public class JavaASTDefaultVisitor extends JavaASTVisitor {
     
-    static Logger logger = Logger.getLogger(JavaModelVisitor.class.getName());
-    
-    /**
-     * A file corresponding to the compilation unit to be visited
-     */
-    protected JavaFile jfile;
+    static Logger logger = Logger.getLogger(JavaASTDefaultVisitor.class.getName());
     
     /**
      * A stack which stores a Java classes.
@@ -50,36 +37,18 @@ public class JavaModelVisitor extends ASTVisitor {
     
     /**
      * Creates a new object for visiting a Java program. 
-     * @param icu the compilation unit to be visited
-     * @param jproject the project containing the file
      */
-    public JavaModelVisitor(ICompilationUnit icu, JavaProject jproject) {
+    public JavaASTDefaultVisitor() {
         super();
-        
-        jfile = new JavaFile(icu, jproject);
-        jproject.addJavaFile(jfile);
-    }
-    
-    /**
-     * Creates a new object for visiting a Java program. 
-     * @param path the path name of a file corresponding to the compilation unit to be visited 
-     * @param jproject the project containing the file
-     */
-    public JavaModelVisitor(String path, JavaProject jproject) {
-        super();
-        
-        jfile = new JavaFile(path, jproject);
-        jproject.addJavaFile(jfile);
     }
     
     /**
      * Closes this visitor.
      */
     public void close() {
-        classStack.clear();
-        classStack = null;
+        super.close();
         
-        jfile = null;
+        classStack.clear();
         packageNode = null;
     }
     
@@ -112,6 +81,8 @@ public class JavaModelVisitor extends ASTVisitor {
         
         return true;
     }
+    
+    
     
     /**
      * Finishes the visit for a type declaration node.

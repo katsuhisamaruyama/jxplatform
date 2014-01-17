@@ -1,19 +1,26 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
 
+import org.jtool.eclipse.io.DetectCharset;
+import org.jtool.eclipse.io.FileReader;
+import org.jtool.eclipse.model.java.JavaProject;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Message;
+import org.eclipse.jdt.core.compiler.IProblem;
+import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import org.apache.log4j.Logger;
 
 /**
- * A Java language parser for creating abstract syntax trees (ASTs).
+ * A Java parser for creating abstract syntax trees (ASTs).
  * @author Katsuhisa Maruyama
  */
 public class JavaParser {
@@ -21,44 +28,91 @@ public class JavaParser {
     static Logger logger = Logger.getLogger(JavaParser.class.getName());
     
     /**
+     * A Java parser.
+     */
+    protected static JavaParser jparser = null;
+    
+    /**
      * A Java language parser embedded in Eclipse.
      */
-    private ASTParser parser;
+    protected ASTParser parser;
     
-    public JavaParser() {
+    /**
+     * Creates a new Java language parser.
+     */
+    protected JavaParser() {
         parser = ASTParser.newParser(AST.JLS4);
     }
     
     /**
+     * Creates a new parser for Java source code.
+     * @return the created parser
+     */
+    public static JavaParser create() {
+        if (jparser != null) {
+            return jparser;
+        }
+        jparser = new JavaParser();
+        return jparser;
+    }
+    
+    /**
      * Parsers the contents of a Java file and creates its AST.
-     * @param icu the compilation unit that requires parsing
+     * @param icu a compilation unit to be parsed
      * @return the root node of the created AST
      */
     public CompilationUnit parse(ICompilationUnit icu) {
         parser.setResolveBindings(true);
-        parser.setStatementsRecovery(true);
+        // parser.setStatementsRecovery(true);
         parser.setBindingsRecovery(true);
         parser.setSource(icu);
         
         CompilationUnit cu = (CompilationUnit)parser.createAST(null);
         // cu.recordModifications();
-        malformedCheck(cu, icu.getPath().toString());
         
+        if (parseErrorOccurred(cu, icu.getPath().toString())) {
+            return null;
+        }
         return cu;
     }
     
     /**
-     * Parsers the contents of a Java file and creates its AST.
-     * @param classpaths the given classpath entries to be used to resolve bindings
-     * @param sourcepaths the given sourcepath entries to be used to resolve bindings
-     * @param encoding the encoding of the corresponding sourcepath entries or null if the platform encoding can be used
-     * @param contents the contents of the Java file 
-     * @param name the name of the Java file, representing the created AST
-     * @return the root node of the created AST
+     * Parses the contents of a Java file and creates its AST.
+     * @param file a file to be parsed
+     * @param jproject a project containing a file to be parsed
+     * @return the root node of the created AST, or <code>null</code> if any compile error was occurred
      */
-    public CompilationUnit standaloneParse(String[] classpaths, String[] sourcepaths, String encoding, String contents, String name) {
+    public CompilationUnit parse(File file, JavaProject jproject) {
+        try {
+            String contents = FileReader.read(file);
+            String encoding = DetectCharset.getCharsetName(contents.getBytes());
+            
+            if (contents != null) {
+                String rootDir = jproject.getTopDir();
+                String[] classpaths = new String[]{ rootDir };
+                String[] sourcepaths = new String[]{ rootDir };
+                String name = file.getAbsoluteFile().getName();
+                
+                return parse(contents, encoding, classpaths, sourcepaths, name);
+            }
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+        }
+        return null;
+    }
+    
+    /**
+     * Parses the contents of a Java file and creates its AST.
+     * @param contents the contents of the file
+     * @param encoding the encoding of the contents of the file
+     * @param classpaths the class paths during the parse of the file
+     * @param sourcepaths the source paths during the parse of the file
+     * @param name the name of the file
+     * @return the root node of the created AST, or <code>null</code> if any compile error was occurred
+     */
+    private CompilationUnit parse(String contents, String encoding, String[] classpaths, String[] sourcepaths, String name) {
         parser.setResolveBindings(true);
-        parser.setStatementsRecovery(true);
+        // parser.setStatementsRecovery(true);
         parser.setBindingsRecovery(true);
         
         String[] encodings;
@@ -74,23 +128,43 @@ public class JavaParser {
         
         CompilationUnit cu = (CompilationUnit)parser.createAST(null);
         // cu.recordModifications();
-        malformedCheck(cu, name);
         
+        if (parseErrorOccurred(cu, name)) {
+            return null;
+        }
         return cu;
     }
     
     /**
-     * Checks the form of a given compilation unit.
+     * Checks if any parse error occurred for a given compilation unit.
      * @param cu the compilation unit to be checked
      * @param name the name of the compilation unit
+     * @return <code>true</code> if any problem occurred during parsing, otherwise <code>false</code> 
      */
-    private void malformedCheck(CompilationUnit cu, String name) {
-        if (!((cu.getFlags() & ASTNode.MALFORMED) == ASTNode.MALFORMED)) {
-            logger.debug("complete parse: " + name);
-        } else {
-            for (Message msg : cu.getMessages()) {
-                logger.debug("imcomplete parse: " + name + " " + msg.getMessage());
+    protected boolean parseErrorOccurred(CompilationUnit cu, String name) {
+        List<IProblem> errors = new ArrayList<IProblem>();
+        
+        IProblem[] problems = cu.getProblems();
+        if (problems.length != 0) {
+            for (IProblem problem : problems) {
+                if (problem.isError()) {
+                    errors.add(problem);
+                }
             }
+        }
+        
+        if (errors.size() == 0) {
+            logger.debug("complete parse: " + name);
+            return false;
+            
+        } else {
+            logger.debug("incomplete parse: " + name);
+            /*
+            for (IProblem problem : errors) {
+                logger.debug("problem: " + problem.getMessage() + problem.getSourceStart());
+            }
+            */
+            return true;
         }
     }
 }

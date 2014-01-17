@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
@@ -43,12 +43,12 @@ public class ExternalJavaClass extends JavaClass {
      * @param binding a type binding for the class
      * @return the created object
      */
-    public static ExternalJavaClass create(ITypeBinding binding) {
+    public static ExternalJavaClass create(ITypeBinding tbinding) {
         String fqn;
-        if (binding != null) {
-            fqn = binding.getQualifiedName();
+        if (tbinding != null) {
+            fqn = JavaClass.createClassName(tbinding);
         } else {
-            fqn = ".JavaArray";  // Array is a special class in Java
+            fqn = getArrayClassFqn();
         }
         
         return create(fqn);
@@ -60,15 +60,23 @@ public class ExternalJavaClass extends JavaClass {
      * @return the created object
      */
     public static ExternalJavaClass create(String fqn) {
-        ExternalJavaClass jclass = cache.get(fqn);
+        ExternalJavaClass jclass = cache.get(JavaClass.getString(fqn));
         if (jclass != null) {
             return jclass;
         }
         
         jclass = new ExternalJavaClass(fqn);
-        cache.put(fqn, jclass);
+        cache.put(JavaClass.getString(fqn), jclass);
         
         return jclass;
+    }
+    
+    /**
+     * Returns the name of the array that is a special in Java.
+     * @return the name of the array
+     */
+    public static String getArrayClassFqn() {
+        return ".JavaArray";
     }
     
     /**

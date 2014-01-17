@@ -1,11 +1,10 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
 import org.eclipse.jdt.core.IJavaProject;
-
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
@@ -25,32 +24,39 @@ public class JavaProject {
     /**
      * The collection of all files.
      */
-    private Map<String, JavaFile> files = new HashMap<String, JavaFile>();
+    protected Map<String, JavaFile> files = new HashMap<String, JavaFile>();
     
     /**
      * The collection of all packages.
      */
-    private HashMap<String, JavaPackage> packages = new HashMap<String, JavaPackage>();
+    protected HashMap<String, JavaPackage> packages = new HashMap<String, JavaPackage>();
     
     /**
      * The information of which stored in this project.
      */
-    private IJavaProject project;
+    protected IJavaProject project;
     
     /**
      * The name of this project.
      */
-    private String name;
+    protected String name;
     
     /**
      * The name of the top directory of this project.
      */
-    private String topDir;
+    protected String topDir;
     
     /**
      * The time when the project information was created lastly.
      */
-    private long lastCreatedTime;
+    protected long lastCreatedTime;
+    
+    /**
+     * Creates a new, empty object.
+     */
+    JavaProject() {
+        super();
+    }
     
     /**
      * Creates an object that will store information about a project.
@@ -72,6 +78,7 @@ public class JavaProject {
     public static JavaProject create(IJavaProject project) {
         String name = project.getProject().getName();
         String dir = project.getProject().getLocation().toString();
+        
         return create(project, name, dir);
     }
     
@@ -135,6 +142,14 @@ public class JavaProject {
                 cache.remove(jproj.getName());
             }
         }
+    }
+    
+    /**
+     * Returns the Java project for this project.
+     * @return the Java project
+     */
+    public IJavaProject getJavaProject() {
+        return project;
     }
     
     /**
@@ -244,7 +259,7 @@ public class JavaProject {
      * @return the collection of the classes
      */
     public Set<JavaClass> getJavaClasses() {
-        return JavaClass.getAllClassesInCache();
+        return JavaClass.getAllJavaClassesInCache();
     }
     
     /**
@@ -278,7 +293,7 @@ public class JavaProject {
     }
     
     /**
-     * Collects information about this package.
+     * Collects information about this project.
      * @return the string for printing
      */
     public String toString() {

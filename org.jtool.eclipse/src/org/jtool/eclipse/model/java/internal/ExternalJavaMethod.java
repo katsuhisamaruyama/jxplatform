@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
@@ -30,6 +30,20 @@ public class ExternalJavaMethod extends JavaMethod {
     
     /**
      * Creates a new object representing a method or a constructor.
+     * @param fqn the fully-qualified name of a class declaring this method
+     * @param sig the signature of this method
+     */
+    protected ExternalJavaMethod(String fqn, String sig) {
+        super();
+        
+        this.name = fqn + "#" + sig;
+        this.signature = sig;
+        this.type = null;
+        declaringClass = ExternalJavaClass.create(fqn);
+    }
+    
+    /**
+     * Creates a new object representing a method or a constructor.
      * @param binding a method binding for the method
      */
     protected ExternalJavaMethod(IMethodBinding binding) {
@@ -37,7 +51,7 @@ public class ExternalJavaMethod extends JavaMethod {
         
         name = binding.getName();
         signature = getSignature(binding);
-        type = binding.getReturnType().getQualifiedName();
+        type = JavaClass.createClassName(binding.getReturnType());
         declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
     }
     
@@ -47,13 +61,38 @@ public class ExternalJavaMethod extends JavaMethod {
      * @return the created object
      */
     public static ExternalJavaMethod create(IMethodBinding binding) {
-        ExternalJavaMethod jmethod = cache.get(binding.getKey());
+        String fqn;
+        if (binding.getDeclaringClass() != null) {
+            fqn = JavaClass.createClassName(binding.getDeclaringClass());
+        } else {
+            fqn = ExternalJavaClass.getArrayClassFqn();
+        }
+        String sig = getSignatureString(binding);
+        
+        ExternalJavaMethod jmethod = cache.get(JavaMethod.getString(fqn, sig));
         if (jmethod != null) {
             return jmethod;
         }
         
         jmethod = new ExternalJavaMethod(binding);
-        cache.put(binding.getKey(), jmethod);
+        cache.put(JavaMethod.getString(fqn, sig), jmethod);
+        return jmethod;
+    }
+    
+    /**
+     * Creates a new object representing a method.
+     * @param fqn the fully-qualified name of a class declaring this method
+     * @param sig the signature of this method
+     * @return the created object
+     */
+    public static ExternalJavaMethod create(String fqn, String sig) {
+        ExternalJavaMethod jmethod = cache.get(JavaMethod.getString(fqn, sig));
+        if (jmethod != null) {
+            return jmethod;
+        }
+        
+        jmethod = new ExternalJavaMethod(fqn, sig);
+        cache.put(JavaMethod.getString(fqn, sig), jmethod);
         return jmethod;
     }
     

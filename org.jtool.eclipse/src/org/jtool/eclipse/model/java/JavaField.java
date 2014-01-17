@@ -1,12 +1,12 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
 import org.jtool.eclipse.model.java.internal.FieldInitializerCollector;
-import org.jtool.eclipse.model.java.internal.MethodInvocationCollector;
-import org.apache.log4j.Logger;
+import org.jtool.eclipse.model.java.internal.MethodCallCollector;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -15,6 +15,8 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 import java.util.Set;
 import java.util.HashSet;
+
+import org.apache.log4j.Logger;
 
 /**
  * An object representing a field or an enum constant.
@@ -35,19 +37,14 @@ public class JavaField extends JavaExpression {
     protected String type;
     
     /**
-     * A flag indicating if the type of this variable is primitive.
-     */
-    protected boolean isPrimitive;
-    
-    /**
      * The modifiers of this field.
      */
-    private int modifiers;
+    protected int modifiers;
     
     /**
      * A flag indicating if this field is an enum constant.
      */
-    private boolean isEnumConstant = false;
+    protected boolean isEnumConstant = false;
     
     /**
      * The class declaring this field.
@@ -55,10 +52,33 @@ public class JavaField extends JavaExpression {
     protected JavaClass declaringClass = null;
     
     /**
+     * The collection of fields that this field declaration accesses.
+     */
+    protected Set<String> accessedFieldNames = new HashSet<String>();
+    
+    /**
+     * The collections of all methods that this field declaration calls.
+     */
+    protected Set<String> calledMethodNames = new HashSet<String>();
+    
+    /**
+     * A flag that indicates all bindings for methods and fields were found.
+     */
+    protected boolean bindingOk = true;
+    
+    /**
      * Creates a new, empty object.
      */
     protected JavaField() {
         super();
+    }
+    
+    /**
+     * Creates a new object representing a field.
+     * @param node an AST node for this field
+     */
+    protected JavaField(ASTNode node) {
+        super(node);
     }
     
     /**
@@ -74,16 +94,16 @@ public class JavaField extends JavaExpression {
         
         if (binding != null) {
             name = binding.getName();
-            type = binding.getType().getQualifiedName();
-            isPrimitive = binding.getType().isPrimitive();
+            type = JavaClass.createClassName(binding.getType());
             modifiers = binding.getModifiers();
             isEnumConstant = false;
+            
+            collectAccessedField(node);
+            collectCalledMethods(node);
+            
         } else {
             name = ".UNKNOWN";
-            type = ".UNKNOWN";
-            isPrimitive = false;
-            modifiers = 0;
-            isEnumConstant = false;
+            bindingOk = false;
         }
         
         jc.addJavaField(this);
@@ -105,11 +125,13 @@ public class JavaField extends JavaExpression {
             type = binding.getType().getQualifiedName();
             modifiers = binding.getModifiers();
             isEnumConstant = true;
+            
+            collectAccessedField(node);
+            collectCalledMethods(node);
+            
         } else {
             name = ".UNKNOWN";
-            type = ".UNKNOWN";
-            modifiers = 0;
-            isEnumConstant = true;
+            bindingOk = false;
         }
         
         jc.addJavaField(this);
@@ -119,22 +141,56 @@ public class JavaField extends JavaExpression {
      * Creates a new object representing a field.
      * @param name the name of this field
      * @param type the type of this field
-     * @param isPrimitive a flag indicating if the type of this variable is primitive
      * @param modifiers the modifiers of this field
      * @param isEnumConstant <code>true> if this field is an enum constant, otherwise <code>false</code>
      * @param jc the class declaring this field
      */
-    public JavaField(String name, String type, boolean isPrimitive, int modifiers, boolean isEnumConstant, JavaClass jc) {
+    public JavaField(String name, String type, int modifiers, boolean isEnumConstant, JavaClass jc) {
         super();
         
         this.name = name;
         this.type = type;
-        this.isPrimitive = isPrimitive;
         this.modifiers = modifiers;
         this.isEnumConstant = isEnumConstant;
         declaringClass = jc;
         
         jc.addJavaField(this);
+    }
+    
+    /**
+     * Collects fields that this field accesses.
+     * @param node an AST node for this field
+     */
+    protected void collectAccessedField(ASTNode node) {
+        FieldInitializerCollector fvisitor = new FieldInitializerCollector();
+        node.accept(fvisitor);
+        
+        for (String str : fvisitor.getAccessedFields()) {
+            accessedFieldNames.add(str);
+        }
+        
+        if (!fvisitor.isBindingOk()) {
+            bindingOk = false;
+        }
+        fvisitor.clear();
+    }
+    
+    /**
+     * Collects methods that this field calls.
+     * @param node an AST node for this field
+     */
+    protected void collectCalledMethods(ASTNode node) {
+        MethodCallCollector mvisitor = new MethodCallCollector();
+        node.accept(mvisitor);
+        
+        for (String str : mvisitor.getMethodCalls()) {
+            calledMethodNames.add(str);
+        }
+        
+        if (!mvisitor.isBindingOk()) {
+            bindingOk = false;
+        }
+        mvisitor.clear();
     }
     
     /**
@@ -154,6 +210,14 @@ public class JavaField extends JavaExpression {
             return new JavaVariableAccess(name, null);
         }
         return null;
+    }
+    
+    /**
+     * Tests if the binding for this field was found.
+     * @return <code>true</code> if the binding was found
+     */
+    public boolean isBindingOk() {
+        return bindingOk;
     }
     
     /**
@@ -217,10 +281,10 @@ public class JavaField extends JavaExpression {
     }
     
     /**
-     * Tests if the type of this variable is primitive.
+     * Tests if the type of this field is primitive.
      */
-    public boolean isPrimitive() {
-        return isPrimitive;
+    public boolean isPrimitiveType() {
+        return isPrimitiveType(type);
     }
     
     /**
@@ -296,6 +360,43 @@ public class JavaField extends JavaExpression {
     }
     
     /**
+     * Obtains the source code of the file containing this field.
+     */
+    public String getSource() {
+        return declaringClass.getSource();
+    }
+    
+    /**
+     * Obtains a string representing a field.
+     * @param fqn the name of the class declaring the field
+     * @param name the name of the field
+     * @return the string
+     */
+    public static String getString(String fqn, String name) {
+        return fqn + "#" + name;
+    }
+    
+    /**
+     * Obtains the name of the class declaring the field represented by a given string
+     * @param str string representing the field
+     * @return the class name
+     */
+    public static String getFqn(String str) {
+        int index = str.indexOf('#');
+        return str.substring(0, index - 1);
+    }
+    
+    /**
+     * Obtains the name of the field represented by a given string
+     * @param str string representing the field
+     * @return the field name
+     */
+    public static String getName(String str) {
+        int index = str.indexOf('#');
+        return str.substring(index + 1, str.length() - 1);
+    }
+    
+    /**
      * Tests if a given field equals to this.
      * @param jf the Java field
      * @return <code>true</code> if the given field equals to this, otherwise <code>false</code>
@@ -317,6 +418,21 @@ public class JavaField extends JavaExpression {
         return getName().hashCode();
     }
     
+    /**
+     * Collects information about this field.
+     * @return the string for printing
+     */
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("FIELD: ");
+        buf.append(getName());
+        buf.append("@");
+        buf.append(getType());
+        buf.append("\n");
+        
+        return buf.toString();
+    }
+    
     /* ================================================================================
      * The following functionalities can be used after completion of whole analysis 
      * ================================================================================ */
@@ -324,64 +440,82 @@ public class JavaField extends JavaExpression {
     /**
      * The collection of fields that this field declaration accesses.
      */
-    private Set<JavaField> accessedFields = new HashSet<JavaField>();
+    protected Set<JavaField> accessedFields = new HashSet<JavaField>();
     
     /**
      * The collection of all field declarations that access this field.
      */
-    private Set<JavaField> accessingFields = new HashSet<JavaField>();
+    protected Set<JavaField> accessingFields = new HashSet<JavaField>();
     
     /**
      * The collections of all methods that this field declaration calls.
      */
-    private Set<JavaMethod> calledMethods = new HashSet<JavaMethod>();
+    protected Set<JavaMethod> calledMethods = new HashSet<JavaMethod>();
     
     /**
      * The collection of all methods that accesses this field.
      */
-    private Set<JavaMethod> accessingMethods = new HashSet<JavaMethod>();
-    
-    /**
-     * A flag that indicates all bindings for methods and variables were found.
-     */
-    private boolean bindingOk = false;
+    protected Set<JavaMethod> accessingMethods = new HashSet<JavaMethod>();
     
     /**
      * Collects additional information on this method.
      */
     public void collectLevel2Info() {
-        if (astNode != null) {
-            FieldInitializerCollector fvisitor = new FieldInitializerCollector();
-            astNode.accept(fvisitor);
-            accessedFields = fvisitor.getAccessedFields();
-            for (JavaField jf : accessedFields) {
+        findAccessedField();
+        findCalledMethods();
+    }
+    
+    /**
+     * Finds fields that this field accesses.
+     */
+    protected void findAccessedField() {
+        for (String str : accessedFieldNames) {
+            String fqn = JavaField.getFqn(str);
+            String name = JavaField.getName(str);
+            JavaField jf = getDeclaringJavaField(fqn, name);
+            if (jf != null) {
+                accessedFields.add(jf);
                 jf.addAccessingJavaField(this);
             }
-            
-            MethodInvocationCollector mvisitor = new MethodInvocationCollector(null);
-            astNode.accept(mvisitor);
-            calledMethods = mvisitor.getMethodInvocations();
-            for (JavaMethod jm : calledMethods) {
-                jm.addAccessingJavaField(this);
-            }
-            
-            bindingOk = fvisitor.isBindingOk() && mvisitor.isBindingOk();
         }
     }
     
     /**
-     * Tests if the binding for this field was found.
-     * @return <code>true</code> if the binding was found
+     * Finds methods that this field calls.
      */
-    public boolean isBindingOk() {
-        return bindingOk;
+    protected void findCalledMethods() {
+        for (String str : calledMethodNames) {
+            String fqn = JavaMethod.getFqn(str);
+            String sig = JavaMethod.getSignature(str);
+            JavaMethod jm = getDeclaringJavaMethod(fqn, sig);
+            if (jm != null) {
+                calledMethods.add(jm);
+                jm.addAccessingJavaField(this);
+            }
+        }
     }
     
     /**
-     * Displays error log if the binding is not completed.
+     * Adds a method that accesses this field.
+     * @param jm the method
+     */
+    public void addCallingJavaMethod(JavaMethod jm) {
+        accessingMethods.add(jm);
+    }
+    
+    /**
+     * Adds a field that accesses this field.
+     * @param jf the field
+     */
+    public void addAccessingJavaField(JavaField jf) {
+        accessingFields.add(jf);
+    }
+    
+    /**
+     * Displays error log if the binding has not completed yet.
      */
     private void bindingCheck() {
-        if (bindingLevel < 1) {
+        if (getBindingLevel() < 1) {
             logger.info("This API can be invoked after the completion of whole analysis");
         }
     }
@@ -421,28 +555,12 @@ public class JavaField extends JavaExpression {
     }
     
     /**
-     * Adds a method that accesses this field.
-     * @param jm the method
-     */
-    void addCallingJavaMethod(JavaMethod jm) {
-        accessingMethods.add(jm);
-    }
-    
-    /**
      * Returns all the methods access this field.
      * @return the collection of the accessing methods
      */
     public Set<JavaMethod> getAccessingJavaMethods() {
         bindingCheck();
         return accessingMethods;
-    }
-    
-    /**
-     * Adds a field that accesses this field.
-     * @param jf the field
-     */
-    void addAccessingJavaField(JavaField jf) {
-        accessingFields.add(jf);
     }
     
     /**
@@ -468,27 +586,5 @@ public class JavaField extends JavaExpression {
             }
         }
         return methods;
-    }
-    
-    /**
-     * Obtains the source code of the file containing this field.
-     */
-    public String getSource() {
-        return declaringClass.getSource();
-    }
-    
-    /**
-     * Collects information about this field.
-     * @return the string for printing
-     */
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("FIELD: ");
-        buf.append(getName());
-        buf.append("@");
-        buf.append(getType());
-        buf.append("\n");
-        
-        return buf.toString();
     }
 }

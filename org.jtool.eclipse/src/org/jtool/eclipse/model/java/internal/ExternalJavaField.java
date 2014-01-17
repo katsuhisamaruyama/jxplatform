@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
@@ -29,6 +29,19 @@ public class ExternalJavaField extends JavaField {
     }
     
     /**
+     * Creates a new object representing a field.
+     * @param fqn the fully-qualified name of a class declaring this field
+     * @param name the name of this field
+     */
+    protected ExternalJavaField(String fqn, String name) {
+        super();
+        
+        this.name = fqn + "#" + name;
+        this.type = null;
+        declaringClass = ExternalJavaClass.create(fqn);
+    }
+    
+    /**
      * Creates a new object representing a field
      * @param binding a variable binding for the field
      */
@@ -36,7 +49,7 @@ public class ExternalJavaField extends JavaField {
         super();
         
         name = binding.getName();
-        type = binding.getType().getQualifiedName();
+        type = JavaClass.createClassName(binding.getType());
         declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
     }
     
@@ -46,13 +59,37 @@ public class ExternalJavaField extends JavaField {
      * @return the created object
      */
     public static ExternalJavaField create(IVariableBinding binding) {
-        ExternalJavaField jfield = cache.get(binding.getKey());
+        String fqn;
+        if (binding.getDeclaringClass() != null) {
+            fqn = JavaClass.createClassName(binding.getDeclaringClass());
+        } else {
+            fqn = ExternalJavaClass.getArrayClassFqn();
+        }
+        String name = binding.getName();
+        
+        ExternalJavaField jfield = cache.get(JavaField.getString(fqn, name));
         if (jfield != null) {
             return jfield;
         }
         
         jfield = new ExternalJavaField(binding);
-        cache.put(binding.getKey(), jfield);
+        cache.put(JavaField.getString(fqn, name), jfield);
+        return jfield;
+    }
+    
+    /**
+     * Creates a new object representing a field.
+     * @param fqn the fully-qualified name of a class declaring this field
+     * @param name the name of this field
+     */
+    public static ExternalJavaField create(String fqn, String name) {
+        ExternalJavaField jfield = cache.get(JavaField.getString(fqn, name));
+        if (jfield != null) {
+            return jfield;
+        }
+        
+        jfield = new ExternalJavaField(fqn, name);
+        cache.put(JavaField.getString(fqn, name), jfield);
         return jfield;
     }
     

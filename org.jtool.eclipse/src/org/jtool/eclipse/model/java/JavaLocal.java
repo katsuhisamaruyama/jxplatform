@@ -1,9 +1,10 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -39,7 +40,7 @@ public class JavaLocal extends JavaExpression {
     /**
      * The modifiers of this local variable.
      */
-    private int modifiers;
+    protected int modifiers;
     
     /**
      * The method declaring this local variable.
@@ -50,6 +51,14 @@ public class JavaLocal extends JavaExpression {
      * Creates a new, empty object.
      */
     protected JavaLocal() {
+    }
+    
+    /**
+     * Creates a new object representing a local variable.
+     * @param node the AST node for this local variable
+     */
+    protected JavaLocal(ASTNode node) {
+        super(node);
     }
     
     /**
@@ -123,7 +132,6 @@ public class JavaLocal extends JavaExpression {
         }
         return null;
     }
-    
     
     /**
      * Returns the method that declares this local variable.
