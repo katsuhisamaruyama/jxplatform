@@ -21,7 +21,7 @@ public enum GraphEdgeSort {
     falseControlDependence,          // Control dependence with respect to a false-branch flow
     fallControlDependence,           // Control dependence with respect to a fall-through flow
     
-    dataDependence,                  // Data dependence in dgeneral
+    dataDependence,                  // Data dependence in general
     loopIndependentDefUseDependence, // Data dependence with respect to a loop-independent variable
     loopCarriedDefUseDependence,     // Data dependence with respect to a loop-carried variable
     defOrderDependence,              // Data dependence based on the order of definitions of variables
@@ -29,6 +29,7 @@ public enum GraphEdgeSort {
     antiDependence,                  // Data dependence based on the order of use and definition of variables
     parameterIn,                     // Data dependence with respect to incoming parameter passing
     parameterOut,                    // Data dependence with respect to outgoing parameter passing
+    summary,                         // Data dependence between actual-in and actual-out nodes
     
     classMember;
     
@@ -72,6 +73,7 @@ public enum GraphEdgeSort {
             case antiDependence: return true;
             case parameterIn: return true;
             case parameterOut: return true;
+            case summary: return true;
             default: return false;
         }
     }

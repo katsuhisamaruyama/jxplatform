@@ -30,14 +30,6 @@ public class PDGStatement extends PDGNode {
     }
     
     /**
-     * Tests if this node indicates a statement.
-     * @return always <code>true</code>
-     */
-    public boolean isStatement() {
-        return true;
-    }
-    
-    /**
      * Returns the CFG node for this statement.
      * @return the CFG node for this statement
      */

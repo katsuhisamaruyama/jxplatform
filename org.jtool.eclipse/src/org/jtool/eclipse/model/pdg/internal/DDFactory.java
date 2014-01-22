@@ -17,7 +17,6 @@ import org.jtool.eclipse.model.pdg.Dependence;
 import org.jtool.eclipse.model.pdg.PDG;
 import org.jtool.eclipse.model.pdg.PDGNode;
 import java.util.ArrayList;
-import org.apache.log4j.Logger;
 
 /**
  * Extracts data dependences of a PDG from its CFG.
@@ -25,8 +24,6 @@ import org.apache.log4j.Logger;
  * @author Katsuhisa Maruyama
  */
 public class DDFactory {
-    
-    static Logger logger = Logger.getLogger(DDFactory.class.getName());
     
     /**
      * Visits all the nodes of the CFG and extracts control dependences from it.

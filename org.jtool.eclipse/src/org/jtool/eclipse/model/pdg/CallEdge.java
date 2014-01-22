@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
@@ -55,13 +55,15 @@ public class CallEdge extends Dependence {
      */
     public String toString() {
         StringBuffer buf = new StringBuffer();
-        buf.append("[" + getId() + "] ");
         switch (sort) {
-            case methodCall: buf.append("call: "); break;
+            case methodCall: buf.append("CALL: "); break;
             default: break;
         }
         
-        buf.append(super.toString());
+        buf.append(src.getId());
+        buf.append(" -> ");
+        buf.append(dst.getId());
+        
         return buf.toString();
     }
 }

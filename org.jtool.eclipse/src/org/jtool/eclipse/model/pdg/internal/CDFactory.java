@@ -12,15 +12,12 @@ import org.jtool.eclipse.model.cfg.ControlFlow;
 import org.jtool.eclipse.model.pdg.CD;
 import org.jtool.eclipse.model.pdg.PDG;
 import org.jtool.eclipse.model.pdg.PDGNode;
-import org.apache.log4j.Logger;
 
 /**
  * Extracts control dependences of a PDG from its CFG.
  * @author Katsuhisa Maruyama
  */
 public class CDFactory {
-    
-    static Logger logger = Logger.getLogger(CDFactory.class.getName());
     
     /**
      * Visits all the nodes of the CFG and extracts control dependences from it.

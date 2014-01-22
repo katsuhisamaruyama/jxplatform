@@ -150,7 +150,7 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Tests if this set is equals to a given set.
-     * @param set A set to be tested.
+     * @param set a set to be tested.
      * @return <code>true</code> if both the sets are equal, otherwise <code>false</code>.
      */
     public boolean equals(GraphElementSet<E> s) {
@@ -163,8 +163,8 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Obtains a union set of this set and a given set.
-     * @param set A set of graph elements.
-     * @return A union set.
+     * @param set a set of graph elements.
+     * @return the union set.
      */
     public GraphElementSet<E> union(GraphElementSet<E> s) {
         GraphElementSet<E> s1 = new GraphElementSet<E>(this);
@@ -176,8 +176,8 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Obtains an intersection set of this set and a given set.
-     * @param set A set of graph elements.
-     * @return An intersection set.
+     * @param set a set of graph elements.
+     * @return the intersection set.
      */
     public GraphElementSet<E> intersection(GraphElementSet<E> s) {
         GraphElementSet<E> s1 = new GraphElementSet<E>();
@@ -191,8 +191,8 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Obtains a difference set of this set and a given set.
-     * @param set A set of graph elements.
-     * @return A difference set which leaves behind elements of this set after removing elements of the given set.
+     * @param set a set of graph elements.
+     * @return the difference set which leaves behind elements of this set after removing elements of the given set.
      */
     public GraphElementSet<E> difference(GraphElementSet<E> s) {
         GraphElementSet<E> s1 = new GraphElementSet<E>(this);
@@ -204,7 +204,7 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Tests if this set is a subset of a given set.
-     * @param set A set of graph elements.
+     * @param set a set of graph elements.
      * @return <code>true</code> if this set is a subset of the given set, otherwise <code>false</code>.
      */
     public boolean subsetEqual(GraphElementSet<E> s) {
@@ -214,7 +214,7 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Tests if this set is a subset of a given set or this set equals to the given set.
-     * @param set A set of graph elements.
+     * @param set a set of graph elements.
      * @return <code>true</code> if this set is a subset of the given set or this set equals to the given set, otherwise <code>false</code>.
      */
     public boolean subset(GraphElementSet<E> s) {
@@ -223,7 +223,7 @@ public class GraphElementSet<E extends GraphElement> implements Iterable<E> {
     
     /**
      * Returns an array containing all graph elements in this set in proper sequence. 
-     * @return An array of graph elements.
+     * @return the array of graph elements.
      */
     public GraphElement[] toArray() {
         GraphElement[] elems = new GraphElement[set.size()];

@@ -49,18 +49,18 @@ public class PDGNode extends GraphNode {
     
     /**
      * Tests if this node indicates a statement node.
-     * @return always <code>false</code>
+     * <code>true</code> if this node represents a normal statement, otherwise <code>false</code>
      */
     public boolean isStatement() {
-        return false;
+        return cfgnode.isStatement();
     }
     
     /**
      * Tests if this node indicates a parameter node.
-     * @return always <code>false</code>
+     * @return <code>true</code> if this node represents a parameter or an argument, otherwise <code>false</code>
      */
     public boolean isParameter() {
-        return false;
+        return cfgnode.isParameter();
     }
     
     /**
@@ -80,8 +80,32 @@ public class PDGNode extends GraphNode {
     }
     
     /**
+     * Returns dependence edges incoming to this node.
+     * @return the collection of the incoming edges with respect to the data and control dependences
+     */
+    public GraphElementSet<Dependence> getIncomingDependeceEdges() {
+        GraphElementSet<Dependence> edges = new GraphElementSet<Dependence>();
+        for (GraphEdge edge : getIncomingEdges()) {
+            edges.add((Dependence)edge);
+        }
+        return edges;
+    }
+    
+    /**
+     * Returns dependence edges outgoing from this node.
+     * @return the collection of the outgoing edges with respect to the data and control dependences
+     */
+    public GraphElementSet<Dependence> getOutgoingDependeceEdges() {
+        GraphElementSet<Dependence> edges = new GraphElementSet<Dependence>();
+        for (GraphEdge edge : getOutgoingEdges()) {
+            edges.add((Dependence)edge);
+        }
+        return edges;
+    }
+    
+    /**
      * Returns control dependence edges incoming to this node.
-     * @return a collection of the control dependence incoming edges
+     * @return the collection of the incoming edges with respect to the control dependence
      */
     public GraphElementSet<CD> getIncomingCDEdges() {
         GraphElementSet<CD> edges = new GraphElementSet<CD>();
@@ -96,7 +120,7 @@ public class PDGNode extends GraphNode {
     
     /**
      * Returns control dependence edges outgoing from this node.
-     * @return a collection of the control dependence outgoing edges
+     * @return the collection of the outgoing edges with respect to the control dependence
      */
     public GraphElementSet<CD> getOutgoingCDEdges() {
         GraphElementSet<CD> edges = new GraphElementSet<CD>();
@@ -111,7 +135,7 @@ public class PDGNode extends GraphNode {
     
     /**
      * Returns data dependence edges incoming to this node.
-     * @return a collection of the data dependence incoming edges
+     * @return the collection of the incoming edges with respect to the data dependence
      */
     public GraphElementSet<DD> getIncomingDDEdges() {
         GraphElementSet<DD> edges = new GraphElementSet<DD>();
@@ -126,7 +150,7 @@ public class PDGNode extends GraphNode {
     
     /**
      * Returns data dependence edges outgoing from this node.
-     * @return a collection of the data dependence outgoing edges
+     * @return the collection of the outgoing edges with respect to the data dependence
      */
     public GraphElementSet<DD> getOutgoingDDEdges() {
         GraphElementSet<DD> edges = new GraphElementSet<DD>();

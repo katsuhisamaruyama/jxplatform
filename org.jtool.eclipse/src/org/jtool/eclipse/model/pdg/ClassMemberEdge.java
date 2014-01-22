@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
@@ -10,7 +10,7 @@ import org.jtool.eclipse.model.graph.GraphEdge;
  * Constructs call edges in a class dependence graph (ClDG).
  * @author Katsuhisa Maruyama
  */
-public class ClassMemberEdge extends GraphEdge {
+public class ClassMemberEdge extends Dependence {
     
     /**
      * Creates a new, empty object.
@@ -56,11 +56,14 @@ public class ClassMemberEdge extends GraphEdge {
     public String toString() {
         StringBuffer buf = new StringBuffer();
         switch (sort) {
-            case methodCall: buf.append("M: "); break;
+            case methodCall: buf.append("MEM: "); break;
             default: break;
         }
         
-        buf.append(super.toString());
+        buf.append(src.getId());
+        buf.append(" -> ");
+        buf.append(dst.getId());
+        
         return buf.toString();
     }
 }

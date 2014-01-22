@@ -1,24 +1,23 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jtool.eclipse.model.cfg.CFG;
-import org.jtool.eclipse.model.cfg.CFGClassEntry;
 import org.jtool.eclipse.model.cfg.CFGEntry;
 import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.cfg.CFGNode;
 import org.jtool.eclipse.model.cfg.CFGStatement;
-import org.jtool.eclipse.model.graph.GraphNodeSort;
+import org.jtool.eclipse.model.graph.GraphNode;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaField;
 import org.jtool.eclipse.model.java.JavaMethod;
+import org.jtool.eclipse.model.java.JavaVariableAccess;
 import org.jtool.eclipse.model.pdg.internal.CDFactory;
 import org.jtool.eclipse.model.pdg.internal.DDFactory;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -29,13 +28,17 @@ public class PDGFactory {
     
     static Logger logger = Logger.getLogger(PDGFactory.class.getName());
     
-     /**
-     * Creates CFGs for all methods and fields within a Java program.
+    /**
+     * A flag indicating if actual parameters is intended to be conservatively connected.
      */
-    public static void create() {
-        for (JavaClass jc : JavaClass.getAllClassesInCache()) {
-            create(jc);
-        }
+    private static boolean isConservative = false;
+    
+    /**
+     * Sets a flag indicating actual parameters is intended to be conservatively connected.
+     * @param bool <code>true</code> if the conservative connection is needed, otherwise <code>false</code>
+     */
+    public static void setConservative(boolean bool) {
+        isConservative = bool;
     }
     
     /**
@@ -44,7 +47,10 @@ public class PDGFactory {
      * the collection of the created PDGs
      */
     public static Set<PDG> create(JavaClass jc) {
+        setConservative(true);
+        
         Set<PDG> pdgs = new HashSet<PDG>();
+        
         for (JavaMethod jm : jc.getJavaMethods()) {
             pdgs.add(create(jm));
         }
@@ -52,32 +58,8 @@ public class PDGFactory {
         for (JavaField jf : jc.getJavaFields()) {
             pdgs.add(create(jf));
         }
+        
         return pdgs;
-    }
-    
-    /**
-     * Creates a ClDG class dependence graph (ClDG) for a given class.
-     * @param jc information on the class
-     * @return the created ClDG which combines PDGs for all the methods and fields declared in the class.
-     */
-    public static ClDG createClDG(JavaClass jc) {
-        ClDG cldg = new ClDG();
-        
-        CFGClassEntry cfgEntry = new CFGClassEntry(jc, GraphNodeSort.classEntry);
-        PDGClassEntry pdgEntry = new PDGClassEntry(cfgEntry);
-        cldg.setEntryNode(pdgEntry);
-        
-        for (JavaField jf : jc.getJavaFields()) {
-            PDG pdg = create(jf);
-            cldg.add(pdg);
-        }
-        
-        for (JavaMethod jm : jc.getJavaMethods()) {
-            PDG pdg = create(jm);
-            cldg.add(pdg);
-        }
-        
-        return cldg;
     }
     
     /**
@@ -93,7 +75,9 @@ public class PDGFactory {
         
         PDG pdg = create(cfg);
         
-        logger.debug("\n" + pdg.toString());
+        if (isConservative) {
+            connectActualParameters(pdg);
+        }
         
         return pdg;
     }
@@ -110,8 +94,6 @@ public class PDGFactory {
         }
         
         PDG pdg = create(cfg);
-        
-        logger.debug("\n" + pdg.toString());
         
         return pdg;
     }
@@ -171,5 +153,51 @@ public class PDGFactory {
         }
         
         return null;
+    }
+    
+    /**
+     * Connects actual parameters conservatively. All actual-in nodes will be always connected to its actual-out node.
+     * @param pdg the PDG containing actual parameters
+     */
+    private static void connectActualParameters(PDG pdg) {
+        for (PDGNode callnode : pdg.getNodes()) {
+            if (callnode.getCFGNode().isMethodCall()) {
+                
+                PDGNode aout = null;
+                for (GraphNode node : callnode.getDstNodes()) {
+                    PDGNode pdgnode = (PDGNode)node;
+                    if (pdgnode.getCFGNode().isActualOut()) {
+                        aout = pdgnode;
+                    }
+                }
+                
+                if (aout != null) {
+                    for (GraphNode node : callnode.getDstNodes()) {
+                        PDGNode pdgnode = (PDGNode)node;
+                        
+                        if (pdgnode.getCFGNode().isActualIn()) {
+                            PDGStatement ain = (PDGStatement)pdgnode;
+                            JavaVariableAccess jv = ain.getDefVariables().get(0);
+                            
+                            ParameterEdge edge = new ParameterEdge(ain, aout, jv);
+                            edge.setSummary();
+                            
+                            pdg.add(edge);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Displays information about a given PDGs and their CFGs.
+     * @param pdgs the collection of PDGs
+     */
+    public static void print(Set<PDG> pdgs) {
+        for (PDG pdg : pdgs) {
+            logger.debug("\n" + pdg.getCFG().toString());
+            logger.debug("\n" + pdg.toString());
+        }
     }
 }

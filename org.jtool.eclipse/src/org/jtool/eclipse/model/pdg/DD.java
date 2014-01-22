@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
@@ -16,7 +16,7 @@ public class DD extends Dependence {
     /**
      * A variable that this edge carries.
      */
-    private JavaVariableAccess jvar;
+    protected JavaVariableAccess jvar;
     
     /**
      * A loop carried node if this edge carries a variable for loop.
@@ -213,6 +213,21 @@ public class DD extends Dependence {
     }
     
     /**
+     * Sets this edge as a parameter-out dependence.
+     */
+    public void setSummary() {
+        sort = GraphEdgeSort.summary;
+    }
+    
+    /**
+     * Tests if this edge is a parameter-out dependence.
+     * @return <code>true</code> if this edge is a parameter-out dependence, otherwise <code>false</code>
+     */
+    public boolean isSummary() {
+        return sort == GraphEdgeSort.summary;
+    }
+    
+    /**
      * Tests if this edge equals to a given edge.
      * @param edge the edge to be checked
      * @return <code>true</code> if the edges are equal, otherwise <code>false</code>
@@ -246,7 +261,7 @@ public class DD extends Dependence {
     
     /**
      * Copies all the attributes of this edge into a given clone.
-     * @param cloneNode the clone of this edge
+     * @param cloneEdge the clone of this edge
      */
     protected void clone(DD cloneEdge) {
         super.clone(cloneEdge);
@@ -266,8 +281,9 @@ public class DD extends Dependence {
             case defOrderDependence: buf.append("DO: "); break;
             case outputDependence: buf.append("OD: "); break;
             case antiDependence: buf.append("AD: "); break;
-            case parameterIn: buf.append("PI: "); break;
-            case parameterOut: buf.append("PO: "); break;
+            case parameterIn: buf.append("PIN: "); break;
+            case parameterOut: buf.append("POUT: "); break;
+            case summary: buf.append("SUMM: "); break;
             default: break;
         }
         

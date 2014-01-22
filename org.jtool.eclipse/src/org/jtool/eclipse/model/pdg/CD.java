@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
@@ -106,7 +106,7 @@ public class CD extends Dependence {
     
     /**
      * Copies all the attributes of this edge into a given clone.
-     * @param cloneNode the clone of this edge
+     * @param cloneEdge the clone of this edge
      */
     protected void clone(CD cloneEdge) {
         super.clone(cloneEdge);

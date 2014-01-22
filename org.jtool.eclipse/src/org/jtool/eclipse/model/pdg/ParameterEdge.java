@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.pdg;
@@ -12,12 +12,7 @@ import org.jtool.eclipse.model.java.JavaVariableAccess;
  * Constructs dependences related to parameters in a class dependence graph (ClDG).
  * @author Katsuhisa Maruyama
  */
-public class ParameterEdge extends Dependence {
-    
-    /**
-     * A variable that this edge carries.
-     */
-    private JavaVariableAccess jvar;
+public class ParameterEdge extends DD {
     
     /**
      * Creates a new, empty object.
@@ -41,16 +36,8 @@ public class ParameterEdge extends Dependence {
      * @param dst the destination node of this edge
      * @param jv the variable carried by this edge
      */
-    protected ParameterEdge(PDGNode src, PDGNode dst, JavaVariableAccess jv) {
+    public ParameterEdge(PDGNode src, PDGNode dst, JavaVariableAccess jv) {
         super(src, dst);
-        jvar = jv;
-    }
-    
-    /**
-     * Sets a variable carried by this edge.
-     * @param jv the variable
-     */
-    protected void setVariable(JavaVariableAccess jv) {
         jvar = jv;
     }
     
@@ -111,27 +98,5 @@ public class ParameterEdge extends Dependence {
      */
     public int hashCode() {
         return super.hashCode();
-    }
-    
-    /**
-     * Collects information about this edge for printing.
-     * @return the string for printing
-     */
-    public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("[" + getId() + "] ");
-        switch (sort) {
-            case parameterIn: buf.append("pin: "); break;
-            case parameterOut: buf.append("pout: "); break;
-            default: break;
-        }
-        
-        buf.append(super.toString());
-        
-        buf.append(" [ ");
-        buf.append(jvar.getName());
-        buf.append(" ]");
-        
-        return buf.toString();
     }
 }

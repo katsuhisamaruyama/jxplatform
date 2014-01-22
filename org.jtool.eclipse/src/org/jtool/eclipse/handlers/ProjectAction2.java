@@ -6,13 +6,21 @@ package org.jtool.eclipse.handlers;
 
 import org.jtool.eclipse.model.java.JavaModelFactory;
 import org.jtool.eclipse.model.cfg.CFGFactory;
+import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.pdg.PDGFactory;
+import org.jtool.eclipse.model.pdg.PDG;
+import org.jtool.eclipse.model.pdg.ClDGFactory;
+import org.jtool.eclipse.model.pdg.ClDG;
+import org.jtool.eclipse.model.pdg.SDGFactory;
+import org.jtool.eclipse.model.pdg.SDG;
 import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaClass;
+import org.jtool.eclipse.model.java.JavaMethod;
 import org.jtool.eclipse.model.java.JavaProject;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jdt.core.IJavaProject;
+import java.util.Set;
 
 /**
  * Performs an action for a project.
@@ -34,7 +42,8 @@ public class ProjectAction2 extends ProjectAction {
             JavaProject jproject = factory.create();
             
             // createCFGs(jproject);
-            createPDGs(jproject);
+            // createPDGs(jproject);
+            createSDG(jproject, "record");
         }
         return null;
     }
@@ -47,7 +56,9 @@ public class ProjectAction2 extends ProjectAction {
         CFGFactory.initialize();
         
         for (JavaClass jc : jproject.getJavaClasses()) {
-            CFGFactory.create(jc);
+            Set<CFG> cfgs = CFGFactory.create(jc);
+            
+            CFGFactory.print(cfgs);
         }
     }
     
@@ -57,7 +68,38 @@ public class ProjectAction2 extends ProjectAction {
      */
     protected void createPDGs(JavaProject jproject) {
         for (JavaClass jc : jproject.getJavaClasses()) {
-            PDGFactory.create(jc);
+            Set<PDG> pdgs = PDGFactory.create(jc);
+            
+            PDGFactory.print(pdgs);
+        }
+    }
+    
+    /**
+     * Creates all ClDGs for methods and fields with in the project.
+     * @param the project
+     */
+    protected void createClDGs(JavaProject jproject) {
+        for (JavaClass jc : jproject.getJavaClasses()) {
+            ClDG cldg = ClDGFactory.create(jc);
+            
+            ClDGFactory.print(cldg);
+        }
+    }
+    /**
+     * Creates all ClDGs for methods and fields with in the project.
+     * @param the project
+     * @param name the method name
+     */
+    protected void createSDG(JavaProject jproject, String name) {
+        for (JavaClass jc : jproject.getJavaClasses()) {
+            for (JavaMethod jm : jc.getJavaMethods()) {
+                
+                if (jm.getName().compareTo(name) == 0) {
+                    SDG sdg = SDGFactory.create(jm);
+                    
+                    SDGFactory.print(sdg);
+                }
+            }
         }
     }
 }
