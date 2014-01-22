@@ -76,6 +76,8 @@ public class JavaLocal extends JavaExpression {
         type = binding.getType().getQualifiedName();
         isPrimitive = binding.getType().isPrimitive();
         modifiers = binding.getModifiers();
+        
+        setAnnotations(binding.getAnnotations());
     }
     
     /**
@@ -213,6 +215,8 @@ public class JavaLocal extends JavaExpression {
         buf.append("@");
         buf.append(getType());
         buf.append("\n");
+        
+        buf.append(getAnnotationInfo());
         
         return buf.toString();
     }

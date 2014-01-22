@@ -129,6 +129,8 @@ public class JavaField extends JavaExpression {
             collectAccessedField(node);
             collectCalledMethods(node);
             
+            setAnnotations(binding.getAnnotations());
+            
         } else {
             name = ".UNKNOWN";
             bindingOk = false;
@@ -429,6 +431,8 @@ public class JavaField extends JavaExpression {
         buf.append("@");
         buf.append(getType());
         buf.append("\n");
+        
+        buf.append(getAnnotationInfo());
         
         return buf.toString();
     }

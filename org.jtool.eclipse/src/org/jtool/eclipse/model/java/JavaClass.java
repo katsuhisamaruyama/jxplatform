@@ -11,13 +11,11 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -71,7 +69,7 @@ public class JavaClass extends JavaElement {
     /**
      * The name of super class for this class.
      */
-    protected String superClassName;
+    protected String superClassName = null;
     
     /**
      * The names of super interfaces for this class.
@@ -154,6 +152,8 @@ public class JavaClass extends JavaElement {
                 superInterfaceNames.add(JavaClass.getString(type.getQualifiedName()));
             }
             collectEfferentClasses(node);
+            
+            setAnnotations(binding.getAnnotations());
             
         } else {
             name = ".UNKNOWN";
@@ -708,16 +708,20 @@ public class JavaClass extends JavaElement {
         buf.append(" ");
         buf.append(jpackage.getName());
         buf.append("\n");
-        if (isClass()) {
+        if (superClassName != null) {
             buf.append(" EXTENDS: ");
             buf.append(superClassName);
             buf.append("\n");
         }
-        buf.append(" IMPLEMENTS:");
-        for (String name :  superInterfaceNames) {
-            buf.append(" " + name);
+        if (superInterfaceNames.size() != 0) {
+            buf.append(" IMPLEMENTS:");
+            for (String name :  superInterfaceNames) {
+                buf.append(" " + name);
+            }
+            buf.append("\n");
         }
-        buf.append("\n");
+        
+        buf.append(getAnnotationInfo());
         
         buf.append(getFieldInfo());
         buf.append(getMethodInfo());
@@ -801,7 +805,7 @@ public class JavaClass extends JavaElement {
      * Finds a super class this class directly extends.
      */
     private void findSuperClass() {
-        if (isClass()) {
+        if (superClassName != null) {
             String fqn = JavaClass.getFqn(superClassName);
             JavaClass jc = getDeclaringJavaClass(fqn);
             if (jc != null) {

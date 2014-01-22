@@ -12,15 +12,18 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * A root object for all Java program elements.
+ * A root object for a Java program element.
  * @author Katsuhisa Maruyama
  */
 public abstract class JavaElement {
@@ -69,6 +72,11 @@ public abstract class JavaElement {
      * The bottom line number of code fragment for this element, including comments and whitespace.
      */
     protected int extendedBottomLineNumber;
+    
+    /**
+     * The collections of annotations that are directly present on this class.
+     */
+    protected Set<JavaAnnotation> annotations = new HashSet<JavaAnnotation>();
     
     /**
      * Creates a new, empty object.
@@ -629,6 +637,41 @@ public abstract class JavaElement {
             }
         }
         return "";
+    }
+    
+    /**
+     * Sets annotations that are directly present on this element.
+     * @param abindings the array of annotation bindings
+     */
+    public void setAnnotations(IAnnotationBinding[] abindings) {
+        for (IAnnotationBinding abinding : abindings) {
+            annotations.add(new JavaAnnotation(abinding));
+        }
+    }
+    
+    /**
+     * Returns the annotations that are directly present on this element.
+     * @return the annotations
+     */
+    public Set<JavaAnnotation> getAnnotations() {
+        return annotations;
+    }
+    
+    /**
+     * Collects information about all annotations that are directly present on this element.
+     * @return the string for printing
+     */
+    protected String getAnnotationInfo() {
+        StringBuffer buf = new StringBuffer();
+        
+        if (annotations.size() != 0) {
+            for (JavaAnnotation jann : annotations) {
+                buf.append(jann.toString());
+                buf.append("\n");
+            }
+        }
+        
+        return buf.toString();
     }
     
     /**

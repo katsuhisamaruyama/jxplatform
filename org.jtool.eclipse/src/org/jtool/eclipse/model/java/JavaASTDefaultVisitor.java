@@ -70,7 +70,7 @@ public class JavaASTDefaultVisitor extends JavaASTVisitor {
     public boolean visit(TypeDeclaration node) {
         JavaPackage jpackage = JavaPackage.create(packageNode, jfile.getJavaProject());
         
-        // May receive an object of <code>NullPointerException</code> during this method call.
+        // May receive an object of <code>NullPointerException</code> during this method call due to Eclipse's bug for type binding.
         JavaClass jclass = JavaClass.create(node, jpackage);
         jclass.setJavaFile(jfile);
         

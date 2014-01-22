@@ -6,6 +6,7 @@ package org.jtool.eclipse.handlers;
 
 import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaModelFactory;
+import org.jtool.eclipse.model.java.JavaProject;
 import org.jtool.eclipse.io.FileWriter;
 import org.jtool.eclipse.io.JtoolFile;
 import org.jtool.eclipse.model.java.JavaClass;
@@ -57,7 +58,11 @@ public class ProjectAction extends AbstractHandler {
         if (project != null) {
             JavaModelFactory factory = new JavaModelFactory(project);
             factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
-            factory.create();
+            JavaProject jproject = factory.create();
+            
+            for (JavaClass jc : jproject.getJavaClasses()) {
+                System.out.println(jc.toString());
+            }
         }
         return null;
     }

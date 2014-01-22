@@ -133,6 +133,14 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
+     * Returns the method that declares this variable.
+     * @return the method that declares this variable
+     */
+    public JavaMethod getDeclaringJavaMethod() {
+        return declaringMethod;
+    }
+    
+    /**
      * Returns the name of the accessed variable.
      * @return the name
      */

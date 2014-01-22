@@ -148,6 +148,8 @@ public class JavaMethod extends JavaElement {
                 exceptionNames.add(tbinding.getQualifiedName());
             }
             
+            setAnnotations(binding.getAnnotations());
+            
         } else {
             name = ".UNKNOWN";
             signature = ".UNKNOWN";
@@ -649,6 +651,8 @@ public class JavaMethod extends JavaElement {
         buf.append(getReturnType());
         buf.append("\n");
         
+        buf.append(getAnnotationInfo());
+        
         return buf.toString();
     }
     
@@ -671,7 +675,7 @@ public class JavaMethod extends JavaElement {
      * Collects information about all parameters of this method or constructor.
      * @return the string for printing
      */
-    public String getCallmethodInfo() {
+    public String getCallMethodInfo() {
         StringBuffer buf = new StringBuffer();
         for (JavaMethod jm : getCalledJavaMethods()) {
             buf.append(" THIS METHOD CALLS : ");
