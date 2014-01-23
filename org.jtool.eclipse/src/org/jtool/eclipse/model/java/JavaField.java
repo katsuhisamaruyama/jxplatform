@@ -385,7 +385,7 @@ public class JavaField extends JavaExpression {
      */
     public static String getFqn(String str) {
         int index = str.indexOf('#');
-        return str.substring(0, index - 1);
+        return str.substring(0, index);
     }
     
     /**
@@ -395,7 +395,7 @@ public class JavaField extends JavaExpression {
      */
     public static String getName(String str) {
         int index = str.indexOf('#');
-        return str.substring(index + 1, str.length() - 1);
+        return str.substring(index + 1, str.length());
     }
     
     /**

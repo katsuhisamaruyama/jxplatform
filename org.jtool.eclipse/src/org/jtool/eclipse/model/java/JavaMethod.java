@@ -604,7 +604,7 @@ public class JavaMethod extends JavaElement {
      */
     public static String getFqn(String str) {
         int index = str.indexOf('#');
-        return str.substring(0, index - 1);
+        return str.substring(0, index);
     }
     
     /**
@@ -614,7 +614,7 @@ public class JavaMethod extends JavaElement {
      */
     public static String getSignature(String str) {
         int index = str.indexOf('#');
-        return str.substring(index + 1, str.length() - 1);
+        return str.substring(index + 1, str.length());
     }
     
     /**
@@ -748,6 +748,7 @@ public class JavaMethod extends JavaElement {
         for (String str : accessedFieldNames) {
             String fqn = JavaField.getFqn(str);
             String name = JavaField.getName(str);
+            
             JavaField jf = getDeclaringJavaField(fqn, name);
             if (jf != null) {
                 accessedFields.add(jf);
