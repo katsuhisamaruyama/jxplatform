@@ -246,7 +246,7 @@ public class JavaPackage {
      */
     private void bindingCheck() {
         if (!bindingOk) {
-            logger.info("This API can be invoked after the completion of whole analysis");
+            logger.info("This API can be called after the completion of whole analysis");
         }
     }
     

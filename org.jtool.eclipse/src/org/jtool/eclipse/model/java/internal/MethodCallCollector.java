@@ -43,7 +43,7 @@ public class MethodCallCollector extends ASTVisitor {
     
     /**
      * Creates a new object for collecting methods called by this method.
-     * @param jm the method containing this invocation
+     * @param jm the method containing this call
      */
     public MethodCallCollector() {
         super();

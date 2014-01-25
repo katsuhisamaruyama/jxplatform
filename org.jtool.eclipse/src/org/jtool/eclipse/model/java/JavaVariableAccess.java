@@ -77,7 +77,7 @@ public class JavaVariableAccess extends JavaExpression {
     /**
      * Creates a new object representing a variable.
      * @param node an AST node for this variable
-     * @param jm the method containing this invocation
+     * @param jm the method containing this variable
      */
     public JavaVariableAccess(Name node, JavaMethod jm) {
         super(node);
@@ -227,7 +227,7 @@ public class JavaVariableAccess extends JavaExpression {
      */
     private void bindingCheck() {
         if (getBindingLevel() < 1) {
-            logger.info("This API can be invoked after the completion of whole analysis");
+            logger.info("This API can be called after the completion of whole analysis");
         }
     }
     

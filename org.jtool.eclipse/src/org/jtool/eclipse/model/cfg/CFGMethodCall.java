@@ -220,24 +220,24 @@ public class CFGMethodCall extends CFGStatement {
     }
     
     /**
-     * Tests if this method call directly invokes the method itself.
-     * @return <code>true</code> if this method call directly invokes the method itself, otherwise <code>false</code>
+     * Tests if this method call directly calls the method itself.
+     * @return <code>true</code> if this method call directly calls the method itself, otherwise <code>false</code>
      */
     public boolean callSelfDirectly() {
         return getJavaMethodCall().callSelfDirectly();
     }
     
     /**
-     * Tests if this method call recursively invokes the method itself.
-     * @return <code>true</code> if this method call recursively invokes the method itself, otherwise <code>false</code>
+     * Tests if this method call recursively calls the method itself.
+     * @return <code>true</code> if this method call recursively calls the method itself, otherwise <code>false</code>
      */
     public boolean callSelfRecursively() {
         return getJavaMethodCall().callSelfRecursively();
     }
     
     /**
-     * Tests if this method call directly or recursively invokes the method itself.
-     * @return <code>true</code> if this method call directly or recursively invokes the method itself, otherwise <code>false</code>
+     * Tests if this method call directly or recursively calls the method itself.
+     * @return <code>true</code> if this method call directly or recursively calls the method itself, otherwise <code>false</code>
      */
     public boolean callSelf() {
         return callSelfDirectly() || callSelfRecursively();

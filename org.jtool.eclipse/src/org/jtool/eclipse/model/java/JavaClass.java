@@ -856,7 +856,7 @@ public class JavaClass extends JavaElement {
      */
     private void bindingCheck() {
         if (getBindingLevel() < 1) {
-            logger.info("This API can be invoked after the completion of whole analysis");
+            logger.info("This API can be called after the completion of whole analysis");
         }
     }
     

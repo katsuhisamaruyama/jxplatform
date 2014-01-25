@@ -98,10 +98,10 @@ public class JavaStatement extends JavaElement {
     }
     
     /**
-     * Tests if this is a constructor invocation.
-     * @return <true> if this is a constructor invocation, otherwise <code>false</code>
+     * Tests if this is a constructor call.
+     * @return <true> if this is a constructor call, otherwise <code>false</code>
      */
-    public boolean isConstructorInvocation() {
+    public boolean isConstructorCall() {
         return astNode instanceof ConstructorInvocation;
     }
     
@@ -178,10 +178,10 @@ public class JavaStatement extends JavaElement {
     }
     
     /**
-     * Tests if this is a super-constructor invocation.
-     * @return <true> if this is a super-constructor invocation, otherwise <code>false</code>
+     * Tests if this is a super-constructor call.
+     * @return <true> if this is a super-constructor call, otherwise <code>false</code>
      */
-    public boolean isSuperConstructorInvocation() {
+    public boolean isSuperConstructorCall() {
         return astNode instanceof SuperConstructorInvocation;
     }
     

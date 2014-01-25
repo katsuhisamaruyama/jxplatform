@@ -24,7 +24,7 @@ public class CFGFactory {
     static Logger logger = Logger.getLogger(CFGFactory.class.getName());
     
     /**
-     * The flag that requests the creation of actual nodes for method invocation.
+     * The flag that requests the creation of actual nodes for method call.
      */
     private static boolean createActualNodes = true;
     
@@ -37,7 +37,7 @@ public class CFGFactory {
     }
     
     /**
-     * Requests the creation of actual nodes for method invocation.
+     * Requests the creation of actual nodes for method call.
      * @param bool <code>true</code> if the creation is wanted, otherwise <code>false</code>
      */
     public static void setActualNodeCreation(boolean bool) {
@@ -45,7 +45,7 @@ public class CFGFactory {
     }
     
     /**
-     * Tests if the creation of actual nodes for method invocation is wanted.
+     * Tests if the creation of actual nodes for method call is wanted.
      * @param <code>true</code> if the creation is wanted, otherwise <code>false</code>
      */
     public static boolean getActualNodeCreation() {
