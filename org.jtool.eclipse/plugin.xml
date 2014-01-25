@@ -73,39 +73,4 @@
             name="Create CFG/PDG Action">
       </command>
    </extension>
-    <!--
-    <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            adaptable="false"
-            objectClass="org.eclipse.jdt.core.IJavaProject"
-            id="org.jtool.eclipse.popup">
-         <action
-               class="org.jtool.eclipse.actions.ProjectAction"
-               enablesFor="1"
-               id="org.jtool.eclipse.popup.actions.ExportAction"
-               label="Export Java Model"
-               menubarPath="org.jtool.eclipse.popup.export"
-               tooltip="Export Java Model"/>
-      </objectContribution>
-   </extension>
-   -->
-   <!--
-   <extension
-         point="org.eclipse.ui.editorActions">
-      <editorContribution
-            targetID="org.eclipse.jdt.ui.CompilationUnitEditor"
-            id="org.jtool.eclipse.editor">
-         <action
-               toolbarPath="Normal/additions"
-               label="Save Java Model"
-               class="org.jtool.eclipse.actions.SaveAction"
-               tooltip="Save Java Model"
-               menubarPath="file/saveAll"
-               id="org.jtool.eclipse.editor.actions.SaveAction">
-            <selection class="org.eclipse.jface.text.ITextSelection"/>
-         </action>
-      </editorContribution>
-   </extension>
-   -->
 </plugin>
