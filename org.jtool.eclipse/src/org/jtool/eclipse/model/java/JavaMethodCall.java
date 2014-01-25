@@ -290,10 +290,10 @@ public class JavaMethodCall extends JavaExpression {
     }
     
     /**
-     * Returns the type of the invoked method.
-     * @return the type
+     * Returns the return type of the called method.
+     * @return the return type
      */
-    public String getType() {
+    public String getReturnType() {
         return type;
     }
     
@@ -310,7 +310,7 @@ public class JavaMethodCall extends JavaExpression {
      * @return <code>true</code> if there is no return value of the invoked method, otherwise <code>false</code>
      */
     public boolean isVoid() {
-        return getType().compareTo("void") == 0;
+        return getReturnType().compareTo("void") == 0;
     }
     
     /**

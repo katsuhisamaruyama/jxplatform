@@ -68,8 +68,8 @@ public class CFGMethodCall extends CFGStatement {
      * Returns the return type of the called method.
      * @return the return type of the called method
      */
-    public String getType() {
-        return getJavaMethodCall().getType();
+    public String getReturnType() {
+        return getJavaMethodCall().getReturnType();
     }
     
     /**
