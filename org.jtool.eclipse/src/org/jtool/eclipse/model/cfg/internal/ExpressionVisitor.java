@@ -766,11 +766,11 @@ public class ExpressionVisitor extends ASTVisitor {
         
         CFGMethodEntry methodNode = (CFGMethodEntry)cfg.getStartNode();
         JavaMethod jm = methodNode.getJavaMethod();
-        JavaVariableAccess jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getType(), jm);
+        JavaVariableAccess jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getReturnType(), jm);
         aoutNode.addDefVariable(jvin);
         paramNumber++;
         
-        JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + jmc.getName(), jmc.getType(), jm);
+        JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + jmc.getName(), jmc.getReturnType(), jm);
         aoutNode.addUseVariable(jvout);
         paramNumber++;
         
@@ -807,14 +807,14 @@ public class ExpressionVisitor extends ASTVisitor {
         if (entry.isMethodEntry()) {
             CFGMethodEntry mentry = (CFGMethodEntry)entry;
             JavaMethod jm = mentry.getJavaMethod();
-            JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + callNode.getName(), callNode.getType(), jm);
+            JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + callNode.getName(), callNode.getReturnType(), jm);
             callNode.addDefVariable(jvout);
             paramNumber++;
             
         } else if (entry.isFieldEntry()) {
             CFGFieldEntry fentry = (CFGFieldEntry)entry;
             JavaField jf = fentry.getJavaField();
-            JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + callNode.getName(), callNode.getType(), jf);
+            JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + callNode.getName(), callNode.getReturnType(), jf);
             callNode.addDefVariable(jvout);
             paramNumber++;
         }
