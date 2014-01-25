@@ -27,15 +27,13 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchSite;
 import org.eclipse.ui.handlers.HandlerUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-
 import org.apache.log4j.Logger;
 
 /**
- * Performs an action for a project.
+ * Performs an action of parsing source code within a project.
  * @author Katsuhisa Maruyama
  */
 public class ParseAction extends AbstractHandler {

@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import java.util.Set;
 
 /**
- * Performs an action for a project.
+ * Performs an action of creating CFGs and PDGs from source code within a project.
  * @author Katsuhisa Maruyama
  */
 public class CreateCFGPDGAction extends ParseAction {
