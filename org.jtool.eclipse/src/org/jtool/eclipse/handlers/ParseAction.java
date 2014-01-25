@@ -38,9 +38,9 @@ import org.apache.log4j.Logger;
  * Performs an action for a project.
  * @author Katsuhisa Maruyama
  */
-public class ProjectAction extends AbstractHandler {
+public class ParseAction extends AbstractHandler {
     
-    static Logger logger = Logger.getLogger(ProjectAction.class.getName());
+    static Logger logger = Logger.getLogger(ParseAction.class.getName());
     
     /**
      * A workbench part.

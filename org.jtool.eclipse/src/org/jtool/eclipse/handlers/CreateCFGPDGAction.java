@@ -26,7 +26,7 @@ import java.util.Set;
  * Performs an action for a project.
  * @author Katsuhisa Maruyama
  */
-public class ProjectAction2 extends ProjectAction {
+public class CreateCFGPDGAction extends ParseAction {
     
     /**
      * Executes a command with information obtained from the application context.
