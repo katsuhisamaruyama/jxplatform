@@ -65,12 +65,6 @@ abstract public class CFGEntry extends CFGNode {
     abstract public String getName();
     
     /**
-     * Returns the fully-qualified name of the type of this entry node.
-     * @return the fully-qualified name string
-     */
-    abstract public String getType();
-    
-    /**
      * Tests if this entry node corresponds to a method or a constructor. 
      * @return <code>true</code> if this is the entry node for a method or constructor entry, otherwise <code>false</code>
      */
