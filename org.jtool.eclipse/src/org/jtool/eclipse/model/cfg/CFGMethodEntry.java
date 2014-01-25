@@ -67,9 +67,9 @@ public class CFGMethodEntry extends CFGEntry {
     
     /**
      * Returns the fully-qualified name of type of the return value of this method.
-     * @return the fully-qualified name string
+     * @return the fully-qualified name string of this method
      */
-    public String getType() {
+    public String getReturnType() {
         return getJavaMethod().getReturnType();
     }
     
