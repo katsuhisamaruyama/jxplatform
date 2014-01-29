@@ -86,7 +86,7 @@ public class CreateCFGPDGAction extends ParseAction {
         }
     }
     /**
-     * Creates all ClDGs for methods and fields with in the project.
+     * Creates all ClDGs for methods and fields within the project.
      * @param the project
      * @param name the method name
      */
