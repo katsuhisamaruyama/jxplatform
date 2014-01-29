@@ -49,6 +49,22 @@ public class SDGFactory {
     
     /**
      * Creates an SDG for a given class.
+     * @param jclasses the collection of the class
+     * @return the created SDG containing the PDGs of the method and ones that the method calls.
+     */
+    public static SDG create(List<JavaClass> jclasses) {
+        SDG sdg = new SDG();
+        pdgs.clear();
+        
+        for (JavaClass jc : jclasses) {
+            create(sdg, jc);
+        }
+        
+        return sdg;
+    }
+    
+    /**
+     * Creates an SDG for a given class.
      * @param jc the class
      * @return the created SDG containing the PDGs of the method and ones that the method calls.
      */

@@ -14,6 +14,7 @@ Bundle-ClassPath: .,
  lib/log4j-1.2.17.jar
 Export-Package: org.jtool.eclipse;uses:="org.eclipse.ui.plugin,org.osgi.framework",
  org.jtool.eclipse.event;uses:="org.apache.log4j",
+ org.jtool.eclipse.handlers,
  org.jtool.eclipse.io,
  org.jtool.eclipse.model.cfg;
   uses:="org.jtool.eclipse.model.java.internal,

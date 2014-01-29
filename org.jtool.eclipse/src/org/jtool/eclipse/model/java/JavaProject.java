@@ -273,7 +273,7 @@ public class JavaProject {
      * Returns all the classes in this project, which are sorted in dictionary order.
      * @return the collection of the classes
      */
-    public List<JavaClass> getJavaClassesIndictionaryOrder() {
+    public List<JavaClass> getJavaClassesInDictionaryOrder() {
         return sortClasses(JavaClass.getAllJavaClassesInCache());
     }
     

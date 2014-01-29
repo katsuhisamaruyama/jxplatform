@@ -15,7 +15,6 @@ import org.jtool.eclipse.model.pdg.SDGFactory;
 import org.jtool.eclipse.model.pdg.SDG;
 import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaClass;
-import org.jtool.eclipse.model.java.JavaMethod;
 import org.jtool.eclipse.model.java.JavaProject;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -26,7 +25,7 @@ import java.util.Set;
  * Performs an action of creating CFGs and PDGs from source code within a project.
  * @author Katsuhisa Maruyama
  */
-public class CreateCFGPDGAction extends ParseAction {
+public class CreateCFGPDGAction extends JtoolHandler {
     
     /**
      * Executes a command with information obtained from the application context.
@@ -43,7 +42,7 @@ public class CreateCFGPDGAction extends ParseAction {
             
             // createCFGs(jproject);
             // createPDGs(jproject);
-            createSDG(jproject, "record");
+            createSDG(jproject);
         }
         return null;
     }
@@ -55,7 +54,7 @@ public class CreateCFGPDGAction extends ParseAction {
     protected void createCFGs(JavaProject jproject) {
         CFGFactory.initialize();
         
-        for (JavaClass jc : jproject.getJavaClasses()) {
+        for (JavaClass jc : jproject.getJavaClassesInDictionaryOrder()) {
             Set<CFG> cfgs = CFGFactory.create(jc);
             
             CFGFactory.print(cfgs);
@@ -67,7 +66,7 @@ public class CreateCFGPDGAction extends ParseAction {
      * @param the project
      */
     protected void createPDGs(JavaProject jproject) {
-        for (JavaClass jc : jproject.getJavaClasses()) {
+        for (JavaClass jc : jproject.getJavaClassesInDictionaryOrder()) {
             Set<PDG> pdgs = PDGFactory.create(jc);
             
             PDGFactory.print(pdgs);
@@ -79,27 +78,21 @@ public class CreateCFGPDGAction extends ParseAction {
      * @param the project
      */
     protected void createClDGs(JavaProject jproject) {
-        for (JavaClass jc : jproject.getJavaClasses()) {
+        for (JavaClass jc : jproject.getJavaClassesInDictionaryOrder()) {
             ClDG cldg = ClDGFactory.create(jc);
             
             ClDGFactory.print(cldg);
         }
     }
+    
     /**
      * Creates all ClDGs for methods and fields within the project.
      * @param the project
      * @param name the method name
      */
-    protected void createSDG(JavaProject jproject, String name) {
-        for (JavaClass jc : jproject.getJavaClasses()) {
-            for (JavaMethod jm : jc.getJavaMethods()) {
-                
-                if (jm.getName().compareTo(name) == 0) {
-                    SDG sdg = SDGFactory.create(jm);
-                    
-                    SDGFactory.print(sdg);
-                }
-            }
-        }
+    protected void createSDG(JavaProject jproject) {
+        SDG sdg = SDGFactory.create(jproject.getJavaClassesInDictionaryOrder());
+        
+        SDGFactory.print(sdg);
     }
 }

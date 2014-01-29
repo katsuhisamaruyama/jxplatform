@@ -595,7 +595,7 @@ public class JavaClass extends JavaElement {
      * Returns all the fields within this class, which are sorted in dictionary order.
      * @return the collection of the fields
      */
-    public List<JavaField> getJavaFieldsIndictionaryOrder() {
+    public List<JavaField> getJavaFieldsInDictionaryOrder() {
         return sortFields(fields);
     }
     
@@ -635,7 +635,7 @@ public class JavaClass extends JavaElement {
      * Returns all the methods within this class, which are sorted in dictionary order.
      * @return the collection of the methods
      */
-    public List<JavaMethod> getJavaMethodsIndictionaryOrder() {
+    public List<JavaMethod> getJavaMethodsInDictionaryOrder() {
         return sortMethods(methods);
     }
     
