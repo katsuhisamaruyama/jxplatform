@@ -25,24 +25,29 @@ public class JavaVariableAccess extends JavaExpression {
     protected String name;
     
     /**
-     * The identification number of this variable.
+     * The identification number of the variable corresponding to this variable access.
      */
     protected int variableId;
     
     /**
-     * The type of this variable.
+     * The type of the variable corresponding to this variable access.
      */
     protected String type;
     
     /**
-     * A flag indicating if this object represents a field.
+     * A flag indicating if this variable access represents a field.
      */
     protected boolean isField = false;
     
     /**
-     * A flag indicating if this object represents an enum constant.
+     * A flag indicating if this variable access represents an enum constant.
      */
     protected boolean isEnumConstant = false;
+    
+    /**
+     * A flag indicating if this object represents a parameter.
+     */
+    protected boolean isParameter = false;
     
     /**
      * The method containing this variable access.
@@ -67,17 +72,17 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
-     * Creates a new object representing a variable.
-     * @param node an AST node for this variable
+     * Creates a new object representing a variable access.
+     * @param node an AST node for this variable access
      */
     protected JavaVariableAccess(ASTNode node) {
         super(node);
     }
     
     /**
-     * Creates a new object representing a variable.
-     * @param node an AST node for this variable
-     * @param jm the method containing this variable
+     * Creates a new object representing a variable access.
+     * @param node an AST node for this variable access
+     * @param jm the method containing this variable access
      */
     public JavaVariableAccess(Name node, JavaMethod jm) {
         super(node);
@@ -91,6 +96,7 @@ public class JavaVariableAccess extends JavaExpression {
             type = binding.getType().getQualifiedName();
             isField = binding.isField();
             isEnumConstant = binding.isEnumConstant();
+            isParameter = binding.isParameter();
             
             if (isField || isEnumConstant) {
                 ITypeBinding tbinding = binding.getDeclaringClass();
@@ -109,7 +115,7 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
-     * Tests if the binding for this class was found.
+     * Tests if the binding for this variable access was found.
      * @return <code>true</code> if the binding was found
      */
     public boolean isBindingOk() {
@@ -117,24 +123,32 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
-     * Tests if a given name represents a field.
-     * @return <code>true</code> if the name represents a field, otherwise <code>false</code>
+     * Tests if this variable access represents a field.
+     * @return <code>true</code> if this variable access represents a field, otherwise <code>false</code>
      */
     public boolean isField() {
         return isField || isEnumConstant;
     }
     
     /**
-     * Tests if a given name represents a local variable.
-     * @return <code>true</code> if the name represents a local variable, otherwise <code>false</code>
+     * Tests if this variable access represents a local variable.
+     * @return <code>true</code> if this variable access represents a local variable, otherwise <code>false</code>
      */
     public boolean isLocal() {
         return !isField && !isEnumConstant;
     }
     
     /**
-     * Returns the method that declares this variable.
-     * @return the method that declares this variable
+     * Tests if this variable access represents a parameter.
+     * @return <code>true</code> if this variable access represents a parameter, otherwise <code>false</code>
+     */
+    public boolean isParameter() {
+        return isParameter;
+    }
+    
+    /**
+     * Returns the method that declares this variable access.
+     * @return the method that declares this variable access
      */
     public JavaMethod getDeclaringJavaMethod() {
         return declaringMethod;
@@ -160,15 +174,16 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
-     * Returns the type of this variable.
-     * @return the type
+     * Returns the type of the variable corresponding to this variable access.
+     * @return the type of the variable
      */
     public String getType() {
         return type;
     }
     
     /**
-     * Tests if the type of this variable is primitive.
+     * Tests if the type of the variable corresponding to this variable access is primitive.
+     * @return <code>true</code> if the type of this variable access is primitive, otherwise <code>false</code>
      */
     public boolean isPrimitiveType() {
         return isPrimitiveType(type);
