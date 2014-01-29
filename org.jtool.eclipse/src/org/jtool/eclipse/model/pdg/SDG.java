@@ -53,7 +53,7 @@ public class SDG extends Graph<PDGNode, Dependence> {
     }
     
     /**
-     * Adds a new PDG into this ClDG.
+     * Adds a new PDG into this SDG.
      * @param pdg the PDG to be added
      */
     public void add(PDG pdg) {

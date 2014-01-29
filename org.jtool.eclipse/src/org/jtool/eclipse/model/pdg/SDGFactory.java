@@ -32,7 +32,7 @@ public class SDGFactory {
     private static HashMap<String, PDG> pdgs = new HashMap<String, PDG>();
     
     /**
-     * Creates a SDG for a given class.
+     * Creates an SDG for a given class.
      * @param jclasses the collection of the class
      * @return the created SDG containing the PDGs of the method and ones that the method calls.
      */
@@ -48,7 +48,7 @@ public class SDGFactory {
     }
     
     /**
-     * Creates a SDG for a given class.
+     * Creates an SDG for a given class.
      * @param jc the class
      * @return the created SDG containing the PDGs of the method and ones that the method calls.
      */
@@ -79,7 +79,7 @@ public class SDGFactory {
     
     
     /**
-     * Creates a SDG for a given method.
+     * Creates an SDG for a given method.
      * @param jm the method
      * @return the created SDG containing the PDGs of the method and ones that the method calls.
      */
