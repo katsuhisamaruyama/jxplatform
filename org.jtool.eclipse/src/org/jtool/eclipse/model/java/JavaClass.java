@@ -11,11 +11,15 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -581,10 +585,18 @@ public class JavaClass extends JavaElement {
     
     /**
      * Returns all the fields within this class.
-     * @return the collection of the fields declared in this class
+     * @return the collection of the fields
      */
     public Set<JavaField> getJavaFields() {
         return fields;
+    }
+    
+    /**
+     * Returns all the fields within this class, which are sorted in dictionary order.
+     * @return the collection of the fields
+     */
+    public List<JavaField> getJavaFieldsIndictionaryOrder() {
+        return sortFields(fields);
     }
     
     /**
@@ -617,6 +629,14 @@ public class JavaClass extends JavaElement {
      */
     public Set<JavaMethod> getJavaMethods() {
         return methods;
+    }
+    
+    /**
+     * Returns all the methods within this class, which are sorted in dictionary order.
+     * @return the collection of the methods
+     */
+    public List<JavaMethod> getJavaMethodsIndictionaryOrder() {
+        return sortMethods(methods);
     }
     
     /**
@@ -766,6 +786,42 @@ public class JavaClass extends JavaElement {
         }
         
         return buf.toString();
+    }
+    
+    /**
+     * Obtains the sorted collection of classes in dictionary order of their names.
+     * @return the sorted collection of the classes.
+     */
+    public static List<JavaField> sortFields(Set<JavaField> sets) {
+        List<JavaField> fields = new ArrayList<JavaField>();
+        fields.addAll(sets);
+        
+        Collections.sort(fields, new Comparator<JavaField>() {
+            
+            public int compare(JavaField jf1, JavaField jf2) {
+                return jf1.getName().compareTo(jf2.getName());
+            }
+        });
+        
+        return fields;
+    }
+    
+    /**
+     * Obtains the sorted collection of classes in dictionary order of their names.
+     * @return the sorted collection of the classes.
+     */
+    public static List<JavaMethod> sortMethods(Set<JavaMethod> sets) {
+        List<JavaMethod> methods = new ArrayList<JavaMethod>();
+        methods.addAll(sets);
+        
+        Collections.sort(methods, new Comparator<JavaMethod>() {
+            
+            public int compare(JavaMethod jm1, JavaMethod jm2) {
+                return jm1.getName().compareTo(jm2.getName());
+            }
+        });
+        
+        return methods;
     }
     
     /* ================================================================================

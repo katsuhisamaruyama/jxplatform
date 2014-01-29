@@ -4,12 +4,15 @@
 
 package org.jtool.eclipse.model.java;
 
-
 import org.eclipse.jdt.core.IJavaProject;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import org.apache.log4j.Logger;
 
 /**
@@ -267,6 +270,14 @@ public class JavaProject {
     }
     
     /**
+     * Returns all the classes in this project, which are sorted in dictionary order.
+     * @return the collection of the classes
+     */
+    public List<JavaClass> getJavaClassesIndictionaryOrder() {
+        return sortClasses(JavaClass.getAllJavaClassesInCache());
+    }
+    
+    /**
      * Returns an object corresponding to a class with a given name.
      * @param fqn the fully qualified name of a class or an interface to be retrieved
      * @return the found object, or <code>null</code> if no class was found
@@ -310,5 +321,23 @@ public class JavaProject {
         buf.append("\n");
         
         return buf.toString();
+    }
+    
+    /**
+     * Obtains the sorted collection of classes in dictionary order of their names.
+     * @return the sorted collection of the classes.
+     */
+    public static List<JavaClass> sortClasses(Set<JavaClass> sets) {
+        List<JavaClass> classes = new ArrayList<JavaClass>();
+        classes.addAll(sets);
+        
+        Collections.sort(classes, new Comparator<JavaClass>() {
+            
+            public int compare(JavaClass jc1, JavaClass jc2) {
+                return jc1.getName().compareTo(jc2.getName());
+            }
+        });
+        
+        return classes;
     }
 }
