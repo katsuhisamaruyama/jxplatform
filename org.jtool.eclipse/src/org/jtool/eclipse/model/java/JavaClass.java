@@ -895,6 +895,32 @@ public class JavaClass extends JavaElement {
                 jc.addAfferentClass(this);
             }
         }
+        
+        for (JavaMethod jm : getJavaMethods()) {
+            for (JavaField f : jm.getAccessedJavaFields()) {
+                JavaClass jc = f.getDeclaringJavaClass();
+                efferentClasses.add(jc);
+                jc.addAfferentClass(this);
+            }
+            for (JavaMethod m : jm.getCalledJavaMethods()) {
+                JavaClass jc = m.getDeclaringJavaClass();
+                efferentClasses.add(jc);
+                jc.addAfferentClass(this);
+            }
+        }
+        
+        for (JavaField jf : getJavaFields()) {
+            for (JavaField f : jf.getAccessedJavaFields()) {
+                JavaClass jc = f.getDeclaringJavaClass();
+                efferentClasses.add(jc);
+                jc.addAfferentClass(this);
+            }
+            for (JavaMethod m : jf.getCalledJavaMethods()) {
+                JavaClass jc = m.getDeclaringJavaClass();
+                efferentClasses.add(jc);
+                jc.addAfferentClass(this);
+            }
+        }
     }
     
     /**
