@@ -38,6 +38,11 @@ public class JavaLocal extends JavaExpression {
     protected boolean isPrimitive;
     
     /**
+     * A flag indicating if this local variable is a parameter.
+     */
+    protected boolean isParameter;
+    
+    /**
      * The modifiers of this local variable.
      */
     protected int modifiers;
@@ -75,6 +80,7 @@ public class JavaLocal extends JavaExpression {
         id = binding.getVariableId();
         type = binding.getType().getQualifiedName();
         isPrimitive = binding.getType().isPrimitive();
+        isParameter = binding.isParameter();
         modifiers = binding.getModifiers();
         
         setAnnotations(binding.getAnnotations());
@@ -94,6 +100,7 @@ public class JavaLocal extends JavaExpression {
         id = binding.getVariableId();
         type = binding.getType().getQualifiedName();
         isPrimitive = binding.getType().isPrimitive();
+        isParameter = binding.isParameter();
         modifiers = binding.getModifiers();
     }
     
@@ -106,7 +113,7 @@ public class JavaLocal extends JavaExpression {
      * @param modifiers the modifiers of this local variable.
      * @param jm the method declaring this local variable
      */
-    public JavaLocal(String name, int id, String type, boolean isPrimitive, int modifiers, JavaMethod jm) {
+    public JavaLocal(String name, int id, String type, boolean isPrimitive, int modifiers, JavaMethod jm, boolean isParameter) {
         super();
         
         this.name = name;
@@ -169,9 +176,18 @@ public class JavaLocal extends JavaExpression {
     
     /**
      * Tests if the type of this variable is primitive.
+     * @return <code>true</code> if the type of this variable is primitive, otherwise <code>false</code>
      */
     public boolean isPrimitive() {
         return isPrimitive;
+    }
+    
+    /**
+     * Tests if this local variable is a parameter.
+     * @return <code>true</code> if this local variable is a parameter, otherwise <code>false</code>
+     */
+    public boolean isParameter() {
+        return isParameter;
     }
     
     /**
