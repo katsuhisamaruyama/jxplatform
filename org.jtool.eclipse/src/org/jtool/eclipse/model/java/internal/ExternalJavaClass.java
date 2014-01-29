@@ -113,6 +113,6 @@ public class ExternalJavaClass extends JavaClass {
      * @return the string for printing
      */
     public String toString() {
-        return "!" + getQualifiedName();
+        return "EXTERNAL CLASS: " + getQualifiedName();
     }
 }

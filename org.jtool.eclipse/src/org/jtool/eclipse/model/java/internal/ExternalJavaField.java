@@ -136,6 +136,6 @@ public class ExternalJavaField extends JavaField {
      * @return the string for printing
      */
     public String toString() {
-        return "!" + name;
+        return "EXTERNAL FIELD: " + name;
     }
 }

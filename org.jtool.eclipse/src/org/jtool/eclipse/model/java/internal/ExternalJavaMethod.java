@@ -139,6 +139,6 @@ public class ExternalJavaMethod extends JavaMethod {
      * @return the string for printing
      */
     public String toString() {
-        return "!" + signature;
+        return "EXTERNAL METHOD: " + signature;
     }
 }
