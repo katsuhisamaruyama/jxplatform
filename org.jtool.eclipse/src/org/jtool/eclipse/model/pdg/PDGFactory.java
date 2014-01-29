@@ -191,7 +191,7 @@ public class PDGFactory {
     }
     
     /**
-     * Displays information about a given PDGs and their CFGs.
+     * Displays information about given PDGs and their CFGs.
      * @param pdgs the collection of PDGs
      */
     public static void print(Set<PDG> pdgs) {
