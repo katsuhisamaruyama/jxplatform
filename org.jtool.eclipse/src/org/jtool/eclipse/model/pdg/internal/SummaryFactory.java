@@ -95,14 +95,12 @@ public class SummaryFactory {
      */
     private static void traverseBackward(Set<PDGStatement> nodes, PDGStatement anchor, Set<PDGStatement> ains) {
         nodes.add(anchor);
-        System.out.println("add = " + anchor.toString());
         
         for (DD edge : anchor.getIncomingDDEdges()) {
             PDGStatement node = (PDGStatement)edge.getSrcNode();
             
             if (ains.contains(node)) {
                 nodes.add(node);
-                System.out.println("add = " + node.toString());
             } else if (!nodes.contains(node)) {
                 traverseBackward(nodes, node, ains);
             }
