@@ -6,6 +6,8 @@ package org.jtool.eclipse.model.cfg;
 
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.java.JavaField;
+import org.jtool.eclipse.model.java.JavaVariableAccess;
+import java.util.List;
 
 /**
  * The entry node of a CFG for a field declaration, or an enum constant.
@@ -45,7 +47,6 @@ public class CFGFieldEntry extends CFGEntry {
         return (JavaField)getJavaElement();
     }
     
-    
     /**
      * Returns the qualified name of of this field.
      * @return the qualified name of this field
@@ -60,6 +61,15 @@ public class CFGFieldEntry extends CFGEntry {
      */
     public String getType() {
         return getJavaField().getType();
+    }
+    
+    /**
+     * Returns the list of fields used in this field declaration.
+     * @return the field list
+     */
+    public List<JavaVariableAccess> getUsedFields() {
+        CFGStatement decl = (CFGStatement)getDstNodes().get(0);
+        return decl.getUseVariables();
     }
     
     /**

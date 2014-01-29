@@ -36,7 +36,6 @@ public class ClDGFactory {
         for (JavaField jf : jc.getJavaFields()) {
             PDG pdg = PDGFactory.create(jf);
             cldg.add(pdg);
-            
         }
         
         for (JavaMethod jm : jc.getJavaMethods()) {

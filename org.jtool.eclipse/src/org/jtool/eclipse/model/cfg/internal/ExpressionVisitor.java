@@ -760,6 +760,10 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param expr the expression corresponding to the method call
      */
     private void createActualOutForReturnValue(JavaMethodCall jmc, CFGMethodCall callNode, JavaExpression jexpr) {
+        if (jmc.isVoid()) {
+            return;
+        }
+        
         CFGParameter aoutNode = new CFGParameter(jexpr, GraphNodeSort.actualOut, 0);
         aoutNode.setBelongNode(callNode);
         callNode.addActualOut(aoutNode);

@@ -110,16 +110,18 @@ public class JavaLocal extends JavaExpression {
      * @param id the integer number for specifying a local variable
      * @param type the type of this local variable
      * @param isPrimitive a flag indicating if the type of this variable is primitive
+     * @param isParameter a flag indicating if this local variable is a parameter
      * @param modifiers the modifiers of this local variable.
      * @param jm the method declaring this local variable
      */
-    public JavaLocal(String name, int id, String type, boolean isPrimitive, int modifiers, JavaMethod jm, boolean isParameter) {
+    public JavaLocal(String name, int id, String type, boolean isPrimitive, boolean isParameter, int modifiers, JavaMethod jm) {
         super();
         
         this.name = name;
         this.id = id;
         this.type = type;
         this.isPrimitive = isPrimitive;
+        this.isParameter = isParameter;
         this.modifiers = modifiers;
         this.declaringMethod = jm;
     }

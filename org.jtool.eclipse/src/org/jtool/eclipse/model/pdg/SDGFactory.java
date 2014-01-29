@@ -7,10 +7,13 @@ package org.jtool.eclipse.model.pdg;
 import org.jtool.eclipse.model.cfg.CFGMethodEntry;
 import org.jtool.eclipse.model.cfg.CFGMethodCall;
 import org.jtool.eclipse.model.cfg.CFGParameter;
+import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaMethod;
+import org.jtool.eclipse.model.java.JavaField;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
 import org.jtool.eclipse.model.pdg.internal.SummaryFactory;
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
@@ -24,9 +27,56 @@ public class SDGFactory {
     static Logger logger = Logger.getLogger(ClDGFactory.class.getName());
     
     /**
-     * A map storing pairs of a method and its PDG.
+     * A map storing pairs of a method/field and its PDG.
      */
-    private static HashMap<JavaMethod, PDG> pdgs = new HashMap<JavaMethod, PDG>();
+    private static HashMap<String, PDG> pdgs = new HashMap<String, PDG>();
+    
+    /**
+     * Creates a SDG for a given class.
+     * @param jclasses the collection of the class
+     * @return the created SDG containing the PDGs of the method and ones that the method calls.
+     */
+    public static SDG create(Set<JavaClass> jclasses) {
+        SDG sdg = new SDG();
+        pdgs.clear();
+        
+        for (JavaClass jc : jclasses) {
+            create(sdg, jc);
+        }
+        
+        return sdg;
+    }
+    
+    /**
+     * Creates a SDG for a given class.
+     * @param jc the class
+     * @return the created SDG containing the PDGs of the method and ones that the method calls.
+     */
+    public static SDG create(JavaClass jc) {
+        SDG sdg = new SDG();
+        pdgs.clear();
+        
+        create(sdg, jc);
+        
+        return sdg;
+    }
+    
+    /**
+     * Creates a PDG for a given class and appends it to the SDG.
+     * @param sdg the SDG containing the created PDG
+     * @param jc the class
+     * @return the created PDG
+     */
+    public static void create(SDG sdg, JavaClass jc) {
+        for (JavaMethod jm : jc.getJavaMethods()) {
+            create(sdg, jm);
+        }
+        
+        for (JavaField jf : jc.getJavaFields()) {
+            create(sdg, jf);
+        }
+    }
+    
     
     /**
      * Creates a SDG for a given method.
@@ -49,24 +99,73 @@ public class SDGFactory {
      * @return the created PDG
      */
     public static PDG create(SDG sdg, JavaMethod jm) {
-        PDG pdg = pdgs.get(jm);
+        String key = JavaMethod.getString(jm.getQualifiedName(), jm.getSignature());
+        PDG pdg = pdgs.get(key);
         if (pdg == null) {
             pdg = PDGFactory.create(jm);
-            pdgs.put(jm, pdg);
+            pdgs.put(key, pdg);
             
             sdg.add(pdg);
             
-            for (CFGMethodCall callnode : collectMethodCallNodes(pdg)) {
-                JavaMethod cm = callnode.getJavaMethodCall().getJavaMethod();
+            createPDGsForMethod(sdg, pdg);
+            createPDGsForField(sdg, pdg);
+        }
+        
+        return pdg;
+    }
+    
+    /**
+     * Creates a PDG for a given field and appends it to the SDG.
+     * @param sdg the SDG containing the created PDG
+     * @param jf the field
+     * @return the created PDG
+     */
+    public static PDG create(SDG sdg, JavaField jf) {
+        String key = JavaField.getString(jf.getQualifiedName(), jf.getName());
+        PDG pdg = pdgs.get(key);
+        if (pdg == null) {
+            pdg = PDGFactory.create(jf);
+            pdgs.put(key, pdg);
+            
+            sdg.add(pdg);
+            
+            createPDGsForMethod(sdg, pdg);
+            createPDGsForField(sdg, pdg);
+        }
+        
+        return pdg;
+    }
+    
+    /**
+     * Creates PDGs related to a given PDG for a method.
+     * @param sdg the SDG containing the created PDG
+     * @param pdg the PDG
+     */
+    private static void createPDGsForMethod(SDG sdg, PDG pdg) {
+        for (CFGMethodCall callnode : collectMethodCallNodes(pdg)) {
+            JavaMethod cm = callnode.getJavaMethodCall().getJavaMethod();
+            if (cm.isInProject()) {
                 PDG cpdg = create(sdg, cm);
                 
                 connectParameters(sdg, callnode, (CFGMethodEntry)cpdg.getEntryNode().getCFGEntry());
             }
-            
-            SummaryFactory.create(sdg, pdg);
         }
         
-        return pdg;
+        SummaryFactory.create(sdg, pdg);
+    }
+    
+    /**
+     * Creates PDGs related to a given PDG for a field.
+     * @param sdg the SDG containing the created PDG
+     * @param pdg the PDG
+     */
+    private static void createPDGsForField(SDG sdg, PDG pdg) {
+        for (JavaVariableAccess jv : collectFieldAccesses(pdg)) {
+            JavaField cf = jv.getJavaField();
+            if (cf.isInProject()) {
+                create(sdg, cf);
+            }
+        }
     }
     
     /**
@@ -110,6 +209,31 @@ public class SDGFactory {
             poutedge.setParameterOut();
             sdg.add(poutedge);
         }
+    }
+    
+    /**
+     * Collects variable access nodes used within a given PDG.
+     * @param pdg the PDG to be examined
+     * @return the collection of the field accesses
+     */
+    private static List<JavaVariableAccess> collectFieldAccesses(PDG pdg) {
+        List<JavaVariableAccess> fieldaccesses = new ArrayList<JavaVariableAccess>();
+        for (PDGNode pdgnode : pdg.getNodes()) {
+            if (pdgnode.isStatement()) {
+                PDGStatement stnode = (PDGStatement)pdgnode;
+                for (JavaVariableAccess jv : stnode.getDefVariables()) {
+                    if (jv.isField()) {
+                        fieldaccesses.add(jv);
+                    }
+                }
+                for (JavaVariableAccess jv : stnode.getUseVariables()) {
+                    if (jv.isField()) {
+                        fieldaccesses.add(jv);
+                    }
+                }
+            }
+        }
+        return fieldaccesses;
     }
     
     /**

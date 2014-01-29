@@ -297,7 +297,7 @@ public class JavaVariableAccess extends JavaExpression {
     }
     
     /**
-     * Returns a local variable corresponding to this variable access.
+     * Returns a local variable reachable from this variable access.
      * @return the found local variable, or <code>null</code> if none
      */
     public JavaLocal getJavaLocal() {
@@ -308,23 +308,68 @@ public class JavaVariableAccess extends JavaExpression {
                 return jlocal;
             }
             
+            jlocal = getDeclaringParameter(name);
+            if (jlocal != null) {
+                return jlocal;
+            }
+            
             jlocal = getDeclaringJavaLocal(name, variableId);
-            return jlocal;
+            if (jlocal != null) {
+                return jlocal;
+            }
+            
+            jlocal = getReturnValue();
+            if (jlocal != null) {
+                return jlocal;
+            }
         }
         return null;
     }
     
     /**
-     * Returns a local variable corresponding to a given name and its identification number.
-     * @param vname the name of the variable
-     * @param vid the identification number of the variable
-     * @return the found local variable, or <code>null</code> if none
+     * Obtains a parameter with a given name, which is reachable from this variable access.
+     * @param name the name of the parameter
+     * @return the found parameter, or <code>null</code> if none
      */
-    private JavaLocal getDeclaringJavaLocal(String vname, int vid) {
+    private JavaLocal getDeclaringParameter(String name) {
         bindingCheck();
         
         if (declaringMethod != null) {
-            JavaLocal jl = declaringMethod.getJavaLocal(vname, vid);
+            JavaLocal jl = declaringMethod.getParameter(name);
+            if (jl != null) {
+                return jl;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Obtains a local variable with a given name and its identification number, which is reachable from this variable access.
+     * @param name the name of the variable
+     * @param vid the identification number of the variable
+     * @return the found local variable, or <code>null</code> if none
+     */
+    private JavaLocal getDeclaringJavaLocal(String name, int vid) {
+        bindingCheck();
+        
+        if (declaringMethod != null) {
+            JavaLocal jl = declaringMethod.getJavaLocal(name, vid);
+            if (jl != null) {
+                return jl;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Obtains a virtual variable that stores the return value, which is reachable from this variable access.
+     * @return the virtual variable for the return value
+     */
+    public JavaLocal getReturnValue() {
+        bindingCheck();
+        
+        if (declaringMethod != null) {
+            JavaLocal jl = declaringMethod.getReturnValueVariable();
             if (jl != null) {
                 return jl;
             }

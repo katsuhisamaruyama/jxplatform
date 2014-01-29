@@ -75,6 +75,11 @@ public class JavaMethod extends JavaElement {
     protected List<JavaLocal> parameters = new ArrayList<JavaLocal>();
     
     /**
+     * A virtual variable that stores the return value of this method.
+     */
+    protected JavaLocal returnValue = null;
+    
+    /**
      * The collection of all local variables declared in this method.
      */
     protected Set<JavaLocal> locals = new HashSet<JavaLocal>();
@@ -132,12 +137,6 @@ public class JavaMethod extends JavaElement {
         IMethodBinding binding = node.resolveBinding();
         
         if (binding != null) {
-            setParameters(node.parameters());
-            collectLocalVariables(node);
-            collectAccessedFields(node);
-            collectCalledMethods(node);
-            collectUsedTypes(node);
-            
             name = binding.getName();
             signature = getSignature(binding);
             type = binding.getReturnType().getQualifiedName();
@@ -147,6 +146,12 @@ public class JavaMethod extends JavaElement {
             for (ITypeBinding tbinding : binding.getExceptionTypes()) {
                 exceptionNames.add(tbinding.getQualifiedName());
             }
+            
+            setParameters(node.parameters());
+            collectLocalVariables(node);
+            collectAccessedFields(node);
+            collectCalledMethods(node);
+            collectUsedTypes(node);
             
             setAnnotations(binding.getAnnotations());
             
@@ -168,11 +173,6 @@ public class JavaMethod extends JavaElement {
         
         declaringClass = jc;
         
-        collectLocalVariables(node);
-        collectAccessedFields(node);
-        collectCalledMethods(node);
-        collectUsedTypes(node);
-        
         name = InitializerName;
         signature = name;
         type = "void";
@@ -180,11 +180,16 @@ public class JavaMethod extends JavaElement {
         isConstructor = false;
         isInitializer = true;
         
+        collectLocalVariables(node);
+        collectAccessedFields(node);
+        collectCalledMethods(node);
+        collectUsedTypes(node);
+        
         jc.addJavaMethod(this);
     }
     
     /**
-     * Creates a new object representing an class.
+     * Creates a new object representing a method.
      * @param name the name of this method
      * @param sig the signature of this method
      * @param type the type of this method.
@@ -208,13 +213,17 @@ public class JavaMethod extends JavaElement {
     }
     
     /**
-     * Sets parameters of this method.
-     * @param params the list of parameters
+     * Sets parameters and the return type of this method.
+     * @param decralations the list of parameter declarations
      */
     protected void setParameters(List<SingleVariableDeclaration> declarations) {
         for (SingleVariableDeclaration decl : declarations) {
             JavaLocal param = new JavaLocal(decl, this);
             parameters.add(param);
+        }
+        
+        if (!isVoid()) {
+            returnValue = new JavaLocal("$" + getName(), 0, getReturnType(), isPrimitiveReturnType(), true, getModifiers(), this);
         }
     }
     
@@ -474,6 +483,14 @@ public class JavaMethod extends JavaElement {
             return getParameter(pos);
         }
         return null;
+    }
+    
+    /**
+     * Returns the virtual variable that stores the return value of this method.
+     * @return the virtual variable for the return value, or <code>null</code> if this method has no return value
+     */
+    public JavaLocal getReturnValueVariable() {
+        return returnValue;
     }
     
     /**

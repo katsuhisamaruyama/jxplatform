@@ -167,7 +167,8 @@ public class CFGMethodFactory {
             foutNode.addDefVariable(jvout); 
             ExpressionVisitor.paramNumber++;
             
-            JavaVariableAccess jvin = new JavaSpecialVariable("$" + jm.getName(), jm.getReturnType(), jm);
+            JavaLocal returnValue = jm.getReturnValueVariable();
+            JavaVariableAccess jvin = returnValue.convertJavaVariableAccess();
             foutNode.addUseVariable(jvin);
             
             return foutNode;
