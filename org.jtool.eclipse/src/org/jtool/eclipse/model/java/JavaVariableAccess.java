@@ -390,14 +390,13 @@ public class JavaVariableAccess extends JavaExpression {
         }
         
         buf.append(getName());
+        if (jlocal != null) {
+            buf.append("/");
+            buf.append(jlocal.getId());
+        }
+        
         buf.append("@");
         buf.append(getType());
-        
-        if (jlocal != null) {
-            buf.append("[");
-            buf.append(jlocal.getId());
-            buf.append("]");
-        }
         
         return buf.toString();
     }
