@@ -62,7 +62,7 @@ public class JavaLocal extends JavaExpression {
      * Creates a new object representing a local variable.
      * @param node the AST node for this local variable
      */
-    protected JavaLocal(ASTNode node) {
+    public JavaLocal(ASTNode node) {
         super(node);
     }
     

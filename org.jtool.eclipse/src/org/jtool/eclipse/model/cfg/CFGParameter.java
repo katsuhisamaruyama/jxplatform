@@ -5,7 +5,7 @@
 package org.jtool.eclipse.model.cfg;
 
 import org.jtool.eclipse.model.graph.GraphNodeSort;
-import org.jtool.eclipse.model.java.JavaExpression;
+import org.jtool.eclipse.model.java.JavaLocal;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
 
 /**
@@ -45,7 +45,7 @@ public class CFGParameter extends CFGStatement {
      * @param sort the sort of this node
      * @param num the ordinal number of this parameter
      */
-    public CFGParameter(JavaExpression jelem, GraphNodeSort sort, int num) {
+    public CFGParameter(JavaLocal jelem, GraphNodeSort sort, int num) {
         super(jelem, sort);
         ordinal = num;
     }
@@ -99,11 +99,11 @@ public class CFGParameter extends CFGStatement {
     }
     
     /**
-     * Returns the information of this method call.
-     * @return the information of this method call
+     * Returns the information of this parameter.
+     * @return the information of this parameter
      */
-    public JavaExpression getJavaExpression() {
-        return (JavaExpression)getJavaElement();
+    public JavaLocal getJavaExpression() {
+        return (JavaLocal)getJavaElement();
     }
     
     /**

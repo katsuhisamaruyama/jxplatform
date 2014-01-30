@@ -15,7 +15,6 @@ import org.jtool.eclipse.model.cfg.ControlFlow;
 import org.jtool.eclipse.model.graph.GraphEdge;
 import org.jtool.eclipse.model.graph.GraphNodeSort;
 import org.jtool.eclipse.model.graph.GraphElementSet;
-import org.jtool.eclipse.model.java.JavaExpression;
 import org.jtool.eclipse.model.java.internal.JavaSpecialVariable;
 import org.jtool.eclipse.model.java.JavaLocal;
 import org.jtool.eclipse.model.java.JavaMethod;
@@ -156,8 +155,8 @@ public class CFGMethodFactory {
      */
     private static CFGNode createFormalOut(JavaMethod jm, CFG cfg, CFGMethodEntry entry, CFGNode prevNode) {
         if (!jm.isVoid()) {
-            JavaExpression jexpr = new JavaExpression(jm.getASTNode());
-            CFGParameter foutNode = new CFGParameter(jexpr, GraphNodeSort.formalOut, 0);
+            JavaLocal jl = new JavaLocal(jm.getASTNode());
+            CFGParameter foutNode = new CFGParameter(jl, GraphNodeSort.formalOut, 0);
             foutNode.setBelongNode(entry);
             entry.addFormalOut(foutNode);
             

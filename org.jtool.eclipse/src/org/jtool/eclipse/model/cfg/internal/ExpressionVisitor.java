@@ -525,7 +525,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         if (createActual) {
             createActualOuts(jmc, callNode, node.arguments());
-            JavaExpression ret = new JavaExpression(node);
+            JavaLocal ret = new JavaLocal(node);
             createActualOutForReturnValue(jmc, callNode, ret);
         } else {
             mergeActualOut(callNode);
@@ -569,7 +569,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         if (createActual) {
             createActualOuts(jmc, callNode, node.arguments());
-            JavaExpression ret = new JavaExpression(node);
+            JavaLocal ret = new JavaLocal(node);
             createActualOutForReturnValue(jmc, callNode, ret);
         } else {
             mergeActualOut(callNode);
@@ -656,7 +656,7 @@ public class ExpressionVisitor extends ASTVisitor {
         
         if (createActual) {
             createActualOuts(jmc, callNode, node.arguments());
-            JavaExpression ret = new JavaExpression(node);
+            JavaLocal ret = new JavaLocal(node);
             createActualOutForReturnValue(jmc, callNode, ret);
         } else {
             mergeActualOut(callNode);
@@ -695,8 +695,8 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param ordinal the ordinal number indicating where a specified parameter is located in a parameter list containing it
      */
     private void createActualIn(JavaMethodCall jmc, CFGMethodCall callNode, Expression argument, int ordinal) {
-        JavaExpression jarg = new JavaExpression(argument);
-        CFGParameter ainNode = new CFGParameter(jarg, GraphNodeSort.actualIn, ordinal);
+        JavaLocal jl = new JavaLocal(argument);
+        CFGParameter ainNode = new CFGParameter(jl, GraphNodeSort.actualIn, ordinal);
         ainNode.setBelongNode(callNode);
         callNode.addActualIn(ainNode);
         
@@ -742,8 +742,8 @@ public class ExpressionVisitor extends ASTVisitor {
      * @param ain the actual-in parameter corresponding to an actual-out parameter to be created
      */
     private void createActualOut(JavaMethodCall jmc, CFGMethodCall callNode, CFGParameter ain) {
-        JavaExpression jarg = (JavaExpression)ain.getJavaElement();
-        CFGParameter aoutNode = new CFGParameter(jarg, GraphNodeSort.actualOut, ain.getOrdinal());
+        JavaLocal jl = (JavaLocal)ain.getJavaElement();
+        CFGParameter aoutNode = new CFGParameter(jl, GraphNodeSort.actualOut, ain.getOrdinal());
         aoutNode.setBelongNode(callNode);
         callNode.addActualOut(aoutNode);
         
@@ -757,14 +757,14 @@ public class ExpressionVisitor extends ASTVisitor {
      * Creates a CFG node for an actual-out parameter.
      * @param jmc the calling method
      * @param callNode the CFG node for the method call
-     * @param expr the expression corresponding to the method call
+     * @param jl the virtual local variable storing the return value of the method call
      */
-    private void createActualOutForReturnValue(JavaMethodCall jmc, CFGMethodCall callNode, JavaExpression jexpr) {
+    private void createActualOutForReturnValue(JavaMethodCall jmc, CFGMethodCall callNode, JavaLocal jl) {
         if (jmc.isVoid()) {
             return;
         }
         
-        CFGParameter aoutNode = new CFGParameter(jexpr, GraphNodeSort.actualOut, 0);
+        CFGParameter aoutNode = new CFGParameter(jl, GraphNodeSort.actualOut, 0);
         aoutNode.setBelongNode(callNode);
         callNode.addActualOut(aoutNode);
         
