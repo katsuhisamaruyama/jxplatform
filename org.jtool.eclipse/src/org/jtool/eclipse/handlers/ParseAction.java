@@ -4,6 +4,7 @@
  
 package org.jtool.eclipse.handlers;
 
+import org.jtool.eclipse.model.graph.GraphNodeIdPublisher;
 import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaModelFactory;
 import org.jtool.eclipse.model.java.JavaProject;
@@ -27,6 +28,9 @@ public class ParseAction extends JtoolHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IJavaProject project = getJavaProject(event);
         if (project != null) {
+            JavaProject.removeAllCache();
+            GraphNodeIdPublisher.reset();
+            
             JavaModelFactory factory = new JavaModelFactory(project);
             factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
             JavaProject jproject = factory.create();

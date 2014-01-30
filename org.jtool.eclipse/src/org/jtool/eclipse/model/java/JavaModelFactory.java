@@ -80,7 +80,7 @@ public class JavaModelFactory {
         
         Set<ICompilationUnit> cunits = collectAllCompilationUnits();
         removeUnchangedCompilationUnits(cunits);
-        Set<ICompilationUnit> pcunits = collectParsedCompilationUnits(cunits);
+        Set<ICompilationUnit> pcunits = collectCompilationUnitsToBeParsed(cunits);
                 
         createJavaModel(pcunits);
         JavaElement.setBindingLevel(1);
@@ -154,7 +154,7 @@ public class JavaModelFactory {
      * @param cunits the collection of all the compilation units within the project
      * @return the collection of compilation units to be parsed
      */
-    private Set<ICompilationUnit> collectParsedCompilationUnits(Set<ICompilationUnit> cunits) {
+    private Set<ICompilationUnit> collectCompilationUnitsToBeParsed(Set<ICompilationUnit> cunits) {
         Set<ICompilationUnit> newUnits = new HashSet<ICompilationUnit>();
         for (ICompilationUnit icu : cunits) {
             String pathname = icu.getPath().toString();

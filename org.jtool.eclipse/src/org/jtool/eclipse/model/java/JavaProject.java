@@ -152,6 +152,18 @@ public class JavaProject {
     }
     
     /**
+     * Removes every information about this project stored in the cache.
+     */
+    public static void removeAllCache() {
+        for (JavaProject jproj : cache.values()) {
+            jproj.getJavaPackages().clear();
+        }
+        cache.clear();
+        
+        JavaClass.removeAllClassesInCache();
+    }
+    
+    /**
      * Returns the Java project for this project.
      * @return the Java project
      */
