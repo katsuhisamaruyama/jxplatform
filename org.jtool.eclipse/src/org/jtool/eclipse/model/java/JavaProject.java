@@ -296,7 +296,11 @@ public class JavaProject {
             return false;
         }
         
-        return this == jproj || getTopDir().compareTo(jproj.getTopDir()) == 0; 
+        if (this == jproj) {
+            return true;
+        }
+        
+        return getTopDir().compareTo(jproj.getTopDir()) == 0; 
     }
     
     /**

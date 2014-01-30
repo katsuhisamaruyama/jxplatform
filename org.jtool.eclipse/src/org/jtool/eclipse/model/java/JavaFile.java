@@ -167,7 +167,11 @@ public class JavaFile {
             return false;
         }
         
-        return this == jcu || getPath().compareTo(jcu.getPath()) == 0; 
+        if (this == jcu) {
+            return true;
+        }
+        
+        return getPath().compareTo(jcu.getPath()) == 0; 
     }
     
     /**

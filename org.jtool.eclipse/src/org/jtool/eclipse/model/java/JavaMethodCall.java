@@ -294,7 +294,7 @@ public class JavaMethodCall extends JavaExpression {
      */
     public String getQualifiedName() {
         if (classNameOfCalledMethod != null) {
-            return  classNameOfCalledMethod + "#" + getSignature();
+            return classNameOfCalledMethod + "#" + getSignature();
         }
         return getSignature();
     }
@@ -371,7 +371,11 @@ public class JavaMethodCall extends JavaExpression {
             return false;
         }
         
-        return this == jmc || getQualifiedName().compareTo(jmc.getQualifiedName()) == 0; 
+        if (this == jmc) {
+            return true;
+        }
+        
+        return equals(jmc.getJavaMethod());
     }
     
     /**
@@ -380,11 +384,11 @@ public class JavaMethodCall extends JavaExpression {
      * @return <code>true</code> if this method call corresponds to the method, otherwise <code>false</code>
      */
     public boolean equals(JavaMethod jm) {
-        if (classNameOfCalledMethod == null) {
+        if (jm == null) {
             return false;
         }
-        return classNameOfCalledMethod.compareTo(jm.getDeclaringJavaClass().getQualifiedName()) == 0 &&
-               getSignature().compareTo(jm.getSignature()) == 0;
+        
+        return jm.equals(getJavaMethod());
     }
     
     /**

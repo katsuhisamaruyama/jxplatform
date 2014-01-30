@@ -64,8 +64,7 @@ public class JavaLocal extends JavaExpression {
      */
     public JavaLocal(ASTNode node) {
         super(node);
-        
-        name = null;
+        declaringMethod = null;
     }
     
     /**
@@ -208,11 +207,17 @@ public class JavaLocal extends JavaExpression {
      * @return <code>true</code> if the given local equals to this, otherwise <code>false</code>
      */
     public boolean equals(JavaLocal jl) {
-        if (jl == null || getName() == null || jl.getName() == null) {
+        if (jl == null || getDeclaringJavaMethod() == null || jl.getDeclaringJavaMethod() == null) {
             return false;
         }
         
-        return this == jl || (getName().compareTo(jl.getName()) == 0 && getId() == jl.getId());
+        if (this == jl) {
+            return true;
+        }
+        
+        return getDeclaringJavaMethod().equals(jl.getDeclaringJavaMethod()) &&
+               getName().compareTo(jl.getName()) == 0 &&
+               getId() == jl.getId();
     }
     
     /**

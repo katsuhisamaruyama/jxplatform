@@ -438,6 +438,14 @@ public class JavaClass extends JavaElement {
     }
     
     /**
+     * Returns the name of the project containing this class.
+     * @return the name string
+     */
+    public String getProjectName() {
+        return jpackage.getProjectName();
+    }
+    
+    /**
      * Returns the value representing modifiers of this class.
      * @return the modifiers value
      */
@@ -706,7 +714,11 @@ public class JavaClass extends JavaElement {
             return false;
         }
         
-        return this == jc || getQualifiedName().compareTo(jc.getQualifiedName()) == 0; 
+        if (this == jc) {
+            return true;
+        }
+        
+        return getProjectName().compareTo(jc.getProjectName()) == 0 && getQualifiedName().compareTo(jc.getQualifiedName()) == 0;
     }
     
     /**

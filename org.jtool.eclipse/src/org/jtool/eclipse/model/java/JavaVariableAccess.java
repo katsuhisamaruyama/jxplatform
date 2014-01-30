@@ -199,15 +199,31 @@ public class JavaVariableAccess extends JavaExpression {
             return false;
         }
         
-        return this == jacc || getQualifiedName().compareTo(jacc.getQualifiedName()) == 0;
+        if (this == jacc) {
+            return true;
+        }
+        
+        if (jacc.isField()) {
+            return equals(jacc.getJavaField());
+            
+        } else if (jacc.isLocal()) {
+            return equals(jacc.getJavaLocal());
+        }
+        
+        return false;
     }
     
     /**
-     * Returns a hash code value for this variable access.
-     * @return the hash code value for the variable access
+     * Tests if this variable access corresponds to a given local variable.
+     * @param jl the local variable which is compared to
+     * @return <code>true</code> if this access corresponds to the local variable, otherwise <code>false</code>
      */
-    public int hashCode() {
-        return getQualifiedName().hashCode();
+    public boolean equals(JavaLocal jl) {
+        if (jl == null) {
+            return false;
+        }
+        
+        return jl.equals(getJavaLocal());
     }
     
     /**
@@ -216,11 +232,19 @@ public class JavaVariableAccess extends JavaExpression {
      * @return <code>true</code> if this access corresponds to the field, otherwise <code>false</code>
      */
     public boolean equals(JavaField jf) {
-        if (classNameOfAccessedField == null) {
+        if (jf == null) {
             return false;
         }
-        return classNameOfAccessedField.compareTo(jf.getDeclaringJavaClass().getQualifiedName()) == 0 &&
-               getName().compareTo(jf.getName()) == 0;
+        
+        return jf.equals(getJavaField());
+    }
+    
+    /**
+     * Returns a hash code value for this variable access.
+     * @return the hash code value for the variable access
+     */
+    public int hashCode() {
+        return getQualifiedName().hashCode();
     }
     
     /* ================================================================================

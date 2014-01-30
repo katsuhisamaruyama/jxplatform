@@ -15,10 +15,12 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -644,8 +646,12 @@ public class JavaMethod extends JavaElement {
             return false;
         }
         
-        return this == jm || (getDeclaringJavaClass().equals(jm.getDeclaringJavaClass()) &&
-                              getSignature().compareTo(jm.getSignature()) == 0); 
+        if (this == jm) {
+            return true;
+        }
+        
+        return getDeclaringJavaClass().equals(jm.getDeclaringJavaClass()) &&
+               getSignature().compareTo(jm.getSignature()) == 0; 
     }
     
     /**

@@ -408,8 +408,12 @@ public class JavaField extends JavaExpression {
             return false;
         }
         
-        return this == jf || (getDeclaringJavaClass().equals(jf.getDeclaringJavaClass()) &&
-                              getName().compareTo(jf.getName()) == 0); 
+        if (this == jf) {
+            return true;
+        }
+        
+        return getDeclaringJavaClass().equals(jf.getDeclaringJavaClass()) &&
+               getName().compareTo(jf.getName()) == 0; 
     }
     
     /**

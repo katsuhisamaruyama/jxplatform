@@ -119,6 +119,14 @@ public class JavaPackage {
     }
     
     /**
+     * Returns the name of the project containing this package.
+     * @return the name string
+     */
+    public String getProjectName() {
+        return jproject.getName();
+    }
+    
+    /**
      * Adds a specified class to the members of this package.
      * @param jm the class to be added
      */
@@ -158,7 +166,11 @@ public class JavaPackage {
             return false;
         }
         
-        return this == jp || getName().compareTo(jp.getName()) == 0; 
+        if (this == jp) {
+            return true;
+        }
+        
+        return getProjectName().compareTo(jp.getProjectName()) == 0 && getName().compareTo(jp.getName()) == 0; 
     }
     
     /**
