@@ -594,12 +594,24 @@ public class ExpressionVisitor extends ASTVisitor {
         JavaMethodCall jmc = new JavaMethodCall(node, binding, JavaElement.getDeclaringJavaMethod(node));
         CFGMethodCall callNode = new CFGMethodCall(jmc, GraphNodeSort.constructorCall);
         
-        mergeActualIn(callNode, node.arguments());
+        boolean createActual = (jmc.getJavaMethod() != null && createActualNodes && callNode.callMethodInProject() && !callNode.callSelf());
+        
+        if (createActual) {
+            createActualIns(jmc, callNode, node.arguments());
+        } else {
+            mergeActualIn(callNode, node.arguments());
+        }
         
         insertBeforeCurrentNode(callNode);
         
-        mergeActualOut(callNode);
-        curNode.addUseVariable(callNode.getDefVariables().get(0));
+        if (createActual) {
+            createActualOuts(jmc, callNode, node.arguments());
+            JavaLocal ret = new JavaLocal(node);
+            createActualOutForReturnValue(jmc, callNode, ret);
+        } else {
+            mergeActualOut(callNode);
+            curNode.addUseVariable(callNode.getDefVariables().get(0));
+        }
         
         return false;
     }
@@ -619,12 +631,24 @@ public class ExpressionVisitor extends ASTVisitor {
         JavaMethodCall jmc = new JavaMethodCall(node, binding, JavaElement.getDeclaringJavaMethod(node));
         CFGMethodCall callNode = new CFGMethodCall(jmc, GraphNodeSort.constructorCall);
         
-        mergeActualIn(callNode, node.arguments());
+        boolean createActual = (jmc.getJavaMethod() != null && createActualNodes && callNode.callMethodInProject() && !callNode.callSelf());
+        
+        if (createActual) {
+            createActualIns(jmc, callNode, node.arguments());
+        } else {
+            mergeActualIn(callNode, node.arguments());
+        }
         
         insertBeforeCurrentNode(callNode);
         
-        mergeActualOut(callNode);
-        curNode.addUseVariable(callNode.getDefVariables().get(0));
+        if (createActual) {
+            createActualOuts(jmc, callNode, node.arguments());
+            JavaLocal ret = new JavaLocal(node);
+            createActualOutForReturnValue(jmc, callNode, ret);
+        } else {
+            mergeActualOut(callNode);
+            curNode.addUseVariable(callNode.getDefVariables().get(0));
+        }
         
         return false;
     }

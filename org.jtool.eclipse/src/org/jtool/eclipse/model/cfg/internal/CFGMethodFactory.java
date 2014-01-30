@@ -53,7 +53,7 @@ public class CFGMethodFactory {
         entryEdge.setTrue();
         cfg.add(entryEdge);
         
-        if (jm.isMethod() && !jm.isInitializer()) {
+        if (!jm.isInitializer()) {
             MethodDeclaration method = (MethodDeclaration)jm.getASTNode();
             
             StatementVisitor visitor = new StatementVisitor(cfg, nextNode);
@@ -61,7 +61,7 @@ public class CFGMethodFactory {
             
             nextNode = visitor.getNextCFGNode();
             
-        } else if (jm.isInitializer()) {
+        } else {
             Initializer initializer = (Initializer)jm.getASTNode();
             
             StatementVisitor visitor = new StatementVisitor(cfg, nextNode);
