@@ -64,6 +64,8 @@ public class JavaLocal extends JavaExpression {
      */
     public JavaLocal(ASTNode node) {
         super(node);
+        
+        name = null;
     }
     
     /**
@@ -206,7 +208,7 @@ public class JavaLocal extends JavaExpression {
      * @return <code>true</code> if the given local equals to this, otherwise <code>false</code>
      */
     public boolean equals(JavaLocal jl) {
-        if (jl == null) {
+        if (jl == null || getName() == null || jl.getName() == null) {
             return false;
         }
         
