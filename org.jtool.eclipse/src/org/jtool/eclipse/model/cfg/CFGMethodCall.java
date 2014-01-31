@@ -213,7 +213,7 @@ public class CFGMethodCall extends CFGStatement {
      * Returns the CFG entry node corresponding to the called method.
      * @return the entry node for the called method
      */
-    public CFGMethodEntry getCalledMethodEntry2() {
+    public CFGMethodEntry getCalledMethodEntry() {
         JavaMethod jm = getJavaMethodCall().getJavaMethod();
         CFG cfg = CFGFactory.create(jm);
         return (CFGMethodEntry)cfg.getStartNode();
