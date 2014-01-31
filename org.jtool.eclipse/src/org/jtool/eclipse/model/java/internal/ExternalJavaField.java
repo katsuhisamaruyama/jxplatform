@@ -53,6 +53,7 @@ public class ExternalJavaField extends JavaField {
             type = JavaClass.createClassName(binding.getType());
             modifiers = binding.getModifiers();
             isEnumConstant = false;
+            
             declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
         }
     }

@@ -6,7 +6,10 @@ package org.jtool.eclipse.model.java.internal;
 
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaField;
-import org.jtool.eclipse.model.java.JavaMethod;
+import org.jtool.eclipse.model.java.JavaProject;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -30,6 +33,11 @@ import java.util.HashSet;
 public class FieldAccessCollector extends ASTVisitor {
     
     /**
+     * The project containing method calls to be collected.
+     */
+    private JavaProject jproject;
+    
+    /**
      * The collection of fields accessed.
      */
     private Set<String> accessedFields = new HashSet<String>();
@@ -40,10 +48,13 @@ public class FieldAccessCollector extends ASTVisitor {
     private boolean bindingOk = true;
     
     /**
-     * Creates a new object for collecting fields accessed by this method or field.
+     * Creates a new object for collecting fields accessed by any method or field.
+     * @param jproject the project containing the method calls or field accesses
      */
-    public FieldAccessCollector(JavaMethod jm) {
+    public FieldAccessCollector(JavaProject jproject) {
         super();
+        
+        this.jproject = jproject;
     }
     
     /**
@@ -111,7 +122,7 @@ public class FieldAccessCollector extends ASTVisitor {
                     ITypeBinding tbinding = vbinding.getDeclaringClass();
                     
                     String fqn;
-                    if (tbinding != null) {
+                    if (tbinding != null && isInProject(vbinding)) {
                         fqn = JavaClass.createClassName(tbinding);
                     } else {
                         JavaField jf = ExternalJavaField.create(vbinding);
@@ -122,8 +133,29 @@ public class FieldAccessCollector extends ASTVisitor {
                     accessedFields.add(str);
                 }
             }
+            
         } else {
             bindingOk = false;
         }
+    }
+    
+    /**
+     * Tests if the accessed field is contained in the project containing the field access.
+     * @param vbinding the variable binding of the field access
+     * @return <code>true</code> if the accessed field is contained in the project, otherwise <code>false</code>
+     */
+    private boolean isInProject(IVariableBinding vbinding) {
+        IJavaProject project = jproject.getJavaProject();
+        try {
+            IType type = project.findType(vbinding.getDeclaringClass().getQualifiedName());
+            if (type != null) {
+                String pdir = project.getPath().toString();
+                String tname = type.getPath().toString();
+                return pdir != null && tname != null && tname.startsWith(pdir);
+            }
+        } catch (JavaModelException e) {
+            return false;
+        }
+        return false;
     }
 }

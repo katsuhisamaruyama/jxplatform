@@ -8,7 +8,6 @@ import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaMethod;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-
 import java.util.Map;
 import java.util.HashMap;
 
@@ -61,6 +60,8 @@ public class ExternalJavaMethod extends JavaMethod {
             for (ITypeBinding tbinding : binding.getExceptionTypes()) {
                 exceptionNames.add(tbinding.getQualifiedName());
             }
+            
+            declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
         }
     }
     

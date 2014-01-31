@@ -5,6 +5,10 @@
 package org.jtool.eclipse.model.java.internal;
 
 import org.jtool.eclipse.model.java.JavaClass;
+import org.jtool.eclipse.model.java.JavaProject;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -49,6 +53,11 @@ import java.util.HashSet;
 public class TypeCollector extends ASTVisitor {
     
     /**
+     * The project containing method calls to be collected.
+     */
+    private JavaProject jproject;
+    
+    /**
      * The collection of classes that this class uses.
      */
     private Set<String> typeUses = new HashSet<String>();
@@ -60,9 +69,12 @@ public class TypeCollector extends ASTVisitor {
     
     /**
      * Creates a new object for collecting classes used in this class.
+     * @param jproject the project containing the type uses
      */
-    public TypeCollector() {
+    public TypeCollector(JavaProject jproject) {
         super();
+        
+        this.jproject = jproject;
     }
     
     /**
@@ -105,12 +117,41 @@ public class TypeCollector extends ASTVisitor {
     public boolean visit(SimpleType node) {
         ITypeBinding tbinding = node.resolveBinding();
         if (tbinding != null) {
-            String fqn = JavaClass.createClassName(tbinding);
-            typeUses.add(JavaClass.getString(fqn));
+            String fqn;
+            if (isInProject(tbinding)) {
+                fqn = JavaClass.createClassName(tbinding); 
+            } else {
+                JavaClass jc = ExternalJavaClass.create(tbinding);
+                fqn = jc.getQualifiedName();
+            }
+            
+            String str = JavaClass.getString(fqn);
+            typeUses.add(str);
+            
         } else {
             bindingOk = false;
         }
         
+        return false;
+    }
+    
+    /**
+     * Tests if the used type is contained in the project containing the type use.
+     * @param tbinding the type binding of the type use
+     * @return <code>true</code> if the used type is contained in the project, otherwise <code>false</code>
+     */
+    private boolean isInProject(ITypeBinding tbinding) {
+        IJavaProject project = jproject.getJavaProject();
+        try {
+            IType type = project.findType(tbinding.getQualifiedName());
+            if (type != null) {
+                String pdir = project.getPath().toString();
+                String tname = type.getPath().toString();
+                return pdir != null && tname != null && tname.startsWith(pdir);
+            }
+        } catch (JavaModelException e) {
+            return false;
+        }
         return false;
     }
 }

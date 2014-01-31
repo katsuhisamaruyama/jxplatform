@@ -4,8 +4,12 @@
 
 package org.jtool.eclipse.model.java.internal;
 
+import org.jtool.eclipse.model.java.JavaProject;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaMethod;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -32,7 +36,12 @@ import java.util.HashSet;
 public class MethodCallCollector extends ASTVisitor {
     
     /**
-     * The collection of method invocations.
+     * The project containing method calls to be collected.
+     */
+    private JavaProject jproject;
+    
+    /**
+     * The collection of method calls.
      */
     private Set<String> methodCalls = new HashSet<String>();
     
@@ -42,11 +51,13 @@ public class MethodCallCollector extends ASTVisitor {
     private boolean bindingOk = true;
     
     /**
-     * Creates a new object for collecting methods called by this method.
-     * @param jm the method containing this call
+     * Creates a new object for collecting methods called by any method or field.
+     * @param jproject the project containing the method calls or field accesses
      */
-    public MethodCallCollector() {
+    public MethodCallCollector(JavaProject jproject) {
         super();
+        
+        this.jproject = jproject;
     }
     
     /**
@@ -129,8 +140,9 @@ public class MethodCallCollector extends ASTVisitor {
     private void addJavaMethodCall(IMethodBinding mbinding) {
         if (mbinding != null) {
             ITypeBinding tbinding = mbinding.getDeclaringClass();
+            
             String fqn;
-            if (tbinding != null) {
+            if (tbinding != null && isInProject(mbinding)) {
                 fqn = JavaClass.createClassName(tbinding); 
             } else {
                 JavaMethod jm = ExternalJavaMethod.create(mbinding);
@@ -143,5 +155,25 @@ public class MethodCallCollector extends ASTVisitor {
         } else {
             bindingOk = false;
         }
+    }
+    
+    /**
+     * Tests if the called method is contained in the project containing the method call.
+     * @param mbinding the method binding of the method call
+     * @return <code>true</code> if the called method is contained in the project, otherwise <code>false</code>
+     */
+    private boolean isInProject(IMethodBinding mbinding) {
+        IJavaProject project = jproject.getJavaProject();
+        try {
+            IType type = project.findType(mbinding.getDeclaringClass().getQualifiedName());
+            if (type != null) {
+                String pdir = project.getPath().toString();
+                String tname = type.getPath().toString();
+                return pdir != null && tname != null && tname.startsWith(pdir);
+            }
+        } catch (JavaModelException e) {
+            return false;
+        }
+        return false;
     }
 }

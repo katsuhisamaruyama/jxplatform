@@ -12,10 +12,8 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-
 import java.util.Set;
 import java.util.HashSet;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -182,7 +180,7 @@ public class JavaField extends JavaExpression {
      * @param node an AST node for this field
      */
     protected void collectCalledMethods(ASTNode node) {
-        MethodCallCollector mvisitor = new MethodCallCollector();
+        MethodCallCollector mvisitor = new MethodCallCollector(getDeclaringJavaClass().getJavaPackage().getJavaProject());
         node.accept(mvisitor);
         
         for (String str : mvisitor.getMethodCalls()) {

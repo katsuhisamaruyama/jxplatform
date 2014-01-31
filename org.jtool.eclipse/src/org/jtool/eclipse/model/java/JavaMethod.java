@@ -15,12 +15,10 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -249,7 +247,7 @@ public class JavaMethod extends JavaElement {
      * @return <code>true</code> if all bindings for the variables were found, otherwise <code>false</code>
      */
     protected void collectAccessedFields(ASTNode node) {
-        FieldAccessCollector fvisitor = new FieldAccessCollector(this);
+        FieldAccessCollector fvisitor = new FieldAccessCollector(getDeclaringJavaClass().getJavaPackage().getJavaProject());
         node.accept(fvisitor);
         
         for (String str : fvisitor.getAccessedFields()) {
@@ -268,7 +266,7 @@ public class JavaMethod extends JavaElement {
      * @return @return <code>true</code> if all bindings for the methods were found, otherwise <code>false</code>
      */
     protected void collectCalledMethods(ASTNode node) {
-        MethodCallCollector mvisitor = new MethodCallCollector();
+        MethodCallCollector mvisitor = new MethodCallCollector(getDeclaringJavaClass().getJavaPackage().getJavaProject());
         node.accept(mvisitor);
         
         for (String str : mvisitor.getMethodCalls()) {
@@ -286,7 +284,7 @@ public class JavaMethod extends JavaElement {
      * @param node an AST node for this method
      */
     protected void collectUsedTypes(ASTNode node) {
-        TypeCollector tvisitor = new TypeCollector();
+        TypeCollector tvisitor = new TypeCollector(getDeclaringJavaClass().getJavaPackage().getJavaProject());
         astNode.accept(tvisitor);
         
         for (String str : tvisitor.getTypeUses()) {
