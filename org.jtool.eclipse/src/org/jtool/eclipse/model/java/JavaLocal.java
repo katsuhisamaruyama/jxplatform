@@ -117,6 +117,7 @@ public class JavaLocal extends JavaExpression {
      */
     public JavaLocal(String name, int id, String type, boolean isPrimitive, boolean isParameter, int modifiers, JavaMethod jm) {
         super();
+        declaringMethod = jm;
         
         this.name = name;
         this.id = id;
@@ -124,7 +125,7 @@ public class JavaLocal extends JavaExpression {
         this.isPrimitive = isPrimitive;
         this.isParameter = isParameter;
         this.modifiers = modifiers;
-        this.declaringMethod = jm;
+        
     }
     
     /**

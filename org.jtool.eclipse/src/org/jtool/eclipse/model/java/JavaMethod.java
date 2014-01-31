@@ -651,7 +651,7 @@ public class JavaMethod extends JavaElement {
         }
         
         return getDeclaringJavaClass().equals(jm.getDeclaringJavaClass()) &&
-               getSignature().compareTo(jm.getSignature()) == 0; 
+               getSignature().compareTo(jm.getSignature()) == 0;
     }
     
     /**
@@ -870,7 +870,6 @@ public class JavaMethod extends JavaElement {
         overridingMethods.add(jm);
     }
     
-
     /**
      * Displays error log if the binding has not completed yet.
      */

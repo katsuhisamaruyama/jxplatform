@@ -18,17 +18,7 @@ public class JavaSpecialVariable extends JavaVariableAccess {
     /**
      * A class containing this variable. 
      */
-    private JavaClass jclass = null;
-    
-    /**
-     * A method containing this variable. 
-     */
-    private JavaMethod jmethod = null;
-    
-    /**
-     * A field containing this variable. 
-     */
-    private JavaField jfield = null;
+    private JavaClass declaringClass = null;
     
     /**
      * Creates a new, empty object.
@@ -46,7 +36,8 @@ public class JavaSpecialVariable extends JavaVariableAccess {
     public JavaSpecialVariable(String name, String type, JavaClass jc) {
         this.name = name;
         this.type = type;
-        jclass = jc;
+        declaringClass = jc;
+        declaringMethod = null;
     }
     
     /**
@@ -58,7 +49,8 @@ public class JavaSpecialVariable extends JavaVariableAccess {
     public JavaSpecialVariable(String name, String type, JavaMethod jm) {
         this.name = name;
         this.type = type;
-        jmethod = jm;
+        declaringClass = jm.getDeclaringJavaClass();
+        declaringMethod = jm;
     }
     
     /**
@@ -70,7 +62,8 @@ public class JavaSpecialVariable extends JavaVariableAccess {
     public JavaSpecialVariable(String name, String type, JavaField jf) {
         this.name = name;
         this.type = type;
-        jfield = jf;
+        declaringClass = jf.getDeclaringJavaClass();
+        declaringMethod = null;
     }
     
     /**
@@ -93,25 +86,16 @@ public class JavaSpecialVariable extends JavaVariableAccess {
      * Returns the Java class enclosing this variable.
      * @return the enclosing class for this variable
      */
-    public JavaClass getJavaClassOfAccessedVariable() {
-        if (jclass != null) {
-            return jclass;
-        }
-        if (jmethod != null) {
-            return jmethod.getDeclaringJavaClass();
-        }
-        if (jfield != null) {
-            return jfield.getDeclaringJavaClass();
-        }
-        return null;
+    public JavaClass getJavaClassOf() {
+        return declaringClass;
     }
     
     /**
      * Returns the Java method enclosing this variable.
      * @return the enclosing method for this variable
      */
-    public JavaMethod getJavaMethodOfAccessedVariable() {
-        return jmethod;
+    public JavaMethod getJavaMethodOf() {
+        return declaringMethod;
     }
     
     /**
@@ -127,7 +111,18 @@ public class JavaSpecialVariable extends JavaVariableAccess {
             return true;
         }
         
-        return this == jv || getName().compareTo(jv.getName()) == 0;
+        if (this == jv) {
+            return true;
+        }
+        
+        if (getJavaMethodOf() != null) {
+            return getJavaClassOf().equals(jv.getJavaClassOf()) &&
+                   getJavaMethodOf().equals(jv.getJavaMethodOf()) &&
+                   getName().compareTo(jv.getName()) == 0;
+        }
+        
+        return getJavaClassOf().equals(jv.getJavaClassOf()) &&
+               getName().compareTo(jv.getName()) == 0;
     }
     
     /**

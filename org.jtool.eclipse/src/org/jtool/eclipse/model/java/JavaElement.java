@@ -661,7 +661,7 @@ public abstract class JavaElement {
      * Collects information about all annotations that are directly present on this element.
      * @return the string for printing
      */
-    protected String getAnnotationInfo() {
+    public String getAnnotationInfo() {
         StringBuffer buf = new StringBuffer();
         
         if (annotations.size() != 0) {

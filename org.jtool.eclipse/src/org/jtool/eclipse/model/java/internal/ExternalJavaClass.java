@@ -30,12 +30,20 @@ public class ExternalJavaClass extends JavaClass {
     /**
      * Creates a new object representing a class
      * @param fqn the fully-qualified name of the class
+     * @param binding a type binding for the class
      */
-    protected ExternalJavaClass(String fqn) {
+    protected ExternalJavaClass(String fqn, ITypeBinding binding) {
         super();
         
-        this.name = fqn;
         this.fqn = fqn;
+        if (binding != null) {
+            name = binding.getName();
+            modifiers = binding.getModifiers();
+            isInterface = binding.isInterface();
+            isEnum = binding.isEnum();
+        } else {
+            name = fqn;
+        }
     }
     
     /**
@@ -43,15 +51,15 @@ public class ExternalJavaClass extends JavaClass {
      * @param binding a type binding for the class
      * @return the created object
      */
-    public static ExternalJavaClass create(ITypeBinding tbinding) {
+    public static ExternalJavaClass create(ITypeBinding binding) {
         String fqn;
-        if (tbinding != null) {
-            fqn = JavaClass.createClassName(tbinding);
+        if (binding != null) {
+            fqn = JavaClass.createClassName(binding);
         } else {
             fqn = getArrayClassFqn();
         }
         
-        return create(fqn);
+        return create(fqn, binding);
     }
     
     /**
@@ -60,12 +68,22 @@ public class ExternalJavaClass extends JavaClass {
      * @return the created object
      */
     public static ExternalJavaClass create(String fqn) {
+        return create(fqn, null);
+    }
+    
+    /**
+     * Creates a new object representing a class. 
+     * @param fqn the fully-qualified name of the class
+     * @param binding a type binding for the class
+     * @return the created object
+     */
+    public static ExternalJavaClass create(String fqn, ITypeBinding binding) {
         ExternalJavaClass jclass = cache.get(JavaClass.getString(fqn));
         if (jclass != null) {
             return jclass;
         }
         
-        jclass = new ExternalJavaClass(fqn);
+        jclass = new ExternalJavaClass(fqn, binding);
         cache.put(JavaClass.getString(fqn), jclass);
         
         return jclass;

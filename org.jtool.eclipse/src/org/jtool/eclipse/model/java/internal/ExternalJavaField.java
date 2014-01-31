@@ -38,7 +38,7 @@ public class ExternalJavaField extends JavaField {
         
         this.name = fqn + "#" + name;
         this.type = null;
-        declaringClass = ExternalJavaClass.create(fqn);
+        declaringClass = ExternalJavaClass.create(fqn, null);
     }
     
     /**
@@ -48,9 +48,13 @@ public class ExternalJavaField extends JavaField {
     protected ExternalJavaField(IVariableBinding binding) {
         super();
         
-        name = binding.getName();
-        type = JavaClass.createClassName(binding.getType());
-        declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
+        if (binding != null) {
+            name = binding.getName();
+            type = JavaClass.createClassName(binding.getType());
+            modifiers = binding.getModifiers();
+            isEnumConstant = false;
+            declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
+        }
     }
     
     /**

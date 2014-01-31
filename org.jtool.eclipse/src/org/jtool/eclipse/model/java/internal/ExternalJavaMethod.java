@@ -7,6 +7,8 @@ package org.jtool.eclipse.model.java.internal;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.jtool.eclipse.model.java.JavaMethod;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -39,7 +41,7 @@ public class ExternalJavaMethod extends JavaMethod {
         this.name = fqn + "#" + sig;
         this.signature = sig;
         this.type = null;
-        declaringClass = ExternalJavaClass.create(fqn);
+        declaringClass = ExternalJavaClass.create(fqn, null);
     }
     
     /**
@@ -49,10 +51,17 @@ public class ExternalJavaMethod extends JavaMethod {
     protected ExternalJavaMethod(IMethodBinding binding) {
         super();
         
-        name = binding.getName();
-        signature = getSignature(binding);
-        type = JavaClass.createClassName(binding.getReturnType());
-        declaringClass = ExternalJavaClass.create(binding.getDeclaringClass());
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getReturnType().getQualifiedName();
+            modifiers = binding.getModifiers();
+            isConstructor = binding.isConstructor();
+            isInitializer = false;
+            for (ITypeBinding tbinding : binding.getExceptionTypes()) {
+                exceptionNames.add(tbinding.getQualifiedName());
+            }
+        }
     }
     
     /**
