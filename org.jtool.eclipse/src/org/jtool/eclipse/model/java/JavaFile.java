@@ -8,6 +8,7 @@ import org.jtool.eclipse.io.FileReader;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -123,8 +124,7 @@ public class JavaFile {
      * @return the file name of the source code
      */
     private String getFilePath(String projName) {
-        projName = projName.substring(0, projName.length());
-        int lindex = projName.lastIndexOf('/');
+        int lindex = projName.lastIndexOf(File.separatorChar);
         String progDir = projName.substring(0, lindex);
         
         return progDir + path;
