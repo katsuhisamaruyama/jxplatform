@@ -174,7 +174,10 @@ public class JavaClass extends JavaElement {
         if (name.length() != 0) {
             return name;
         }
-        return binding.getKey();
+        
+        name = binding.getKey();
+        String fqn = name.replace('/', '.');
+        return fqn;
     }
     
     /**
@@ -247,6 +250,12 @@ public class JavaClass extends JavaElement {
         if (binding == null) {
             throw new NullPointerException();
         }
+        
+        /*
+        if (binding.getQualifiedName().length() == 0) {
+            return null;
+        }
+        */
         
         String fqn = binding.getQualifiedName();
         JavaClass jclass = cache.get(fqn);
