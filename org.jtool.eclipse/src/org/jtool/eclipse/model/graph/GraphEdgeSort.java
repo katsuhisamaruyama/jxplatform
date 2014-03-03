@@ -31,7 +31,7 @@ public enum GraphEdgeSort {
     parameterOut,                    // Data dependence with respect to outgoing parameter passing
     summary,                         // Data dependence between actual-in and actual-out nodes
     
-    classMember;
+    classMember;                     // Connection between a class and its members
     
     /**
      * Tests if this edge represents a control flow. 
