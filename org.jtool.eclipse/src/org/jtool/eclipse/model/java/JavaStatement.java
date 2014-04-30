@@ -251,7 +251,20 @@ public class JavaStatement extends JavaElement {
     
     /**
      * Tests if a given statement equals to this.
-     * @param jelem the Java statement
+     * @param obj the Java statement
+     * @return <code>true</code> if the given statement equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaStatement) {
+            JavaStatement js = (JavaStatement)obj;
+            return equals(js);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given statement equals to this.
+     * @param js the Java statement
      * @return <code>true</code> if the given statement equals to this, otherwise <code>false</code>
      */
     public boolean equals(JavaStatement js) {

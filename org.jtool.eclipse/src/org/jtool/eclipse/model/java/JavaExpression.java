@@ -29,6 +29,19 @@ public class JavaExpression extends JavaElement {
     
     /**
      * Tests if a given expression equals to this.
+     * @param obj the Java expression
+     * @return <code>true</code> if the given expression equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaExpression) {
+            JavaExpression je = (JavaExpression)obj;
+            return equals(je);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given expression equals to this.
      * @param je the Java expression
      * @return <code>true</code> if the given expression equals to this, otherwise <code>false</code>
      */

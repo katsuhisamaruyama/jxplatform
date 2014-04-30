@@ -5,12 +5,15 @@
 package org.jtool.eclipse.model.java;
 
 import org.jtool.eclipse.io.FileReader;
+import org.jtool.eclipse.model.java.internal.ExternalJavaClass;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -155,6 +158,19 @@ public class JavaFile {
                 logger.debug("problem: " + problem.getMessage() + problem.getSourceStart());
             }
         }
+    }
+    
+    /**
+     * Tests if a given class or interface equals to this.
+     * @param obj the Java class
+     * @return <code>true</code> if the given class equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaFile) {
+            JavaFile jcu = (JavaFile)obj;
+            return equals(jcu);
+        }
+        return false;
     }
     
     /**

@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -359,6 +358,19 @@ public class JavaMethodCall extends JavaExpression {
      */
     public String getArgumentType(int pos) {
         return argumentTypes.get(pos);
+    }
+    
+    /**
+     * Tests if a given method call equals to this one.
+     * @param obj the method call
+     * @return <code>true</code> if the given method call equals to this one, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaMethodCall) {
+            JavaMethodCall jmc = (JavaMethodCall)obj;
+            return equals(jmc);
+        }
+        return false;
     }
     
     /**

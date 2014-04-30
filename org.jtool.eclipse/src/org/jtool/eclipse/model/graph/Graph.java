@@ -126,6 +126,20 @@ public class Graph<N extends GraphNode, E extends GraphEdge> {
     
     /**
      * Tests if this graph equals to a given graph.
+     * @param obj the graph to be checked.
+     * @return <code>true</code> if the graphs are equal, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof Graph<?, ?>) {
+            @SuppressWarnings("unchecked")
+            Graph<N, E> graph = (Graph<N, E>)obj;
+            return equals(graph);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if this graph equals to a given graph.
      * @param graph the graph to be checked.
      * @return <code>true</code> if the graphs are equal, otherwise <code>false</code>
      */

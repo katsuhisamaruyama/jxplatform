@@ -119,6 +119,19 @@ public class GraphNode extends GraphElement {
      * @param node the node to be checked
      * @return <code>true</code> if the nodes are equal, otherwise <code>false</code>
      */
+    public boolean equals(Object obj) {
+        if (obj instanceof GraphNode) {
+            GraphNode node = (GraphNode)obj;
+            return equals(node);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if this node equals to a given node.
+     * @param node the node to be checked
+     * @return <code>true</code> if the nodes are equal, otherwise <code>false</code>
+     */
     public boolean equals(GraphNode node) {
         return this == node || getId() == node.getId();
     }

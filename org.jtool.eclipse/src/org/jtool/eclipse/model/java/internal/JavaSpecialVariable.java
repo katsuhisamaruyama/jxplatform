@@ -100,6 +100,19 @@ public class JavaSpecialVariable extends JavaVariableAccess {
     
     /**
      * Tests if a given variable equals to this.
+     * @param obj the Java variable
+     * @return <code>true</code> if the given variable equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaVariableAccess) {
+            JavaVariableAccess jv = (JavaVariableAccess)obj;
+            return equals(jv);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given variable equals to this.
      * @param jv the Java variable
      * @return <code>true</code> if the given variable equals to this, otherwise <code>false</code>
      */

@@ -158,6 +158,19 @@ public class JavaPackage {
     
     /**
      * Tests if a given package equals to this.
+     * @param obj the Java package
+     * @return <code>true</code> if the given package equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaPackage) {
+            JavaPackage jp = (JavaPackage)obj;
+            return equals(jp);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given package equals to this.
      * @param jp the Java package
      * @return <code>true</code> if the given package equals to this, otherwise <code>false</code>
      */

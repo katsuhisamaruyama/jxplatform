@@ -65,6 +65,19 @@ public class Dependence extends GraphEdge {
     
     /**
      * Tests if this edge equals to a given edge.
+     * @param obj the edge to be checked
+     * @return <code>true</code> if the edges are equal, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof Dependence) {
+            Dependence edge = (Dependence)obj;
+            return equals(edge);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if this edge equals to a given edge.
      * @param edge the edge to be checked
      * @return <code>true</code> if the edges are equal, otherwise <code>false</code>
      */

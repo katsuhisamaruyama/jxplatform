@@ -124,6 +124,19 @@ public class ExternalJavaMethod extends JavaMethod {
     
     /**
      * Tests if a given method equals to this.
+     * @param obj the Java method
+     * @return <code>true</code> if the given method equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof ExternalJavaMethod) {
+            ExternalJavaMethod jm = (ExternalJavaMethod)obj;
+            return equals(jm);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given method equals to this.
      * @param jm the Java method
      * @return <code>true</code> if the given method equals to this, otherwise <code>false</code>
      */

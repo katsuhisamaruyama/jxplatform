@@ -97,7 +97,7 @@ public class CFG extends Graph<CFGNode, ControlFlow> {
         }
         return null;
     }
-            
+    
     /**
      * Returns the identification number of this CFG.
      * @return the identification number that equals to that of the start node of this CFG.

@@ -204,6 +204,19 @@ public class JavaLocal extends JavaExpression {
     
     /**
      * Tests if a given local variable equals to this.
+     * @param obj the local variable
+     * @return <code>true</code> if the given local equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaLocal) {
+            JavaLocal jl = (JavaLocal)obj;
+            return equals(jl);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given local variable equals to this.
      * @param jl the local variable
      * @return <code>true</code> if the given local equals to this, otherwise <code>false</code>
      */

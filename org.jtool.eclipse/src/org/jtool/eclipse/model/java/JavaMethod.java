@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -632,6 +633,19 @@ public class JavaMethod extends JavaElement {
     public static String getSignature(String str) {
         int index = str.indexOf('#');
         return str.substring(index + 1, str.length());
+    }
+    
+    /**
+     * Tests if a given method equals to this.
+     * @param obj the Java method
+     * @return <code>true</code> if the given method equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaMethod) {
+            JavaMethod jm = (JavaMethod)obj;
+            return equals(jm);
+        }
+        return false;
     }
     
     /**

@@ -398,6 +398,19 @@ public class JavaField extends JavaExpression {
     
     /**
      * Tests if a given field equals to this.
+     * @param obj the Java field
+     * @return <code>true</code> if the given field equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaField) {
+            JavaField jf = (JavaField)obj;
+            return equals(jf);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given field equals to this.
      * @param jf the Java field
      * @return <code>true</code> if the given field equals to this, otherwise <code>false</code>
      */

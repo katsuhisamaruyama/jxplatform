@@ -107,6 +107,19 @@ public class ExternalJavaClass extends JavaClass {
     
     /**
      * Tests if a given class equals to this.
+     * @param obj the class
+     * @return <code>true</code> if the given class equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof ExternalJavaClass) {
+            ExternalJavaClass jc = (ExternalJavaClass)obj;
+            return equals(jc);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given class equals to this.
      * @param jc the class
      * @return <code>true</code> if the given class equals to this, otherwise <code>false</code>
      */

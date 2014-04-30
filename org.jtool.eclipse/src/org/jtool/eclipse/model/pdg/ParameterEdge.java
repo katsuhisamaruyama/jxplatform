@@ -81,6 +81,19 @@ public class ParameterEdge extends DD {
     
     /**
      * Tests if this edge equals to a given edge.
+     * @param obj the edge to be checked
+     * @return <code>true</code> if the edges are equal, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof ParameterEdge) {
+            ParameterEdge edge = (ParameterEdge)obj;
+            return equals(edge);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if this edge equals to a given edge.
      * @param edge the edge to be checked
      * @return <code>true</code> if the edges are equal, otherwise <code>false</code>
      */

@@ -191,6 +191,19 @@ public class JavaVariableAccess extends JavaExpression {
     
     /**
      * Tests if a given variable access equals to this.
+     * @param obj the variable access
+     * @return <code>true</code> if the given variable access equals to this, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof JavaVariableAccess) {
+            JavaVariableAccess jacc = (JavaVariableAccess)obj;
+            return equals(jacc);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if a given variable access equals to this.
      * @param jacc the variable access
      * @return <code>true</code> if the given variable access equals to this, otherwise <code>false</code>
      */

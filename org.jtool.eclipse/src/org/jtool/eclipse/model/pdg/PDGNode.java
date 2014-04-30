@@ -213,6 +213,19 @@ public class PDGNode extends GraphNode {
     
     /**
      * Tests if this node equals to a given node.
+     * @param obj the node to be checked
+     * @return <code>true</code> if the nodes are equal, otherwise <code>false</code>
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof CallEdge) {
+            PDGNode node = (PDGNode)obj;
+            return equals(node);
+        }
+        return false;
+    }
+    
+    /**
+     * Tests if this node equals to a given node.
      * @param node the node to be checked
      * @return <code>true</code> if the nodes are equal, otherwise <code>false</code>
      */
