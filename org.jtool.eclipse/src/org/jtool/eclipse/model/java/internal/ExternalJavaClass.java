@@ -6,6 +6,7 @@ package org.jtool.eclipse.model.java.internal;
 
 import org.jtool.eclipse.model.java.JavaClass;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+
 import java.util.Map;
 import java.util.HashMap;
 
@@ -103,6 +104,14 @@ public class ExternalJavaClass extends JavaClass {
      */
     public boolean isInProject() {
         return false;
+    }
+    
+    /**
+     * Returns the name of the project containing this class.
+     * @return the empty string that represents this class does not belong to a specified project
+     */
+    public String getProjectName() {
+        return "";
     }
     
     /**
