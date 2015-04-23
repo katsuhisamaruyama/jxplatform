@@ -45,6 +45,15 @@ public abstract class GraphElement {
     }
     
     /**
+     * Checks if a given graph element is equal to this.
+     * @param elem the reference graph element with which to compare
+     * @return <code>true</code> if this element is the same as the given element, otherwise <code>false</code>
+     */
+    public boolean equals(GraphElement elem) {
+        return getId() == elem.getId();
+    }
+    
+    /**
      * Displays information about this graph element.
      */
     public abstract void print();
