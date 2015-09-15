@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.cfg.internal;
@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -698,6 +699,41 @@ public class ExpressionVisitor extends ASTVisitor {
     }
     
     /**
+     * Visits an enum constant declaration node and stores its information.
+     * @param node the enum constant declaration node
+     * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
+     */
+    @SuppressWarnings("unchecked")
+    public boolean visit(EnumConstantDeclaration node) {  
+        IMethodBinding binding = node.resolveConstructorBinding();
+        if (binding == null) {
+            return false;
+        }
+        
+        JavaMethodCall jmc = new JavaMethodCall(node, binding, JavaElement.getDeclaringJavaMethod(node));
+        CFGMethodCall callNode = new CFGMethodCall(jmc, GraphNodeSort.constructorCall);
+        
+        boolean createActual = (jmc.getJavaMethod() != null && createActualNodes && callNode.callMethodInProject() && !callNode.callSelf());
+        
+        if (createActual) {
+            createActualIns(jmc, callNode, node.arguments());
+        } else {
+            mergeActualIn(callNode, node.arguments());
+        }
+        
+        insertBeforeCurrentNode(callNode);
+        
+        if (createActual) {
+            createActualOuts(jmc, callNode, node.arguments());
+        } else {
+            mergeActualOut(callNode);
+            curNode.addUseVariable(callNode.getDefVariables().get(0));
+        }
+        
+        return false;
+    }
+    
+    /**
      * Creates a CFG node for actual-in parameters.
      * @param jmc the calling method 
      * @param callNode the CFG node for the method call 
@@ -724,11 +760,21 @@ public class ExpressionVisitor extends ASTVisitor {
         ainNode.setBelongNode(callNode);
         callNode.addActualIn(ainNode);
         
-        CFGMethodEntry methodNode = (CFGMethodEntry)cfg.getStartNode();
-        JavaMethod jm = methodNode.getJavaMethod();
-        JavaVariableAccess jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getArgumentType(ordinal), jm);
-        ainNode.addDefVariable(jvin);
-        paramNumber++;
+        JavaVariableAccess jvin = null;
+        if (cfg.getStartNode() instanceof CFGMethodEntry) {
+            CFGMethodEntry methodNode = (CFGMethodEntry)cfg.getStartNode();
+            JavaMethod jm = methodNode.getJavaMethod();
+            jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getArgumentType(ordinal), jm);
+        } else if (cfg.getStartNode() instanceof CFGFieldEntry) {
+            CFGFieldEntry fieldNode = (CFGFieldEntry)cfg.getStartNode();
+            JavaField jf = fieldNode.getJavaField();
+            jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getArgumentType(ordinal), jf);
+        }
+        
+        if (jvin != null) {
+            ainNode.addDefVariable(jvin);
+            paramNumber++;
+        }
         
         insertBeforeCurrentNode(ainNode);
         
@@ -751,8 +797,8 @@ public class ExpressionVisitor extends ASTVisitor {
             CFGParameter ain = callNode.getActualIn(ordinal);
             
             if (ain.getDefVariables().size() == 1) {
-                JavaVariableAccess jacc = ain.getUseVariable();
-                if (!jacc.isPrimitiveType()) {
+                JavaVariableAccess jacc = ain.getDefVariable();
+                if (!jacc.isPrimitiveType() && ain.getUseVariables().size() != 0) {
                     createActualOut(jmc, callNode, ain);
                 }
             }
@@ -792,15 +838,29 @@ public class ExpressionVisitor extends ASTVisitor {
         aoutNode.setBelongNode(callNode);
         callNode.addActualOut(aoutNode);
         
-        CFGMethodEntry methodNode = (CFGMethodEntry)cfg.getStartNode();
-        JavaMethod jm = methodNode.getJavaMethod();
-        JavaVariableAccess jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getReturnType(), jm);
-        aoutNode.addDefVariable(jvin);
-        paramNumber++;
+        JavaVariableAccess jvin = null;
+        JavaVariableAccess jvout = null;
+        if (cfg.getStartNode() instanceof CFGMethodEntry) {
+            CFGMethodEntry methodNode = (CFGMethodEntry)cfg.getStartNode();
+            JavaMethod jm = methodNode.getJavaMethod();
+            jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getReturnType(), jm);
+            jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + jmc.getName(), jmc.getReturnType(), jm);
+        } else if (cfg.getStartNode() instanceof CFGFieldEntry) {
+            CFGFieldEntry fieldNode = (CFGFieldEntry)cfg.getStartNode();
+            JavaField jf = fieldNode.getJavaField();
+            jvin = new JavaSpecialVariable("$" + String.valueOf(paramNumber), jmc.getReturnType(), jf);
+            jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + jmc.getName(), jmc.getReturnType(), jf);
+        }
         
-        JavaVariableAccess jvout = new JavaSpecialVariable("$" + String.valueOf(paramNumber) + "!" + jmc.getName(), jmc.getReturnType(), jm);
-        aoutNode.addUseVariable(jvout);
-        paramNumber++;
+        if (jvin != null) {
+            aoutNode.addDefVariable(jvin);
+            paramNumber++;
+        }
+        
+        if (jvout != null) {
+            aoutNode.addUseVariable(jvout);
+            paramNumber++;
+        }
         
         insertBeforeCurrentNode(aoutNode);
         

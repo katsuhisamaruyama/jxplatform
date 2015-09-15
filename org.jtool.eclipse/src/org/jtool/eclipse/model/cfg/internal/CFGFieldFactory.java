@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.cfg.internal;
@@ -15,6 +15,7 @@ import org.jtool.eclipse.model.java.JavaField;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 
 /**
  * Visits a field within a Java program and creates its CFG. 
@@ -45,13 +46,21 @@ public class CFGFieldFactory {
         cfg.add(edge);
         
         CFGNode curNode = fieldNode;
-        VariableDeclarationFragment frag = (VariableDeclarationFragment)jf.getASTNode();
-        Expression initializer = frag.getInitializer();
-        if (initializer != null) {
-            ExpressionVisitor visitor = new ExpressionVisitor(cfg, fieldNode);
-            initializer.accept(visitor);
+        if (jf.getASTNode() instanceof VariableDeclarationFragment) {
+            VariableDeclarationFragment frag = (VariableDeclarationFragment)jf.getASTNode();
+            Expression initializer = frag.getInitializer();
+            if (initializer != null) {
+                ExpressionVisitor visitor = new ExpressionVisitor(cfg, fieldNode);
+                initializer.accept(visitor);
+                curNode = visitor.getExitNode();
+            }
             
-            curNode = visitor.getExitNode();
+        } else if (jf.getASTNode() instanceof EnumConstantDeclaration) {
+            EnumConstantDeclaration enumdecl = (EnumConstantDeclaration)jf.getASTNode();
+            if (enumdecl.resolveConstructorBinding() != null) {
+                ExpressionVisitor visitor = new ExpressionVisitor(cfg, fieldNode);
+                enumdecl.accept(visitor);
+            }
         }
         
         CFGExit exit = new CFGExit(GraphNodeSort.fieldExit);

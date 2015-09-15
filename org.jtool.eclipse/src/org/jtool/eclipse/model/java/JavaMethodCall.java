@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
@@ -13,10 +13,10 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -199,6 +199,33 @@ public class JavaMethodCall extends JavaExpression {
      */
     @SuppressWarnings("unchecked")
     public JavaMethodCall(ClassInstanceCreation node, IMethodBinding binding, JavaMethod jm) {
+        super(node);
+        
+        if (binding != null) {
+            name = binding.getName();
+            signature = getSignature(binding);
+            type = binding.getName();
+            
+            setArguments(node.arguments());
+            setArgumentTypes(binding);
+            
+            declaringMethod = jm;
+            classNameOfCalledMethod = binding.getDeclaringClass().getQualifiedName();
+            
+        } else {
+            name = ".UNKNOWN";
+            bindingOk = false;
+        }
+    }
+    
+    /**
+     * Creates a new object representing enum constant creation with a constructor call.
+     * @param node an AST node for this call
+     * @param binding the method binding for this call
+     * @param jm the method containing this call
+     */
+    @SuppressWarnings("unchecked")
+    public JavaMethodCall(EnumConstantDeclaration node, IMethodBinding binding, JavaMethod jm) {
         super(node);
         
         if (binding != null) {
