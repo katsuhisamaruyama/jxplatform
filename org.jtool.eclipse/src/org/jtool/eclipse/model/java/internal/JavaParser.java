@@ -32,7 +32,7 @@ public class JavaParser {
      * Creates a new Java language parser.
      */
     public JavaParser() {
-        parser = ASTParser.newParser(AST.JLS8);
+        parser = ASTParser.newParser(AST.JLS4);
     }
     
     /**

@@ -131,7 +131,7 @@ public class JavaModelFactoryInExternalProject extends JavaModelFactory {
      */
     private void createJavaModel(final Set<File> files) {
         try {
-            JavaParser parser = new JavaParser();
+            final JavaParser parser = new JavaParser();
             IWorkbenchWindow workbenchWindow = Activator.getWorkbenchWindow();
             workbenchWindow.run(true, true, new IRunnableWithProgress() {
                 
