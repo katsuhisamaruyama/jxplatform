@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
@@ -142,6 +142,10 @@ public class TypeCollector extends ASTVisitor {
      */
     private boolean isInProject(ITypeBinding tbinding) {
         IJavaProject project = jproject.getJavaProject();
+        if (project == null) {
+            return true;
+        }
+        
         try {
             IType type = project.findType(tbinding.getQualifiedName());
             if (type != null) {

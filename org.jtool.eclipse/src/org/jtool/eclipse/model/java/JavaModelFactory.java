@@ -1,61 +1,38 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
 
-import org.jtool.eclipse.Activator;
-import org.jtool.eclipse.model.java.internal.JavaParser;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IWorkbenchWindow;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import org.apache.log4j.Logger;
 
 /**
  * Creates Java Model within the project.
  * @author Katsuhisa Maruyama
  */
-public class JavaModelFactory {
+public abstract class JavaModelFactory {
     
     static Logger logger = Logger.getLogger(JavaModelFactory.class.getName());
     
     /**
-     * A project in the workspace.
-     */
-    private IJavaProject project;
-    
-    /**
      * An object that stores information on project, which provides access all the information resulting from the analysis.
      */
-    private JavaProject jproject;
+    protected JavaProject jproject;
     
     /**
      * A visitor that visits the created AST of Java source code.
      */
-    private JavaASTVisitor visitor = null;
+    protected JavaASTVisitor visitor = null;
     
     /**
-     * Creates a factory object that creates models of Java programs.
-     * @param proj the project in the workspace
+     * Creates a new, empty object.
      */
-    public JavaModelFactory(IJavaProject proj) {
+    protected JavaModelFactory() {
         super();
-        
-        project = proj;
-        jproject = JavaProject.create(project);
     }
     
     /**
@@ -67,7 +44,7 @@ public class JavaModelFactory {
     }
     
     /**
-     * Creates models for Java programs within the project.
+     * Creates models for Java programs.
      * @return the created project information
      */
     public JavaProject create() {
@@ -78,11 +55,8 @@ public class JavaModelFactory {
         
         long start = System.currentTimeMillis();
         
-        Set<ICompilationUnit> cunits = collectAllCompilationUnits();
-        removeUnchangedCompilationUnits(cunits);
-        Set<ICompilationUnit> pcunits = collectCompilationUnitsToBeParsed(cunits);
-                
-        createJavaModel(pcunits);
+        parse();
+        
         JavaElement.setBindingLevel(1);
         
         collectLevel2Info();
@@ -94,7 +68,6 @@ public class JavaModelFactory {
         double minutes = elapsedTime / (60 * 1000);
         double seconds = elapsedTime / 1000;
         
-        logger.info("analyzed files = " + pcunits.size());
         logger.info("total files = " + jproject.getJavaFiles().size());
         logger.info("execution time: " + minutes + "m / " + seconds + "s / " + elapsedTime + "ms");
         
@@ -102,182 +75,16 @@ public class JavaModelFactory {
     }
     
     /**
-     * Collects all compilation units within the project.
-     * @return the collection of the compilation units
+     * Parses Java programs.
      */
-    private Set<ICompilationUnit> collectAllCompilationUnits() {
-        Set<ICompilationUnit> newUnits = new HashSet<ICompilationUnit>();
-        try {
-            IPackageFragment[] packages = project.getPackageFragments();
-            for (int i = 0; i < packages.length; i++) {
-                ICompilationUnit[] units = packages[i].getCompilationUnits();
-                   
-                for (int j = 0; j < units.length; j++) {
-                    IResource res = units[j].getResource();
-                    if (res.getType() == IResource.FILE) {
-                        
-                        String pathname = units[j].getPath().toString();
-                        if (pathname.endsWith(".java")) { 
-                            newUnits.add(units[j]);
-                        }
-                    }
-                }
-            }
-        } catch (JavaModelException e) {
-            logger.error("JavaModelException occurred: " + e.getMessage());
-        }
-        
-        return newUnits;
-    }
-    
-    /**
-     * Removes unchanged compilation units from the project store.
-     * @param cunits the collection of all the compilation units within the project
-     */
-    private void removeUnchangedCompilationUnits(Set<ICompilationUnit> cunits) {
-        for (ICompilationUnit icu : cunits) {
-            try {
-                if (icu.hasUnsavedChanges()) {
-                    JavaProject jproj = JavaProject.getJavaProject(jproject.getName());
-                    if (jproj != null) {
-                        jproj.removeJavaFile(icu.getPath().toString());
-                    }
-                }
-            } catch (JavaModelException e) {
-                logger.error("JavaModelException occurred: " + e.getMessage());
-            }
-        }
-    }
-    
-    /**
-     * Collects compilation units to be parsed within the project.
-     * @param cunits the collection of all the compilation units within the project
-     * @return the collection of compilation units to be parsed
-     */
-    private Set<ICompilationUnit> collectCompilationUnitsToBeParsed(Set<ICompilationUnit> cunits) {
-        Set<ICompilationUnit> newUnits = new HashSet<ICompilationUnit>();
-        for (ICompilationUnit icu : cunits) {
-            String pathname = icu.getPath().toString();
-            if (jproject.getJavaFile(pathname) == null) {
-                newUnits.add(icu);
-            }
-        }
-        return newUnits;
-    }
-    
-    /**
-     * Creates a model from Java programs.
-     * @param junits the collection of compilation unit that requires parsing
-     */
-    private void createJavaModel(final Set<ICompilationUnit> cunits) {
-        try {
-            IWorkbenchWindow workbenchWindow = Activator.getWorkbenchWindow();
-            workbenchWindow.run(true, true, new IRunnableWithProgress() {
-                
-                /**
-                 * Creates a model by parsing Java files.
-                 * @param monitor the progress monitor to use to display progress and receive requests for cancellation
-                 * @exception InvocationTargetException if the run method must propagate a checked exception
-                 * @exception InterruptedException if the operation detects a request to cancel
-                 */
-                @Override
-                public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    monitor.beginTask("Parsing files... ", cunits.size());
-                    
-                    int idx = 1;
-                    for (ICompilationUnit icu : cunits) {
-                        monitor.subTask(idx + "/" + cunits.size() + " - " + icu.getPath().toString());
-                        
-                        try {
-                            createJavaModel(icu);
-                        } catch (NullPointerException e) {
-                            System.err.println("* Fatal error occurred. Skip the paser of " + icu.getPath().toString());
-                            /*
-                            for (StackTraceElement elem : e.getStackTrace()) {
-                                System.out.println(elem.toString());
-                            }
-                            */
-                        }
-                        
-                        if (monitor.isCanceled()) {
-                            monitor.done();
-                            throw new InterruptedException();
-                        }
-                        monitor.worked(1);
-                        idx++;
-                    }
-                    monitor.done();
-                }
-                
-            });
-            
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            System.err.println("* InvocationTargetException occurred because " + cause);
-        } catch (InterruptedException e) {
-            return;
-        }
-    }
-    
-    /**
-     * Creates a model from a given compilation unit.
-     * @param icu the compilation unit that requires parsing
-     */
-    private void createJavaModel(ICompilationUnit icu) {
-        JavaParser parser = JavaParser.create();
-        CompilationUnit cu = (CompilationUnit)parser.parse(icu);
-        
-        if (cu != null) {
-            List<IProblem> errors = getParseErrors(cu);
-            if (errors.size() == 0) {
-                logger.debug("complete parse: " + icu.getPath().toString());
-            } else {
-                logger.debug("incomplete parse: " + icu.getPath().toString());
-            }
-            
-            JavaFile jfile = new JavaFile(icu, jproject);
-            jfile.setParseErrors(errors);
-            
-            visitor.setJavaFile(jfile);
-            cu.accept(visitor);
-            visitor.close();
-            
-            jproject.addJavaFile(jfile);
-        }
-    }
-    
-    /**
-     * Creates a model from a Java program stored in a given file.
-     * @param file the file that requires parsing
-     * @param jproject the project containing the file
-     */
-    protected void createJavaModel(File file, JavaProject jproject) {
-        JavaParser parser = JavaParser.create();
-        CompilationUnit cu = parser.parse(file, jproject);
-        
-        if (cu != null) {
-            List<IProblem> errors = getParseErrors(cu);
-            if (errors.size() == 0) {
-                logger.debug("complete parse: " + file.getAbsoluteFile().getName());
-            } else {
-                logger.debug("incomplete parse: " + file.getAbsoluteFile().getName());
-            }
-            
-            JavaFile jfile = new JavaFile(file.getAbsoluteFile().getName(), jproject);
-            jfile.setParseErrors(errors);
-            jproject.addJavaFile(jfile);
-            
-            cu.accept(visitor);
-            visitor.close();
-        }
-    }
+    protected abstract void parse();
     
     /**
      * Obtains the collection of parse errors for a compilation unit.
      * @param cu the parsed compilation unit
      * @return the collection of parse errors
      */
-    private List<IProblem> getParseErrors(CompilationUnit cu) {
+    protected List<IProblem> getParseErrors(CompilationUnit cu) {
         List<IProblem> errors = new ArrayList<IProblem>();
         
         IProblem[] problems = cu.getProblems();
@@ -294,7 +101,7 @@ public class JavaModelFactory {
     /**
      * Collects additional information on classes, methods, and fields within a project.
      */
-    private void collectLevel2Info() {
+    protected void collectLevel2Info() {
         for (JavaClass jc : jproject.getJavaClasses()) {
             jc.collectLevel2Info();
             
@@ -323,7 +130,7 @@ public class JavaModelFactory {
     /**
      * Collects additional information on packages.
      */
-    private void collectLevel3Info() {
+    protected void collectLevel3Info() {
         for (JavaPackage jp : jproject.getJavaPackages()) {
             jp.collectLevel3Info();
             if (!jp.isBindingOk()) {

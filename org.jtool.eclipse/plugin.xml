@@ -16,6 +16,10 @@
             class="org.jtool.eclipse.handlers.CreateCFGPDGAction"
             commandId="org.jtool.eclipse.commands.CreateCFGPDGAction">
       </handler>
+      <handler
+            class="org.jtool.eclipse.handlers.ParseExternalProjectAction"
+            commandId="org.jtool.eclipse.commands.ParseExternalProject">
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -54,6 +58,19 @@
                   style="push">
             </command>
          </menu>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.jtool.eclipse.toolbar">
+            <command
+                  commandId="org.jtool.eclipse.commands.ParseExternalProject"
+                  icon="icons/jtool16.png"
+                  label="Parse External Project"
+                  style="push">
+            </command>
+         </toolbar>
       </menuContribution>
    </extension>
    <extension

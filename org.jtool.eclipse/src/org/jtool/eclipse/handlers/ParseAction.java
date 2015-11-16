@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
  
 package org.jtool.eclipse.handlers;
@@ -7,6 +7,7 @@ package org.jtool.eclipse.handlers;
 import org.jtool.eclipse.model.graph.GraphNodeIdPublisher;
 import org.jtool.eclipse.model.java.JavaASTDefaultVisitor;
 import org.jtool.eclipse.model.java.JavaModelFactory;
+import org.jtool.eclipse.model.java.JavaModelFactoryInWorkspace;
 import org.jtool.eclipse.model.java.JavaProject;
 import org.jtool.eclipse.model.java.JavaClass;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -31,7 +32,7 @@ public class ParseAction extends JtoolHandler {
             JavaProject.removeAllCache();
             GraphNodeIdPublisher.reset();
             
-            JavaModelFactory factory = new JavaModelFactory(project);
+            JavaModelFactory factory = new JavaModelFactoryInWorkspace(project);
             factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
             JavaProject jproject = factory.create();
             

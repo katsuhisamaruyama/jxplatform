@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java;
@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  */
 public class JavaProject {
     
-    static Logger logger = Logger.getLogger(JavaFile.class.getName());
+    static Logger logger = Logger.getLogger(JavaProject.class.getName());
     
     /**
      * The cache for all objects of classes.
@@ -72,7 +72,7 @@ public class JavaProject {
      * @param name the name of the project
      * @param dir the top directory of the project
      */
-    private JavaProject(IJavaProject project, String name, String dir) {
+    JavaProject(IJavaProject project, String name, String dir) {
         this.project = project;
         this.name = name;
         this.topDir = dir;
@@ -87,7 +87,7 @@ public class JavaProject {
         String name = project.getProject().getName();
         String dir = project.getProject().getLocation().toString();
         
-        return create(project, name, dir);
+        return createJavaProject(project, name, dir);
     }
     
     /**
@@ -96,7 +96,7 @@ public class JavaProject {
      * @param dir the top directory of the project
      */
     public static JavaProject create(String name, String dir) {
-        return create(null, name, dir);
+        return createJavaProject(null, name, dir);
     }
     
     /**
@@ -105,8 +105,8 @@ public class JavaProject {
      * @param name the name of the project
      * @param dir the top directory of the project
      */
-    private static JavaProject create(IJavaProject project, String name, String dir) {
-        if (dir != null) {
+    private static JavaProject createJavaProject(IJavaProject project, String name, String dir) {
+        if (name != null && dir != null) {
             JavaProject jproj = cache.get(name);
             if (jproj != null) {
                 return jproj;
@@ -150,6 +150,18 @@ public class JavaProject {
                 cache.remove(jproj.getName());
             }
         }
+    }
+    
+    /**
+     * Removes every information about this project stored in the cache.
+     */
+    public static void removeCache(String name) {
+        for (JavaProject jproj : cache.values()) {
+            jproj.getJavaPackages().clear();
+        }
+        cache.clear();
+        
+        JavaClass.removeAllClassesInCache();
     }
     
     /**

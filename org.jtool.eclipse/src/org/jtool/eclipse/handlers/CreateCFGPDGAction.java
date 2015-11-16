@@ -1,11 +1,12 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
  
 package org.jtool.eclipse.handlers;
 
 import org.jtool.eclipse.model.graph.GraphNodeIdPublisher;
 import org.jtool.eclipse.model.java.JavaModelFactory;
+import org.jtool.eclipse.model.java.JavaModelFactoryInWorkspace;
 import org.jtool.eclipse.model.cfg.CFGFactory;
 import org.jtool.eclipse.model.cfg.CFG;
 import org.jtool.eclipse.model.pdg.PDGFactory;
@@ -40,7 +41,7 @@ public class CreateCFGPDGAction extends JtoolHandler {
             JavaProject.removeAllCache();
             GraphNodeIdPublisher.reset();
             
-            JavaModelFactory factory = new JavaModelFactory(project);
+            JavaModelFactory factory = new JavaModelFactoryInWorkspace(project);
             factory.setJavaASTVisitor(new JavaASTDefaultVisitor());
             JavaProject jproject = factory.create();
             

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2015, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.java.internal;
@@ -164,6 +164,10 @@ public class MethodCallCollector extends ASTVisitor {
      */
     private boolean isInProject(IMethodBinding mbinding) {
         IJavaProject project = jproject.getJavaProject();
+        if (project == null) {
+            return true;
+        }
+        
         try {
             IType type = project.findType(mbinding.getDeclaringClass().getQualifiedName());
             if (type != null) {
