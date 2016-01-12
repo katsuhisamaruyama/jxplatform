@@ -6,13 +6,17 @@ package org.jtool.eclipse.model.java.internal;
 
 import org.jtool.eclipse.io.DetectCharset;
 import org.jtool.eclipse.io.FileReader;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -33,6 +37,13 @@ public class JavaParser {
      */
     public JavaParser() {
         parser = ASTParser.newParser(AST.JLS4);
+        
+        @SuppressWarnings("unchecked")
+        Map<String, String> options = JavaCore.getOptions();
+        options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+        options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+        parser.setCompilerOptions(options);
     }
     
     /**
