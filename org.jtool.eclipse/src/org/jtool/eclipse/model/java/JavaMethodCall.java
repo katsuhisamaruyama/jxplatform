@@ -384,7 +384,7 @@ public class JavaMethodCall extends JavaExpression {
      * @return the string of the found argument type, <code>null</code> if no argument was found
      */
     public String getArgumentType(int pos) {
-        return argumentTypes.get(pos);
+        return argumentTypes.get(Math.min(pos, argumentTypes.size() - 1));
     }
     
     /**

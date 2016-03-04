@@ -206,10 +206,10 @@ public class SDGFactory {
      * @param callee the CFG entry node corresponding to the called method
      */
     private static void connectParameters(SDG sdg, CFGMethodCall caller, CFGMethodEntry callee) {
-        for (int ordinal = 0; ordinal < callee.getFormalIns().size(); ordinal++) {
+        for (int ordinal = 0; ordinal < caller.getActualIns().size(); ordinal++) {
             
             CFGParameter ain = caller.getActualIn(ordinal);
-            CFGParameter fin = callee.getFormalIn(ordinal);
+            CFGParameter fin = callee.getFormalIn(Math.min(ordinal, callee.getFormalIns().size() - 1));
             
             JavaVariableAccess jv = fin.getUseVariables().get(0);
             ParameterEdge pinedge = new ParameterEdge(ain.getPDGNode(), fin.getPDGNode(), jv);
