@@ -100,6 +100,7 @@ import org.apache.log4j.Logger;
  * 
  * @see org.eclipse.jdt.core.dom.Expression
  * @author Katsuhisa Maruyama
+ * Thanks for Fumiki Minami
  */
 public class ExpressionVisitor extends ASTVisitor {
     
@@ -704,7 +705,7 @@ public class ExpressionVisitor extends ASTVisitor {
      * @return <code>true</code> if this visit is continued inside, otherwise <code>false</code>
      */
     @SuppressWarnings("unchecked")
-    public boolean visit(EnumConstantDeclaration node) {  
+    public boolean visit(EnumConstantDeclaration node) {
         IMethodBinding binding = node.resolveConstructorBinding();
         if (binding == null) {
             return false;
@@ -784,6 +785,8 @@ public class ExpressionVisitor extends ASTVisitor {
         argument.accept(this);
         analysingDefinedVariables.pop();
         curNode = tmpNode;
+        
+        ainNode.setSort(GraphNodeSort.actualIn);
     }
     
     /**
@@ -796,9 +799,9 @@ public class ExpressionVisitor extends ASTVisitor {
         for (int ordinal = 0; ordinal < arguments.size(); ordinal++) {
             CFGParameter ain = callNode.getActualIn(ordinal);
             
-            if (ain.getDefVariables().size() == 1) {
+            if (ain.getUseVariables().size() == 1) {
                 JavaVariableAccess jacc = ain.getDefVariable();
-                if (!jacc.isPrimitiveType() && ain.getUseVariables().size() != 0) {
+                if (!jacc.isPrimitiveType() && ain.getUseVariables().size() != 0 && ain.isJavaLocal()) {
                     createActualOut(jmc, callNode, ain);
                 }
             }

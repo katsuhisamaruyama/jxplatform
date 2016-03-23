@@ -1,16 +1,18 @@
 /*
- *  Copyright 2014, Katsuhisa Maruyama (maru@jtool.org)
+ *  Copyright 2016, Katsuhisa Maruyama (maru@jtool.org)
  */
 
 package org.jtool.eclipse.model.cfg;
 
 import org.jtool.eclipse.model.graph.GraphNodeSort;
+import org.jtool.eclipse.model.java.JavaExpression;
 import org.jtool.eclipse.model.java.JavaLocal;
 import org.jtool.eclipse.model.java.JavaVariableAccess;
 
 /**
  * A node for a parameter of a method declaration.
  * @author Katsuhisa Maruyama
+ * Thanks for Fumiki Minami
  */
 public class CFGParameter extends CFGStatement {
     
@@ -40,12 +42,12 @@ public class CFGParameter extends CFGStatement {
     }
     
     /**
-     * Creates a new node corresponding to a given Java element.
-     * @param jelem the Java statement
+     * Creates a new node corresponding to a given Java expression element.
+     * @param jelem the Java expression
      * @param sort the sort of this node
      * @param num the ordinal number of this parameter
      */
-    public CFGParameter(JavaLocal jelem, GraphNodeSort sort, int num) {
+    public CFGParameter(JavaExpression jelem, GraphNodeSort sort, int num) {
         super(jelem, sort);
         ordinal = num;
     }
@@ -99,11 +101,19 @@ public class CFGParameter extends CFGStatement {
     }
     
     /**
+     * Tests if this parameter is a single variable.
+     * @return <code>true</code> if this parameter is a single variable, otherwise <code>false</code>
+     */
+    public boolean isJavaLocal() {
+        return getJavaElement() instanceof JavaLocal;
+    }
+    
+    /**
      * Returns the information of this parameter.
      * @return the information of this parameter
      */
-    public JavaLocal getJavaExpression() {
-        return (JavaLocal)getJavaElement();
+    public JavaExpression getJavaExpression() {
+        return (JavaExpression)getJavaElement();
     }
     
     /**
