@@ -112,8 +112,10 @@ public class GraphEdge extends GraphElement {
      */
     public void setSrcNode(GraphNode node) {
         src.removeOutgoingEdge(this);
+        dst.removeIncomingEdge(this);
         src = node;
         src.addOutgoingEdge(this);
+        dst.addIncomingEdge(this);
     }
     
     /**
@@ -121,8 +123,10 @@ public class GraphEdge extends GraphElement {
      * @param node the destination node
      */
     public void setDstNode(GraphNode node) {
+        src.removeOutgoingEdge(this);
         dst.removeIncomingEdge(this);
         dst = node;
+        src.addOutgoingEdge(this);
         dst.addIncomingEdge(this);
     }
     
