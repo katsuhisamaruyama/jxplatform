@@ -40,4 +40,4 @@ Export-Package: org.jtool.eclipse;uses:="org.eclipse.ui.plugin,org.osgi.framewor
    org.jtool.eclipse.model.graph,
    org.jtool.eclipse.model.cfg",
  org.jtool.eclipse.model.pdg.internal
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
